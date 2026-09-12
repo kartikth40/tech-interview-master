@@ -74,27 +74,27 @@ Microservices architecture splits a monolithic application into small, independe
 
 ### **Pattern 1: Synchronous (HTTP/REST, gRPC)**
 
-```javascript
-// Order Service calls Payment Service via HTTP
+```text
+# Order Service calls Payment Service via HTTP
 
-async function createOrder(req, res) {
-  const order = await db.orders.create(req.body);
-  
-  // Synchronous call to Payment Service
-  const paymentResponse = await axios.post('http://payment-service/api/charge', {
-    orderId: order.id,
-    amount: order.total,
-    userId: order.userId
-  });
-  
-  if (paymentResponse.data.status === 'success') {
-    order.status = 'PAID';
-    await order.save();
-    res.json({ success: true, orderId: order.id });
-  } else {
-    res.status(400).json({ error: 'Payment failed' });
-  }
-}
+FUNCTION createOrder(request)
+    order = DB_CREATE("orders", request.body)
+
+    # Synchronous call to Payment Service
+    paymentResponse = HTTP_POST("http://payment-service/api/charge", {
+        orderId: order.id,
+        amount: order.total,
+        userId: order.userId
+    })
+
+    IF paymentResponse.status == "success" THEN
+        order.status = "PAID"
+        DB_SAVE(order)
+        RETURN RESPONSE(200, { success: true, orderId: order.id })
+    ELSE
+        RETURN RESPONSE(400, { error: "Payment failed" })
+    END IF
+END FUNCTION
 ```
 
 **Pros:**
@@ -110,46 +110,45 @@ async function createOrder(req, res) {
 
 ### **Pattern 2: Asynchronous (Message Queue/Event Bus)**
 
-```javascript
-// Order Service publishes event, Payment Service subscribes
+```text
+# Order Service publishes event, Payment Service subscribes
 
-// Order Service
-async function createOrder(req, res) {
-  const order = await db.orders.create({
-    ...req.body,
-    status: 'PENDING'
-  });
-  
-  // Publish event (non-blocking)
-  await eventBus.publish('order.created', {
-    orderId: order.id,
-    userId: order.userId,
-    amount: order.total
-  });
-  
-  // Return immediately
-  res.json({ success: true, orderId: order.id, status: 'PENDING' });
-}
+# Order Service
+FUNCTION createOrder(request)
+    order = DB_CREATE("orders", MERGE(request.body, { status: "PENDING" }))
 
-// Payment Service (separate process)
-eventBus.subscribe('order.created', async (event) => {
-  const { orderId, userId, amount } = event;
-  
-  const paymentResult = await chargeUser(userId, amount);
-  
-  // Publish result
-  await eventBus.publish('payment.processed', {
-    orderId,
-    status: paymentResult.status
-  });
-});
+    # Publish event (non-blocking)
+    PUBLISH("order.created", {
+        orderId: order.id,
+        userId: order.userId,
+        amount: order.total
+    })
 
-// Order Service listens for payment result
-eventBus.subscribe('payment.processed', async (event) => {
-  await db.orders.update(event.orderId, {
-    status: event.status === 'success' ? 'PAID' : 'FAILED'
-  });
-});
+    # Return immediately
+    RETURN RESPONSE(200, { success: true, orderId: order.id, status: "PENDING" })
+END FUNCTION
+
+# Payment Service (separate process)
+ON EVENT("order.created") AS event
+    orderId = event.orderId
+    userId  = event.userId
+    amount  = event.amount
+
+    paymentResult = chargeUser(userId, amount)
+
+    # Publish result
+    PUBLISH("payment.processed", {
+        orderId: orderId,
+        status: paymentResult.status
+    })
+END ON
+
+# Order Service listens for payment result
+ON EVENT("payment.processed") AS event
+    DB_UPDATE("orders", event.orderId, {
+        status: IF event.status == "success" THEN "PAID" ELSE "FAILED"
+    })
+END ON
 ```
 
 **Pros:**
@@ -170,34 +169,20 @@ eventBus.subscribe('payment.processed', async (event) => {
 
 Single entry point for all clients. Routes requests to appropriate microservices.
 
-```javascript
-// API Gateway (Node.js + Express)
+```text
+# API Gateway (pseudocode)
 
-const express = require('express');
-const httpProxy = require('http-proxy');
-const app = express();
+# Route each path prefix to the matching backend service
+ROUTE "/api/users"    -> PROXY TO "http://user-service:3001"
+ROUTE "/api/products" -> PROXY TO "http://product-service:3002"
+ROUTE "/api/orders"   -> PROXY TO "http://order-service:3003"
 
-const proxy = httpProxy.createProxyServer();
+# Cross-cutting concerns applied to every request
+USE authenticationMiddleware   # Centralized auth
+USE rateLimitMiddleware        # Rate limiting
+USE loggingMiddleware          # Request logging
 
-// Route to services
-app.use('/api/users', (req, res) => {
-  proxy.web(req, res, { target: 'http://user-service:3001' });
-});
-
-app.use('/api/products', (req, res) => {
-  proxy.web(req, res, { target: 'http://product-service:3002' });
-});
-
-app.use('/api/orders', (req, res) => {
-  proxy.web(req, res, { target: 'http://order-service:3003' });
-});
-
-// Cross-cutting concerns
-app.use(authenticationMiddleware);  // Centralized auth
-app.use(rateLimitMiddleware);       // Rate limiting
-app.use(loggingMiddleware);         // Request logging
-
-app.listen(80);
+LISTEN ON port 80
 ```
 
 **Responsibilities:**
@@ -214,42 +199,36 @@ app.listen(80);
 
 Services register themselves and discover other services dynamically.
 
-```javascript
-// Using Consul for service discovery
+```text
+# Service registry + discovery (pseudocode)
 
-const Consul = require('consul');
-const consul = new Consul();
+# Service Registration (on startup)
+FUNCTION registerService()
+    REGISTRY_REGISTER({
+        name: "user-service",
+        address: "10.0.1.5",
+        port: 3001,
+        healthCheck: {
+            url: "http://10.0.1.5:3001/health",
+            interval: "10s"
+        }
+    })
+    PRINT "Service registered"
+END FUNCTION
 
-// Service Registration (on startup)
-async function registerService() {
-  await consul.agent.service.register({
-    name: 'user-service',
-    address: '10.0.1.5',
-    port: 3001,
-    check: {
-      http: 'http://10.0.1.5:3001/health',
-      interval: '10s'
-    }
-  });
-  console.log('Service registered');
-}
+# Service Discovery (when calling another service)
+FUNCTION callPaymentService(data)
+    # Get available healthy instances
+    services = REGISTRY_LOOKUP("payment-service")
 
-// Service Discovery (when calling another service)
-async function callPaymentService(data) {
-  // Get available instances
-  const services = await consul.health.service('payment-service');
-  
-  // Pick one (load balance)
-  const instance = services[Math.floor(Math.random() * services.length)];
-  
-  // Call it
-  const response = await axios.post(
-    `http://${instance.Service.Address}:${instance.Service.Port}/charge`,
-    data
-  );
-  
-  return response.data;
-}
+    # Pick one (load balance)
+    instance = services[RANDOM_INDEX(services)]
+
+    # Call it
+    response = HTTP_POST("http://" + instance.address + ":" + instance.port + "/charge", data)
+
+    RETURN response
+END FUNCTION
 ```
 
 **Popular Tools:**
@@ -264,35 +243,35 @@ async function callPaymentService(data) {
 
 Distributes traffic across multiple service instances.
 
-```javascript
-// Client-side load balancing with Round Robin
+```text
+# Client-side load balancing with Round Robin
 
-class LoadBalancer {
-  constructor(services) {
-    this.services = services;  // ['http://service1:3000', 'http://service2:3000']
-    this.currentIndex = 0;
-  }
-  
-  getNextService() {
-    const service = this.services[this.currentIndex];
-    this.currentIndex = (this.currentIndex + 1) % this.services.length;
-    return service;
-  }
-  
-  async request(path, data) {
-    const service = this.getNextService();
-    return axios.post(`${service}${path}`, data);
-  }
-}
+CLASS LoadBalancer
+    FUNCTION init(services)
+        this.services = services   # list of service base URLs
+        this.currentIndex = 0
+    END FUNCTION
 
-const lb = new LoadBalancer([
-  'http://payment-service-1:3000',
-  'http://payment-service-2:3000',
-  'http://payment-service-3:3000'
-]);
+    FUNCTION getNextService()
+        service = this.services[this.currentIndex]
+        this.currentIndex = (this.currentIndex + 1) MOD LENGTH(this.services)
+        RETURN service
+    END FUNCTION
 
-// Usage
-await lb.request('/charge', { amount: 100 });
+    FUNCTION request(path, data)
+        service = this.getNextService()
+        RETURN HTTP_POST(service + path, data)
+    END FUNCTION
+END CLASS
+
+lb = new LoadBalancer([
+    "http://payment-service-1:3000",
+    "http://payment-service-2:3000",
+    "http://payment-service-3:3000"
+])
+
+# Usage
+lb.request("/charge", { amount: 100 })
 ```
 
 **Load Balancing Strategies:**
@@ -308,59 +287,59 @@ await lb.request('/charge', { amount: 100 });
 
 Prevents cascading failures when downstream service is failing.
 
-```javascript
-class CircuitBreaker {
-  constructor(serviceCall, options = {}) {
-    this.serviceCall = serviceCall;
-    this.failureThreshold = options.failureThreshold || 5;
-    this.timeout = options.timeout || 60000;
-    this.state = 'CLOSED';  // CLOSED, OPEN, HALF_OPEN
-    this.failureCount = 0;
-    this.nextAttempt = Date.now();
-  }
-  
-  async execute(...args) {
-    if (this.state === 'OPEN') {
-      if (Date.now() < this.nextAttempt) {
-        throw new Error('Circuit breaker is OPEN');
-      }
-      this.state = 'HALF_OPEN';
-    }
-    
-    try {
-      const result = await this.serviceCall(...args);
-      this.onSuccess();
-      return result;
-    } catch (error) {
-      this.onFailure();
-      throw error;
-    }
-  }
-  
-  onSuccess() {
-    this.failureCount = 0;
-    this.state = 'CLOSED';
-  }
-  
-  onFailure() {
-    this.failureCount++;
-    if (this.failureCount >= this.failureThreshold) {
-      this.state = 'OPEN';
-      this.nextAttempt = Date.now() + this.timeout;
-    }
-  }
-}
+```text
+CLASS CircuitBreaker
+    FUNCTION init(serviceCall, options = {})
+        this.serviceCall = serviceCall
+        this.failureThreshold = options.failureThreshold OR 5
+        this.timeout = options.timeout OR 60000
+        this.state = "CLOSED"          # CLOSED, OPEN, HALF_OPEN
+        this.failureCount = 0
+        this.nextAttempt = NOW()
+    END FUNCTION
 
-// Usage
-const paymentServiceCall = (data) => axios.post('http://payment-service/charge', data);
-const breaker = new CircuitBreaker(paymentServiceCall, { failureThreshold: 3 });
+    FUNCTION execute(args...)
+        IF this.state == "OPEN" THEN
+            IF NOW() < this.nextAttempt THEN
+                THROW Error("Circuit breaker is OPEN")
+            END IF
+            this.state = "HALF_OPEN"
+        END IF
 
-try {
-  const result = await breaker.execute({ amount: 100 });
-} catch (error) {
-  // Fallback logic
-  console.log('Payment service unavailable, using fallback');
-}
+        TRY
+            result = this.serviceCall(args...)
+            this.onSuccess()
+            RETURN result
+        CATCH error
+            this.onFailure()
+            THROW error
+        END TRY
+    END FUNCTION
+
+    FUNCTION onSuccess()
+        this.failureCount = 0
+        this.state = "CLOSED"
+    END FUNCTION
+
+    FUNCTION onFailure()
+        this.failureCount = this.failureCount + 1
+        IF this.failureCount >= this.failureThreshold THEN
+            this.state = "OPEN"
+            this.nextAttempt = NOW() + this.timeout
+        END IF
+    END FUNCTION
+END CLASS
+
+# Usage
+paymentServiceCall = FUNCTION(data) RETURN HTTP_POST("http://payment-service/charge", data) END
+breaker = new CircuitBreaker(paymentServiceCall, { failureThreshold: 3 })
+
+TRY
+    result = breaker.execute({ amount: 100 })
+CATCH error
+    # Fallback logic
+    PRINT "Payment service unavailable, using fallback"
+END TRY
 ```
 
 **States:**
@@ -374,105 +353,105 @@ try {
 
 Handle transactions across multiple services without 2-phase commit.
 
-```javascript
-// Choreography-based Saga (event-driven)
+```text
+# Choreography-based Saga (event-driven)
 
-// Order Service
-async function createOrder(orderData) {
-  const order = await db.orders.create({ ...orderData, status: 'PENDING' });
-  
-  await eventBus.publish('order.created', {
-    orderId: order.id,
-    userId: orderData.userId,
-    items: orderData.items,
-    total: orderData.total
-  });
-}
+# Order Service
+FUNCTION createOrder(orderData)
+    order = DB_CREATE("orders", MERGE(orderData, { status: "PENDING" }))
 
-// Payment Service
-eventBus.subscribe('order.created', async (event) => {
-  try {
-    await chargeUser(event.userId, event.total);
-    await eventBus.publish('payment.success', { orderId: event.orderId });
-  } catch (error) {
-    await eventBus.publish('payment.failed', { orderId: event.orderId, reason: error.message });
-  }
-});
+    PUBLISH("order.created", {
+        orderId: order.id,
+        userId: orderData.userId,
+        items: orderData.items,
+        total: orderData.total
+    })
+END FUNCTION
 
-// Inventory Service
-eventBus.subscribe('payment.success', async (event) => {
-  try {
-    await reserveItems(event.orderId);
-    await eventBus.publish('inventory.reserved', { orderId: event.orderId });
-  } catch (error) {
-    // Compensating transaction: refund payment
-    await eventBus.publish('inventory.reservation.failed', { orderId: event.orderId });
-  }
-});
+# Payment Service
+ON EVENT("order.created") AS event
+    TRY
+        chargeUser(event.userId, event.total)
+        PUBLISH("payment.success", { orderId: event.orderId })
+    CATCH error
+        PUBLISH("payment.failed", { orderId: event.orderId, reason: error.message })
+    END TRY
+END ON
 
-// Payment Service (compensating transaction)
-eventBus.subscribe('inventory.reservation.failed', async (event) => {
-  await refundUser(event.orderId);
-  await eventBus.publish('payment.refunded', { orderId: event.orderId });
-});
+# Inventory Service
+ON EVENT("payment.success") AS event
+    TRY
+        reserveItems(event.orderId)
+        PUBLISH("inventory.reserved", { orderId: event.orderId })
+    CATCH error
+        # Compensating transaction: refund payment
+        PUBLISH("inventory.reservation.failed", { orderId: event.orderId })
+    END TRY
+END ON
 
-// Order Service (update final status)
-eventBus.subscribe('inventory.reserved', async (event) => {
-  await db.orders.update(event.orderId, { status: 'CONFIRMED' });
-});
+# Payment Service (compensating transaction)
+ON EVENT("inventory.reservation.failed") AS event
+    refundUser(event.orderId)
+    PUBLISH("payment.refunded", { orderId: event.orderId })
+END ON
 
-eventBus.subscribe('payment.refunded', async (event) => {
-  await db.orders.update(event.orderId, { status: 'CANCELLED' });
-});
+# Order Service (update final status)
+ON EVENT("inventory.reserved") AS event
+    DB_UPDATE("orders", event.orderId, { status: "CONFIRMED" })
+END ON
+
+ON EVENT("payment.refunded") AS event
+    DB_UPDATE("orders", event.orderId, { status: "CANCELLED" })
+END ON
 ```
 
 **Alternative: Orchestration-based Saga**
 
-```javascript
-// Order Orchestrator coordinates the saga
+```text
+# Order Orchestrator coordinates the saga
 
-class OrderSaga {
-  async execute(orderData) {
-    const order = await db.orders.create({ ...orderData, status: 'PENDING' });
-    
-    try {
-      // Step 1: Charge payment
-      await paymentService.charge({
-        userId: orderData.userId,
-        amount: orderData.total
-      });
-      
-      // Step 2: Reserve inventory
-      await inventoryService.reserve({
-        orderId: order.id,
-        items: orderData.items
-      });
-      
-      // Step 3: Ship order
-      await shippingService.scheduleShipment({
-        orderId: order.id,
-        address: orderData.address
-      });
-      
-      // Success
-      await db.orders.update(order.id, { status: 'CONFIRMED' });
-      return { success: true, orderId: order.id };
-      
-    } catch (error) {
-      // Compensate (rollback)
-      await this.compensate(order.id);
-      throw error;
-    }
-  }
-  
-  async compensate(orderId) {
-    // Reverse in opposite order
-    await shippingService.cancelShipment(orderId);
-    await inventoryService.releaseReservation(orderId);
-    await paymentService.refund(orderId);
-    await db.orders.update(orderId, { status: 'CANCELLED' });
-  }
-}
+CLASS OrderSaga
+    FUNCTION execute(orderData)
+        order = DB_CREATE("orders", MERGE(orderData, { status: "PENDING" }))
+
+        TRY
+            # Step 1: Charge payment
+            paymentService.charge({
+                userId: orderData.userId,
+                amount: orderData.total
+            })
+
+            # Step 2: Reserve inventory
+            inventoryService.reserve({
+                orderId: order.id,
+                items: orderData.items
+            })
+
+            # Step 3: Ship order
+            shippingService.scheduleShipment({
+                orderId: order.id,
+                address: orderData.address
+            })
+
+            # Success
+            DB_UPDATE("orders", order.id, { status: "CONFIRMED" })
+            RETURN { success: true, orderId: order.id }
+
+        CATCH error
+            # Compensate (rollback)
+            this.compensate(order.id)
+            THROW error
+        END TRY
+    END FUNCTION
+
+    FUNCTION compensate(orderId)
+        # Reverse in opposite order
+        shippingService.cancelShipment(orderId)
+        inventoryService.releaseReservation(orderId)
+        paymentService.refund(orderId)
+        DB_UPDATE("orders", orderId, { status: "CANCELLED" })
+    END FUNCTION
+END CLASS
 ```
 
 ---
@@ -513,31 +492,33 @@ Each microservice owns its database.
 
 Store all changes as immutable events instead of current state.
 
-```javascript
-// Traditional approach: Store current state
-await db.accounts.update(accountId, { balance: 500 });
+```text
+# Traditional approach: Store current state
+DB_UPDATE("accounts", accountId, { balance: 500 })
 
-// Event Sourcing: Store all events
-await eventStore.append('account-123', [
-  { type: 'AccountCreated', balance: 0, timestamp: '2024-01-01' },
-  { type: 'MoneyDeposited', amount: 1000, timestamp: '2024-01-02' },
-  { type: 'MoneyWithdrawn', amount: 500, timestamp: '2024-01-03' }
-]);
+# Event Sourcing: Store all events
+EVENT_STORE_APPEND("account-123", [
+    { type: "AccountCreated", balance: 0, timestamp: "2024-01-01" },
+    { type: "MoneyDeposited", amount: 1000, timestamp: "2024-01-02" },
+    { type: "MoneyWithdrawn", amount: 500, timestamp: "2024-01-03" }
+])
 
-// Rebuild current state by replaying events
-function getCurrentBalance(events) {
-  return events.reduce((balance, event) => {
-    switch (event.type) {
-      case 'AccountCreated': return event.balance;
-      case 'MoneyDeposited': return balance + event.amount;
-      case 'MoneyWithdrawn': return balance - event.amount;
-      default: return balance;
-    }
-  }, 0);
-}
+# Rebuild current state by replaying events
+FUNCTION getCurrentBalance(events)
+    balance = 0
+    FOR EACH event IN events
+        SWITCH event.type
+            CASE "AccountCreated":  balance = event.balance
+            CASE "MoneyDeposited":  balance = balance + event.amount
+            CASE "MoneyWithdrawn":  balance = balance - event.amount
+            DEFAULT:                # no change
+        END SWITCH
+    END FOR
+    RETURN balance
+END FUNCTION
 
-const events = await eventStore.getEvents('account-123');
-const currentBalance = getCurrentBalance(events);  // 500
+events = EVENT_STORE_GET("account-123")
+currentBalance = getCurrentBalance(events)   # 500
 ```
 
 **Benefits:**
@@ -551,39 +532,37 @@ const currentBalance = getCurrentBalance(events);  // 500
 
 Separate read and write models.
 
-```javascript
-// Write Model (Commands)
-class OrderService {
-  async createOrder(orderData) {
-    const event = {
-      type: 'OrderCreated',
-      orderId: uuidv4(),
-      ...orderData,
-      timestamp: Date.now()
-    };
-    
-    await eventStore.append(event.orderId, [event]);
-    await eventBus.publish('order.created', event);
-  }
-}
+```text
+# Write Model (Commands)
+CLASS OrderService
+    FUNCTION createOrder(orderData)
+        event = MERGE({
+            type: "OrderCreated",
+            orderId: GENERATE_UUID(),
+            timestamp: NOW()
+        }, orderData)
 
-// Read Model (Queries)
-// Separate database optimized for reads
-eventBus.subscribe('order.created', async (event) => {
-  // Update read-optimized view
-  await readDB.orders.insert({
-    orderId: event.orderId,
-    userId: event.userId,
-    total: event.total,
-    status: 'PENDING',
-    createdAt: event.timestamp
-  });
-});
+        EVENT_STORE_APPEND(event.orderId, [event])
+        PUBLISH("order.created", event)
+    END FUNCTION
+END CLASS
 
-// Query from read model
-async function getOrderHistory(userId) {
-  return await readDB.orders.find({ userId }).sort({ createdAt: -1 });
-}
+# Read Model (Queries) - separate database optimized for reads
+ON EVENT("order.created") AS event
+    # Update read-optimized view
+    READ_DB_INSERT("orders", {
+        orderId: event.orderId,
+        userId: event.userId,
+        total: event.total,
+        status: "PENDING",
+        createdAt: event.timestamp
+    })
+END ON
+
+# Query from read model
+FUNCTION getOrderHistory(userId)
+    RETURN READ_DB_FIND("orders", { userId: userId }) SORTED BY createdAt DESCENDING
+END FUNCTION
 ```
 
 **Benefits:**
@@ -658,38 +637,34 @@ spec:
 
 Track requests across multiple services.
 
-```javascript
-// Using OpenTelemetry
+```text
+# Distributed tracing (pseudocode)
+# tracer is scoped to the "order-service"
 
-const { trace } = require('@opentelemetry/api');
-const tracer = trace.getTracer('order-service');
+FUNCTION createOrder(orderData)
+    # Start span
+    span = START_SPAN("createOrder")
+    SET_SPAN_ATTRIBUTE(span, "user.id", orderData.userId)
+    SET_SPAN_ATTRIBUTE(span, "order.total", orderData.total)
 
-async function createOrder(orderData) {
-  // Start span
-  const span = tracer.startSpan('createOrder');
-  span.setAttribute('user.id', orderData.userId);
-  span.setAttribute('order.total', orderData.total);
-  
-  try {
-    // Save order
-    const order = await db.orders.create(orderData);
-    
-    // Call payment service (propagate trace context)
-    const paymentSpan = tracer.startSpan('chargePayment', {
-      parent: span
-    });
-    await paymentService.charge({ orderId: order.id, amount: order.total });
-    paymentSpan.end();
-    
-    span.setStatus({ code: SpanStatusCode.OK });
-    return order;
-  } catch (error) {
-    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-    throw error;
-  } finally {
-    span.end();
-  }
-}
+    TRY
+        # Save order
+        order = DB_CREATE("orders", orderData)
+
+        # Call payment service (propagate trace context as a child span)
+        paymentSpan = START_SPAN("chargePayment", parent = span)
+        paymentService.charge({ orderId: order.id, amount: order.total })
+        END_SPAN(paymentSpan)
+
+        SET_SPAN_STATUS(span, OK)
+        RETURN order
+    CATCH error
+        SET_SPAN_STATUS(span, ERROR, error.message)
+        THROW error
+    FINALLY
+        END_SPAN(span)
+    END TRY
+END FUNCTION
 ```
 
 **Visualize with Jaeger:**

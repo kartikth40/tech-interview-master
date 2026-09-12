@@ -75,44 +75,44 @@ Replication:
 
 ## 3️⃣ API Design
 
-```javascript
-// 1. Set Key-Value
+```text
+# 1. Set Key-Value
 SET key value [EX seconds]
 Example: SET user:123:session "abc123xyz" EX 3600
 
 Response: OK
 
-// 2. Get Value
+# 2. Get Value
 GET key
 Example: GET user:123:session
 
 Response: "abc123xyz"
 
-// 3. Delete Key
+# 3. Delete Key
 DEL key
 Example: DEL user:123:session
 
 Response: 1  (number of keys deleted)
 
-// 4. Check Existence
+# 4. Check Existence
 EXISTS key
 Example: EXISTS user:123:session
 
 Response: 1  (true) or 0 (false)
 
-// 5. Increment Counter (Atomic)
+# 5. Increment Counter (Atomic)
 INCR key
 Example: INCR page:views:123
 
 Response: 501  (new value after increment)
 
-// 6. Set Expiration
+# 6. Set Expiration
 EXPIRE key seconds
 Example: EXPIRE user:123:session 3600
 
 Response: 1  (success)
 
-// 7. Get TTL
+# 7. Get TTL
 TTL key
 Example: TTL user:123:session
 
@@ -125,20 +125,20 @@ Response: 3500  (seconds remaining, -1 = no expiry, -2 = key doesn't exist)
 
 ### In-Memory Data Structure
 
-```javascript
-// Hash Table (main storage)
-const cache = new Map();  // Key → { value, expiresAt }
+```text
+# Hash Table (main storage)
+cache = empty Map        # key -> { value, expiresAt }
 
-// LRU Linked List (eviction)
-const lruList = new DoublyLinkedList();  // Most recent → Least recent
+# LRU Linked List (eviction)
+lruList = empty DoublyLinkedList   # most recent -> least recent
 
-// Data structure
-class CacheEntry {
-  key: string;
-  value: any;
-  expiresAt: number | null;  // Unix timestamp
-  lruNode: ListNode;  // Reference to LRU list node
-}
+# Data structure
+STRUCTURE CacheEntry
+  key       : string
+  value     : any
+  expiresAt : timestamp OR null   # Unix timestamp
+  lruNode   : ListNode            # reference to LRU list node
+END STRUCTURE
 ```
 
 ---
@@ -223,107 +223,109 @@ class CacheEntry {
 
 **Solution: Hash Table + Doubly Linked List**
 
-```javascript
-class LRUCache {
-  constructor(capacity) {
-    this.capacity = capacity;
-    this.cache = new Map();  // key → { value, node }
-    this.head = new ListNode();  // Dummy head
-    this.tail = new ListNode();  // Dummy tail
-    this.head.next = this.tail;
-    this.tail.prev = this.head;
-  }
-  
-  get(key) {
-    if (!this.cache.has(key)) {
-      return null;
-    }
-    
-    const entry = this.cache.get(key);
-    
-    // Check expiration
-    if (entry.expiresAt && Date.now() > entry.expiresAt) {
-      this.delete(key);
-      return null;
-    }
-    
-    // Move to front (most recently used)
-    this.moveToFront(entry.node);
-    
-    return entry.value;
-  }
-  
-  set(key, value, ttl = null) {
-    // Delete if exists (will re-add)
-    if (this.cache.has(key)) {
-      this.delete(key);
-    }
-    
-    // Evict if at capacity
-    if (this.cache.size >= this.capacity) {
-      this.evictLRU();
-    }
-    
-    // Create new entry
-    const node = new ListNode(key);
-    const expiresAt = ttl ? Date.now() + (ttl * 1000) : null;
-    
-    this.cache.set(key, { value, expiresAt, node });
-    
-    // Add to front
-    this.addToFront(node);
-  }
-  
-  delete(key) {
-    if (!this.cache.has(key)) {
-      return false;
-    }
-    
-    const entry = this.cache.get(key);
-    this.removeNode(entry.node);
-    this.cache.delete(key);
-    
-    return true;
-  }
-  
-  evictLRU() {
-    // Remove tail (least recently used)
-    const lruNode = this.tail.prev;
-    
-    if (lruNode !== this.head) {
-      this.removeNode(lruNode);
-      this.cache.delete(lruNode.key);
-    }
-  }
-  
-  // Helper: Move node to front
-  moveToFront(node) {
-    this.removeNode(node);
-    this.addToFront(node);
-  }
-  
-  // Helper: Add node to front
-  addToFront(node) {
-    node.next = this.head.next;
-    node.prev = this.head;
-    this.head.next.prev = node;
-    this.head.next = node;
-  }
-  
-  // Helper: Remove node from list
-  removeNode(node) {
-    node.prev.next = node.next;
-    node.next.prev = node.prev;
-  }
-}
+```text
+CLASS LRUCache
 
-class ListNode {
-  constructor(key = null) {
-    this.key = key;
-    this.prev = null;
-    this.next = null;
-  }
-}
+  FUNCTION init(capacity)
+    this.capacity = capacity
+    this.cache    = empty Map        # key -> { value, expiresAt, node }
+    this.head     = new ListNode()   # dummy head
+    this.tail     = new ListNode()   # dummy tail
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  END FUNCTION
+
+  FUNCTION get(key)
+    IF key NOT IN this.cache THEN
+      RETURN null
+    END IF
+
+    entry = this.cache[key]
+
+    # Check expiration
+    IF entry.expiresAt IS SET AND currentTime() > entry.expiresAt THEN
+      this.delete(key)
+      RETURN null
+    END IF
+
+    # Move to front (most recently used)
+    this.moveToFront(entry.node)
+
+    RETURN entry.value
+  END FUNCTION
+
+  FUNCTION set(key, value, ttl = null)
+    # Delete if exists (will re-add)
+    IF key IN this.cache THEN
+      this.delete(key)
+    END IF
+
+    # Evict if at capacity
+    IF this.cache.size >= this.capacity THEN
+      this.evictLRU()
+    END IF
+
+    # Create new entry
+    node      = new ListNode(key)
+    expiresAt = IF ttl IS SET THEN currentTime() + (ttl * 1000) ELSE null
+
+    this.cache[key] = { value: value, expiresAt: expiresAt, node: node }
+
+    # Add to front
+    this.addToFront(node)
+  END FUNCTION
+
+  FUNCTION delete(key)
+    IF key NOT IN this.cache THEN
+      RETURN false
+    END IF
+
+    entry = this.cache[key]
+    this.removeNode(entry.node)
+    this.cache.remove(key)
+
+    RETURN true
+  END FUNCTION
+
+  FUNCTION evictLRU()
+    # Remove tail (least recently used)
+    lruNode = this.tail.prev
+
+    IF lruNode IS NOT this.head THEN
+      this.removeNode(lruNode)
+      this.cache.remove(lruNode.key)
+    END IF
+  END FUNCTION
+
+  # Helper: Move node to front
+  FUNCTION moveToFront(node)
+    this.removeNode(node)
+    this.addToFront(node)
+  END FUNCTION
+
+  # Helper: Add node to front
+  FUNCTION addToFront(node)
+    node.next            = this.head.next
+    node.prev            = this.head
+    this.head.next.prev  = node
+    this.head.next       = node
+  END FUNCTION
+
+  # Helper: Remove node from list
+  FUNCTION removeNode(node)
+    node.prev.next = node.next
+    node.next.prev = node.prev
+  END FUNCTION
+
+END CLASS
+
+CLASS ListNode
+  FUNCTION init(key = null)
+    this.key  = key
+    this.prev = null
+    this.next = null
+  END FUNCTION
+END CLASS
 ```
 
 **Time Complexity:**
@@ -342,92 +344,96 @@ class ListNode {
 
 **Solution: Consistent Hashing with Virtual Nodes**
 
-```javascript
-class ConsistentHash {
-  constructor(nodes, virtualNodesPerNode = 150) {
-    this.ring = new Map();  // hash → node
-    this.sortedHashes = [];
-    this.virtualNodesPerNode = virtualNodesPerNode;
-    
-    // Add all nodes
-    nodes.forEach(node => this.addNode(node));
-  }
-  
-  addNode(node) {
-    // Create virtual nodes (replicas)
-    for (let i = 0; i < this.virtualNodesPerNode; i++) {
-      const virtualNodeId = `${node.id}:${i}`;
-      const hash = this.hash(virtualNodeId);
-      
-      this.ring.set(hash, node);
-      this.sortedHashes.push(hash);
-    }
-    
-    // Keep hashes sorted
-    this.sortedHashes.sort((a, b) => a - b);
-  }
-  
-  removeNode(node) {
-    // Remove all virtual nodes
-    for (let i = 0; i < this.virtualNodesPerNode; i++) {
-      const virtualNodeId = `${node.id}:${i}`;
-      const hash = this.hash(virtualNodeId);
-      
-      this.ring.delete(hash);
-      const index = this.sortedHashes.indexOf(hash);
-      this.sortedHashes.splice(index, 1);
-    }
-  }
-  
-  getNode(key) {
-    if (this.sortedHashes.length === 0) {
-      return null;
-    }
-    
-    const keyHash = this.hash(key);
-    
-    // Find first node clockwise (binary search)
-    let left = 0;
-    let right = this.sortedHashes.length - 1;
-    
-    while (left <= right) {
-      const mid = Math.floor((left + right) / 2);
-      
-      if (this.sortedHashes[mid] === keyHash) {
-        return this.ring.get(this.sortedHashes[mid]);
-      } else if (this.sortedHashes[mid] < keyHash) {
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
-    }
-    
-    // If not found, wrap around to first node
-    if (left >= this.sortedHashes.length) {
-      left = 0;
-    }
-    
-    return this.ring.get(this.sortedHashes[left]);
-  }
-  
-  hash(key) {
-    // Use CRC32 or MurmurHash for fast hashing
-    return crc32(key);
-  }
-}
+```text
+CLASS ConsistentHash
 
-// Usage
-const nodes = [
-  { id: 'cache-1', host: '10.0.0.1', port: 6379 },
-  { id: 'cache-2', host: '10.0.0.2', port: 6379 },
-  { id: 'cache-3', host: '10.0.0.3', port: 6379 }
-];
+  FUNCTION init(nodes, virtualNodesPerNode = 150)
+    this.ring                = empty Map    # hash -> node
+    this.sortedHashes        = empty list
+    this.virtualNodesPerNode = virtualNodesPerNode
 
-const hashRing = new ConsistentHash(nodes);
+    # Add all nodes
+    FOR EACH node IN nodes
+      this.addNode(node)
+    END FOR
+  END FUNCTION
 
-// Get node for key
-const node = hashRing.getNode('user:123:session');
-console.log(`Key should be stored on ${node.id}`);
+  FUNCTION addNode(node)
+    # Create virtual nodes (replicas)
+    FOR i FROM 0 TO this.virtualNodesPerNode - 1
+      virtualNodeId = node.id + ":" + i
+      hash          = this.hash(virtualNodeId)
+
+      this.ring[hash] = node
+      append hash TO this.sortedHashes
+    END FOR
+
+    # Keep hashes sorted
+    SORT this.sortedHashes ASCENDING
+  END FUNCTION
+
+  FUNCTION removeNode(node)
+    # Remove all virtual nodes
+    FOR i FROM 0 TO this.virtualNodesPerNode - 1
+      virtualNodeId = node.id + ":" + i
+      hash          = this.hash(virtualNodeId)
+
+      this.ring.remove(hash)
+      index = indexOf(this.sortedHashes, hash)
+      removeAt(this.sortedHashes, index)
+    END FOR
+  END FUNCTION
+
+  FUNCTION getNode(key)
+    IF this.sortedHashes IS EMPTY THEN
+      RETURN null
+    END IF
+
+    keyHash = this.hash(key)
+
+    # Find first node clockwise (binary search)
+    left  = 0
+    right = length(this.sortedHashes) - 1
+
+    WHILE left <= right DO
+      mid = floor((left + right) / 2)
+
+      IF this.sortedHashes[mid] EQUALS keyHash THEN
+        RETURN this.ring[this.sortedHashes[mid]]
+      ELSE IF this.sortedHashes[mid] < keyHash THEN
+        left = mid + 1
+      ELSE
+        right = mid - 1
+      END IF
+    END WHILE
+
+    # If not found, wrap around to first node
+    IF left >= length(this.sortedHashes) THEN
+      left = 0
+    END IF
+
+    RETURN this.ring[this.sortedHashes[left]]
+  END FUNCTION
+
+  FUNCTION hash(key)
+    # Use CRC32 or MurmurHash for fast hashing
+    RETURN crc32(key)
+  END FUNCTION
+
+END CLASS
+
+# Usage
+nodes = [
+  { id: "cache-1", host: "10.0.0.1", port: 6379 },
+  { id: "cache-2", host: "10.0.0.2", port: 6379 },
+  { id: "cache-3", host: "10.0.0.3", port: 6379 }
+]
+
+hashRing = new ConsistentHash(nodes)
+
+# Get node for key
+node = hashRing.getNode("user:123:session")
+print("Key should be stored on " + node.id)
 ```
 
 **Benefits:**
@@ -451,79 +457,81 @@ console.log(`Key should be stored on ${node.id}`);
 
 **Solution: Master-Slave Replication**
 
-```javascript
-class CacheCluster {
-  constructor() {
-    this.masters = [];
-    this.replicas = new Map();  // master → [replica1, replica2]
-  }
-  
-  async set(key, value, ttl) {
-    // 1. Find master node using consistent hashing
-    const master = this.hashRing.getNode(key);
-    
-    // 2. Write to master (synchronous)
-    await master.set(key, value, ttl);
-    
-    // 3. Asynchronously replicate to slaves
-    const replicas = this.replicas.get(master.id);
-    
-    if (replicas) {
-      // Fire-and-forget replication (async)
-      this.replicateAsync(key, value, ttl, replicas);
-    }
-  }
-  
-  async get(key) {
-    // 1. Find master node
-    const master = this.hashRing.getNode(key);
-    
-    // 2. Try master first
-    try {
-      return await master.get(key);
-    } catch (err) {
-      // 3. Fallback to replica if master is down
-      const replicas = this.replicas.get(master.id);
-      
-      if (replicas && replicas.length > 0) {
-        return await replicas[0].get(key);
-      }
-      
-      throw err;
-    }
-  }
-  
-  async replicateAsync(key, value, ttl, replicas) {
-    // Replicate to all replicas in parallel
-    await Promise.all(
-      replicas.map(replica => 
-        replica.set(key, value, ttl).catch(err => {
-          console.error(`Replication failed to ${replica.id}`, err);
-        })
-      )
-    );
-  }
-  
-  // Failover: Promote replica to master
-  async handleMasterFailure(failedMaster) {
-    const replicas = this.replicas.get(failedMaster.id);
-    
-    if (replicas && replicas.length > 0) {
-      // Promote first replica to master
-      const newMaster = replicas[0];
-      
-      // Update hash ring
-      this.hashRing.removeNode(failedMaster);
-      this.hashRing.addNode(newMaster);
-      
-      // Remaining replicas become replicas of new master
-      this.replicas.set(newMaster.id, replicas.slice(1));
-      this.replicas.delete(failedMaster.id);
-      
-      console.log(`Promoted ${newMaster.id} to master`);
-    }
-  }
-}
+```text
+CLASS CacheCluster
+
+  FUNCTION init()
+    this.masters  = empty list
+    this.replicas = empty Map      # master -> [replica1, replica2]
+  END FUNCTION
+
+  FUNCTION set(key, value, ttl)
+    # 1. Find master node using consistent hashing
+    master = this.hashRing.getNode(key)
+
+    # 2. Write to master (synchronous)
+    master.set(key, value, ttl)
+
+    # 3. Asynchronously replicate to slaves
+    replicas = this.replicas[master.id]
+
+    IF replicas EXISTS THEN
+      # Fire-and-forget replication (async)
+      this.replicateAsync(key, value, ttl, replicas)
+    END IF
+  END FUNCTION
+
+  FUNCTION get(key)
+    # 1. Find master node
+    master = this.hashRing.getNode(key)
+
+    # 2. Try master first
+    TRY
+      RETURN master.get(key)
+    CATCH err
+      # 3. Fallback to replica if master is down
+      replicas = this.replicas[master.id]
+
+      IF replicas EXISTS AND length(replicas) > 0 THEN
+        RETURN replicas[0].get(key)
+      END IF
+
+      THROW err
+    END TRY
+  END FUNCTION
+
+  FUNCTION replicateAsync(key, value, ttl, replicas)
+    # Replicate to all replicas in parallel
+    FOR EACH replica IN replicas IN PARALLEL
+      TRY
+        replica.set(key, value, ttl)
+      CATCH err
+        logError("Replication failed to " + replica.id, err)
+      END TRY
+    END FOR
+  END FUNCTION
+
+  # Failover: Promote replica to master
+  FUNCTION handleMasterFailure(failedMaster)
+    replicas = this.replicas[failedMaster.id]
+
+    IF replicas EXISTS AND length(replicas) > 0 THEN
+      # Promote first replica to master
+      newMaster = replicas[0]
+
+      # Update hash ring
+      this.hashRing.removeNode(failedMaster)
+      this.hashRing.addNode(newMaster)
+
+      # Remaining replicas become replicas of new master
+      this.replicas[newMaster.id] = replicas EXCLUDING first element
+      this.replicas.remove(failedMaster.id)
+
+      log("Promoted " + newMaster.id + " to master")
+    END IF
+  END FUNCTION
+
+END CLASS
 ```
 
 **Replication Strategies:**
@@ -553,35 +561,35 @@ class CacheCluster {
 ### Optimizations:
 
 **1. Pipelining (Batch Commands):**
-```javascript
-// Instead of 3 round trips:
-await cache.set('key1', 'val1');
-await cache.set('key2', 'val2');
-await cache.set('key3', 'val3');
+```text
+# Instead of 3 round trips:
+cache.set("key1", "val1")
+cache.set("key2", "val2")
+cache.set("key3", "val3")
 
-// Use pipeline (1 round trip):
-await cache.pipeline([
-  ['set', 'key1', 'val1'],
-  ['set', 'key2', 'val2'],
-  ['set', 'key3', 'val3']
-]);
+# Use pipeline (1 round trip):
+cache.pipeline([
+  ["set", "key1", "val1"],
+  ["set", "key2", "val2"],
+  ["set", "key3", "val3"]
+])
 ```
 
 **2. Client-side Caching:**
-```javascript
-// Cache hot keys in application memory
-const localCache = new Map();
+```text
+# Cache hot keys in application memory
+localCache = empty Map
 
-async function get(key) {
-  if (localCache.has(key)) {
-    return localCache.get(key);
-  }
-  
-  const value = await redisCache.get(key);
-  localCache.set(key, value);
-  
-  return value;
-}
+FUNCTION get(key)
+  IF key IN localCache THEN
+    RETURN localCache[key]
+  END IF
+
+  value = redisCache.get(key)
+  localCache[key] = value
+
+  RETURN value
+END FUNCTION
 ```
 
 **3. Connection Pooling:**

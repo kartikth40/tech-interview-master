@@ -37,30 +37,32 @@ Producer -> [Queue] -> Consumer 1
 - Example: Image processing, order fulfillment
 ```
 
-```javascript
-// Producer (sends work)
-async function createOrder(orderData) {
-  await queue.send('order-processing', {
-    orderId: orderData.id,
-    userId: orderData.userId,
-    items: orderData.items
-  });
-  
-  return { status: 'Order received, processing...' };
-}
+```text
+# Producer (sends work)
+FUNCTION createOrder(orderData)
+    QUEUE_SEND("order-processing", {
+        orderId: orderData.id,
+        userId: orderData.userId,
+        items: orderData.items
+    })
 
-// Consumer (processes work)
-queue.subscribe('order-processing', async (message) => {
-  const { orderId, userId, items } = message.data;
-  
-  // Process order
-  await processPayment(orderId);
-  await updateInventory(items);
-  await sendConfirmationEmail(userId);
-  
-  // Acknowledge message (remove from queue)
-  message.ack();
-});
+    RETURN { status: "Order received, processing..." }
+END FUNCTION
+
+# Consumer (processes work)
+ON QUEUE_MESSAGE("order-processing") AS message
+    orderId = message.data.orderId
+    userId  = message.data.userId
+    items   = message.data.items
+
+    # Process order
+    processPayment(orderId)
+    updateInventory(items)
+    sendConfirmationEmail(userId)
+
+    # Acknowledge message (remove from queue)
+    ACK(message)
+END ON
 ```
 
 ---
@@ -77,33 +79,33 @@ Publisher -> [Topic] -> Subscriber 1 (Email Service)
 - Example: User registration event
 ```
 
-```javascript
-// Publisher
-async function registerUser(userData) {
-  await db.createUser(userData);
-  
-  // Publish event (multiple services will react)
-  await pubsub.publish('user.registered', {
-    userId: userData.id,
-    email: userData.email,
-    timestamp: Date.now()
-  });
-}
+```text
+# Publisher
+FUNCTION registerUser(userData)
+    DB_CREATE_USER(userData)
 
-// Subscriber 1: Email Service
-pubsub.subscribe('user.registered', async (event) => {
-  await sendWelcomeEmail(event.email);
-});
+    # Publish event (multiple services will react)
+    PUBLISH("user.registered", {
+        userId: userData.id,
+        email: userData.email,
+        timestamp: NOW()
+    })
+END FUNCTION
 
-// Subscriber 2: Analytics
-pubsub.subscribe('user.registered', async (event) => {
-  await trackSignup(event.userId);
-});
+# Subscriber 1: Email Service
+ON EVENT("user.registered") AS event
+    sendWelcomeEmail(event.email)
+END ON
 
-// Subscriber 3: Notification Service
-pubsub.subscribe('user.registered', async (event) => {
-  await sendPushNotification(event.userId, 'Welcome!');
-});
+# Subscriber 2: Analytics
+ON EVENT("user.registered") AS event
+    trackSignup(event.userId)
+END ON
+
+# Subscriber 3: Notification Service
+ON EVENT("user.registered") AS event
+    sendPushNotification(event.userId, "Welcome!")
+END ON
 ```
 
 ---
@@ -118,29 +120,24 @@ Client -> [Request Queue] -> Server
 - Useful for distributed RPC
 ```
 
-```javascript
-// Client
-async function callRemoteService(request) {
-  const correlationId = uuidv4();
-  const replyQueue = `reply-${correlationId}`;
-  
-  // Send request
-  await queue.send('service-requests', {
-    data: request,
-    replyTo: replyQueue,
-    correlationId
-  });
-  
-  // Wait for response
-  return new Promise((resolve) => {
-    queue.subscribe(replyQueue, (message) => {
-      if (message.correlationId === correlationId) {
-        resolve(message.data);
-        message.ack();
-      }
-    });
-  });
-}
+```text
+# Client
+FUNCTION callRemoteService(request)
+    correlationId = GENERATE_UUID()
+    replyQueue = "reply-" + correlationId
+
+    # Send request
+    QUEUE_SEND("service-requests", {
+        data: request,
+        replyTo: replyQueue,
+        correlationId: correlationId
+    })
+
+    # Wait for response on the reply queue matching this correlationId
+    WAIT FOR message ON QUEUE(replyQueue) WHERE message.correlationId == correlationId
+    ACK(message)
+    RETURN message.data
+END FUNCTION
 ```
 
 ---
@@ -155,10 +152,10 @@ Normal Priority Messages ->
 - Example: VIP customer orders, alerts
 ```
 
-```javascript
-await queue.send('order-processing', orderData, {
-  priority: order.isVIP ? 'high' : 'normal'
-});
+```text
+QUEUE_SEND("order-processing", orderData, {
+    priority: IF order.isVIP THEN "high" ELSE "normal"
+})
 ```
 
 ---
@@ -173,22 +170,22 @@ await queue.send('order-processing', orderData, {
 - Allows investigation of failures
 ```
 
-```javascript
-queue.subscribe('order-processing', async (message) => {
-  try {
-    await processOrder(message.data);
-    message.ack();
-  } catch (error) {
-    if (message.retryCount >= 3) {
-      // Move to dead letter queue
-      await dlq.send('order-processing-dlq', message);
-      message.ack();
-    } else {
-      // Retry later
-      message.nack();
-    }
-  }
-});
+```text
+ON QUEUE_MESSAGE("order-processing") AS message
+    TRY
+        processOrder(message.data)
+        ACK(message)
+    CATCH error
+        IF message.retryCount >= 3 THEN
+            # Move to dead letter queue
+            QUEUE_SEND("order-processing-dlq", message)
+            ACK(message)
+        ELSE
+            # Retry later
+            NACK(message)
+        END IF
+    END TRY
+END ON
 ```
 
 ---
@@ -199,49 +196,47 @@ queue.subscribe('order-processing', async (message) => {
 
 **Best for**: Traditional message queuing, complex routing
 
-```javascript
-const amqp = require('amqplib');
+```text
+# RabbitMQ-style message queue (pseudocode)
 
-// Producer
-async function sendMessage() {
-  const connection = await amqp.connect('amqp://localhost');
-  const channel = await connection.createChannel();
-  
-  const queue = 'tasks';
-  await channel.assertQueue(queue, { durable: true });
-  
-  channel.sendToQueue(queue, Buffer.from(JSON.stringify({
-    task: 'resize-image',
-    imageUrl: 'https://...'
-  })), {
-    persistent: true  // Survive broker restart
-  });
-  
-  console.log('Message sent');
-  await channel.close();
-  await connection.close();
-}
+# Producer
+FUNCTION sendMessage()
+    connection = CONNECT_TO_BROKER("localhost")
+    channel = connection.createChannel()
 
-// Consumer
-async function consumeMessages() {
-  const connection = await amqp.connect('amqp://localhost');
-  const channel = await connection.createChannel();
-  
-  const queue = 'tasks';
-  await channel.assertQueue(queue, { durable: true });
-  channel.prefetch(1);  // Process one message at a time
-  
-  channel.consume(queue, async (message) => {
-    const task = JSON.parse(message.content.toString());
-    console.log('Processing:', task);
-    
-    // Simulate work
-    await processTask(task);
-    
-    // Acknowledge
-    channel.ack(message);
-  }, { noAck: false });
-}
+    queue = "tasks"
+    DECLARE_QUEUE(channel, queue, durable = true)
+
+    PUBLISH_TO_QUEUE(channel, queue, serialize({
+        task: "resize-image",
+        imageUrl: "https://..."
+    }), persistent = true)   # persistent = survive broker restart
+
+    PRINT "Message sent"
+    channel.close()
+    connection.close()
+END FUNCTION
+
+# Consumer
+FUNCTION consumeMessages()
+    connection = CONNECT_TO_BROKER("localhost")
+    channel = connection.createChannel()
+
+    queue = "tasks"
+    DECLARE_QUEUE(channel, queue, durable = true)
+    SET_PREFETCH(channel, 1)   # Process one message at a time
+
+    ON QUEUE_MESSAGE(channel, queue) AS message
+        task = deserialize(message.content)
+        PRINT "Processing: " + task
+
+        # Simulate work
+        processTask(task)
+
+        # Acknowledge (manual ack mode)
+        ACK(channel, message)
+    END ON
+END FUNCTION
 ```
 
 **RabbitMQ Features:**
@@ -258,53 +253,41 @@ async function consumeMessages() {
 
 **Best for**: High-throughput event streaming, real-time analytics
 
-```javascript
-const { Kafka } = require('kafkajs');
+```text
+# Kafka event streaming (pseudocode)
+# Configure client with brokers: ["kafka1:9092", "kafka2:9092"]
 
-const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['kafka1:9092', 'kafka2:9092']
-});
+# Producer
+FUNCTION produceEvent()
+    producer = KAFKA_PRODUCER(brokers = ["kafka1:9092", "kafka2:9092"])
+    CONNECT(producer)
 
-// Producer
-async function produceEvent() {
-  const producer = kafka.producer();
-  await producer.connect();
-  
-  await producer.send({
-    topic: 'user-events',
-    messages: [
-      {
-        key: 'user-123',  // Partitioning key
-        value: JSON.stringify({
-          event: 'page_view',
-          userId: '123',
-          page: '/products',
-          timestamp: Date.now()
+    PUBLISH producer TO topic "user-events" WITH
+        key   = "user-123"           # Partitioning key
+        value = serialize({
+            event: "page_view",
+            userId: "123",
+            page: "/products",
+            timestamp: NOW()
         })
-      }
-    ]
-  });
-  
-  await producer.disconnect();
-}
 
-// Consumer
-async function consumeEvents() {
-  const consumer = kafka.consumer({ groupId: 'analytics-service' });
-  await consumer.connect();
-  await consumer.subscribe({ topic: 'user-events', fromBeginning: false });
-  
-  await consumer.run({
-    eachMessage: async ({ topic, partition, message }) => {
-      const event = JSON.parse(message.value.toString());
-      console.log('Event:', event);
-      
-      // Process event
-      await trackAnalytics(event);
-    }
-  });
-}
+    DISCONNECT(producer)
+END FUNCTION
+
+# Consumer
+FUNCTION consumeEvents()
+    consumer = KAFKA_CONSUMER(groupId = "analytics-service")
+    CONNECT(consumer)
+    SUBSCRIBE(consumer, topic = "user-events", fromBeginning = false)
+
+    FOR EACH message CONSUMED FROM consumer
+        event = deserialize(message.value)
+        PRINT "Event: " + event
+
+        # Process event
+        trackAnalytics(event)
+    END FOR
+END FUNCTION
 ```
 
 **Kafka Features:**
@@ -322,45 +305,35 @@ async function consumeEvents() {
 
 **Best for**: AWS-native, serverless queuing
 
-```javascript
-const AWS = require('aws-sdk');
-const sqs = new AWS.SQS({ region: 'us-east-1' });
+```text
+# Managed cloud queue (SQS-style, pseudocode)
+QUEUE_URL = "https://queue-service/123456/my-queue"
 
-// Send message
-async function sendMessage() {
-  await sqs.sendMessage({
-    QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456/my-queue',
-    MessageBody: JSON.stringify({
-      orderId: '123',
-      userId: '456'
-    }),
-    DelaySeconds: 0
-  }).promise();
-}
+# Send message
+FUNCTION sendMessage()
+    QUEUE_SEND(QUEUE_URL,
+        body = serialize({ orderId: "123", userId: "456" }),
+        delaySeconds = 0)
+END FUNCTION
 
-// Receive and process
-async function pollMessages() {
-  while (true) {
-    const { Messages } = await sqs.receiveMessage({
-      QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456/my-queue',
-      MaxNumberOfMessages: 10,
-      WaitTimeSeconds: 20  // Long polling
-    }).promise();
-    
-    if (!Messages) continue;
-    
-    for (const message of Messages) {
-      const data = JSON.parse(message.Body);
-      await processOrder(data);
-      
-      // Delete message
-      await sqs.deleteMessage({
-        QueueUrl: 'https://...',
-        ReceiptHandle: message.ReceiptHandle
-      }).promise();
-    }
-  }
-}
+# Receive and process
+FUNCTION pollMessages()
+    WHILE true
+        messages = QUEUE_RECEIVE(QUEUE_URL,
+            maxMessages = 10,
+            waitTimeSeconds = 20)   # Long polling
+
+        IF messages IS EMPTY THEN CONTINUE
+
+        FOR EACH message IN messages
+            data = deserialize(message.body)
+            processOrder(data)
+
+            # Delete message once processed
+            QUEUE_DELETE(QUEUE_URL, message.receiptHandle)
+        END FOR
+    END WHILE
+END FUNCTION
 ```
 
 **SQS Features:**
@@ -377,48 +350,46 @@ async function pollMessages() {
 
 **Best for**: Simple event streaming with Redis infrastructure
 
-```javascript
-const Redis = require('ioredis');
-const redis = new Redis();
+```text
+# Stream-based queue (Redis Streams-style, pseudocode)
 
-// Producer
-async function addEvent() {
-  await redis.xadd(
-    'user-events',
-    '*',  // Auto-generate ID
-    'event', 'signup',
-    'userId', '123',
-    'timestamp', Date.now()
-  );
-}
+# Producer
+FUNCTION addEvent()
+    STREAM_APPEND("user-events", id = AUTO, fields = {
+        event: "signup",
+        userId: "123",
+        timestamp: NOW()
+    })
+END FUNCTION
 
-// Consumer Group
-async function consumeEvents() {
-  // Create consumer group
-  await redis.xgroup('CREATE', 'user-events', 'analytics-group', '0', 'MKSTREAM');
-  
-  while (true) {
-    // Read new messages
-    const results = await redis.xreadgroup(
-      'GROUP', 'analytics-group', 'consumer-1',
-      'COUNT', 10,
-      'BLOCK', 5000,
-      'STREAMS', 'user-events', '>'
-    );
-    
-    if (!results) continue;
-    
-    for (const [stream, messages] of results) {
-      for (const [id, fields] of messages) {
-        const event = parseFields(fields);
-        await processEvent(event);
-        
-        // Acknowledge
-        await redis.xack('user-events', 'analytics-group', id);
-      }
-    }
-  }
-}
+# Consumer Group
+FUNCTION consumeEvents()
+    # Create consumer group (start from beginning, create stream if missing)
+    STREAM_CREATE_GROUP("user-events", group = "analytics-group", start = "0")
+
+    WHILE true
+        # Read new messages for this consumer, blocking up to 5000ms
+        results = STREAM_READ_GROUP(
+            group = "analytics-group",
+            consumer = "consumer-1",
+            count = 10,
+            blockMillis = 5000,
+            stream = "user-events",
+            from = "new-messages")
+
+        IF results IS EMPTY THEN CONTINUE
+
+        FOR EACH (stream, messages) IN results
+            FOR EACH (id, fields) IN messages
+                event = parseFields(fields)
+                processEvent(event)
+
+                # Acknowledge
+                STREAM_ACK("user-events", group = "analytics-group", id = id)
+            END FOR
+        END FOR
+    END WHILE
+END FUNCTION
 ```
 
 **Redis Streams Features:**
@@ -451,24 +422,24 @@ async function consumeEvents() {
 
 Messages may be delivered more than once (at-least-once delivery). Design consumers to be idempotent.
 
-```javascript
-// BAD: Not idempotent
-async function processOrder(order) {
-  await db.query('UPDATE inventory SET quantity = quantity - 1 WHERE product_id = ?', [order.productId]);
-}
+```text
+# BAD: Not idempotent
+FUNCTION processOrder(order)
+    DB_QUERY("UPDATE inventory SET quantity = quantity - 1 WHERE product_id = ?", order.productId)
+END FUNCTION
 
-// GOOD: Idempotent
-async function processOrder(order) {
-  // Check if already processed
-  const existing = await db.query('SELECT * FROM processed_orders WHERE order_id = ?', [order.id]);
-  if (existing) return;
-  
-  // Process (transaction ensures atomicity)
-  await db.transaction(async (tx) => {
-    await tx.query('UPDATE inventory SET quantity = quantity - 1 WHERE product_id = ?', [order.productId]);
-    await tx.query('INSERT INTO processed_orders (order_id) VALUES (?)', [order.id]);
-  });
-}
+# GOOD: Idempotent
+FUNCTION processOrder(order)
+    # Check if already processed
+    existing = DB_QUERY("SELECT * FROM processed_orders WHERE order_id = ?", order.id)
+    IF existing EXISTS THEN RETURN
+
+    # Process (transaction ensures atomicity)
+    BEGIN TRANSACTION tx
+        DB_QUERY(tx, "UPDATE inventory SET quantity = quantity - 1 WHERE product_id = ?", order.productId)
+        DB_QUERY(tx, "INSERT INTO processed_orders (order_id) VALUES (?)", order.id)
+    COMMIT TRANSACTION
+END FUNCTION
 ```
 
 ---
@@ -477,51 +448,51 @@ async function processOrder(order) {
 
 Prevent duplicate messages from being processed.
 
-```javascript
-const processedMessages = new Set();
+```text
+processedMessages = new Set()
 
-async function processMessage(message) {
-  const messageId = message.id;
-  
-  // Check if already processed
-  if (processedMessages.has(messageId)) {
-    console.log('Duplicate message, skipping');
-    return;
-  }
-  
-  // Process
-  await handleMessage(message);
-  
-  // Mark as processed
-  processedMessages.add(messageId);
-  
-  // Store in Redis with TTL (garbage collect old IDs)
-  await redis.setex(`processed:${messageId}`, 86400, '1');
-}
+FUNCTION processMessage(message)
+    messageId = message.id
+
+    # Check if already processed
+    IF processedMessages.contains(messageId) THEN
+        PRINT "Duplicate message, skipping"
+        RETURN
+    END IF
+
+    # Process
+    handleMessage(message)
+
+    # Mark as processed
+    processedMessages.add(messageId)
+
+    # Store in cache with TTL (garbage collect old IDs)
+    CACHE_SET("processed:" + messageId, "1", TTL = 86400)
+END FUNCTION
 ```
 
 ---
 
 ### **3. Exponential Backoff for Retries**
 
-```javascript
-async function processWithRetry(message, maxRetries = 5) {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      await processMessage(message);
-      message.ack();
-      return;
-    } catch (error) {
-      const delay = Math.pow(2, attempt) * 1000;  // 1s, 2s, 4s, 8s, 16s
-      console.log(`Retry ${attempt + 1}/${maxRetries} after ${delay}ms`);
-      await sleep(delay);
-    }
-  }
-  
-  // Max retries exceeded, send to DLQ
-  await dlq.send('failed-messages', message);
-  message.ack();
-}
+```text
+FUNCTION processWithRetry(message, maxRetries = 5)
+    FOR attempt FROM 0 TO maxRetries - 1
+        TRY
+            processMessage(message)
+            ACK(message)
+            RETURN
+        CATCH error
+            delay = (2 ^ attempt) * 1000   # 1s, 2s, 4s, 8s, 16s
+            PRINT "Retry " + (attempt + 1) + "/" + maxRetries + " after " + delay + "ms"
+            SLEEP(delay)
+        END TRY
+    END FOR
+
+    # Max retries exceeded, send to DLQ
+    QUEUE_SEND("failed-messages", message)
+    ACK(message)
+END FUNCTION
 ```
 
 ---
@@ -530,39 +501,42 @@ async function processWithRetry(message, maxRetries = 5) {
 
 Process multiple messages together for efficiency.
 
-```javascript
-async function batchProcessor() {
-  const batch = [];
-  const BATCH_SIZE = 100;
-  const BATCH_TIMEOUT = 5000;
-  
-  let timer = setTimeout(() => processBatch(batch), BATCH_TIMEOUT);
-  
-  queue.subscribe('events', (message) => {
-    batch.push(message);
-    
-    if (batch.length >= BATCH_SIZE) {
-      clearTimeout(timer);
-      processBatch(batch);
-      batch.length = 0;
-      timer = setTimeout(() => processBatch(batch), BATCH_TIMEOUT);
-    }
-  });
-}
+```text
+FUNCTION batchProcessor()
+    batch = []
+    BATCH_SIZE = 100
+    BATCH_TIMEOUT = 5000
 
-async function processBatch(messages) {
-  if (messages.length === 0) return;
-  
-  // Process all messages in one database transaction
-  await db.transaction(async (tx) => {
-    for (const msg of messages) {
-      await tx.query('INSERT INTO events VALUES (?)', [msg.data]);
-    }
-  });
-  
-  // Acknowledge all
-  messages.forEach(msg => msg.ack());
-}
+    # Flush the batch whenever the timeout elapses
+    timer = START_TIMER(BATCH_TIMEOUT, THEN processBatch(batch))
+
+    ON QUEUE_MESSAGE("events") AS message
+        batch.append(message)
+
+        IF LENGTH(batch) >= BATCH_SIZE THEN
+            CANCEL_TIMER(timer)
+            processBatch(batch)
+            batch = []
+            timer = START_TIMER(BATCH_TIMEOUT, THEN processBatch(batch))
+        END IF
+    END ON
+END FUNCTION
+
+FUNCTION processBatch(messages)
+    IF LENGTH(messages) == 0 THEN RETURN
+
+    # Process all messages in one database transaction
+    BEGIN TRANSACTION tx
+        FOR EACH msg IN messages
+            DB_QUERY(tx, "INSERT INTO events VALUES (?)", msg.data)
+        END FOR
+    COMMIT TRANSACTION
+
+    # Acknowledge all
+    FOR EACH msg IN messages
+        ACK(msg)
+    END FOR
+END FUNCTION
 ```
 
 ---
@@ -571,163 +545,158 @@ async function processBatch(messages) {
 
 Protect downstream services from cascading failures.
 
-```javascript
-class CircuitBreaker {
-  constructor() {
-    this.state = 'CLOSED';  // CLOSED, OPEN, HALF_OPEN
-    this.failureCount = 0;
-    this.threshold = 5;
-    this.timeout = 60000;  // 1 minute
-  }
-  
-  async execute(fn) {
-    if (this.state === 'OPEN') {
-      throw new Error('Circuit breaker is OPEN');
-    }
-    
-    try {
-      const result = await fn();
-      this.onSuccess();
-      return result;
-    } catch (error) {
-      this.onFailure();
-      throw error;
-    }
-  }
-  
-  onSuccess() {
-    this.failureCount = 0;
-    this.state = 'CLOSED';
-  }
-  
-  onFailure() {
-    this.failureCount++;
-    if (this.failureCount >= this.threshold) {
-      this.state = 'OPEN';
-      setTimeout(() => {
-        this.state = 'HALF_OPEN';
-        this.failureCount = 0;
-      }, this.timeout);
-    }
-  }
-}
+```text
+CLASS CircuitBreaker
+    FUNCTION init()
+        this.state = "CLOSED"      # CLOSED, OPEN, HALF_OPEN
+        this.failureCount = 0
+        this.threshold = 5
+        this.timeout = 60000       # 1 minute
+    END FUNCTION
 
-// Usage
-const breaker = new CircuitBreaker();
+    FUNCTION execute(fn)
+        IF this.state == "OPEN" THEN
+            THROW Error("Circuit breaker is OPEN")
+        END IF
 
-queue.subscribe('orders', async (message) => {
-  try {
-    await breaker.execute(() => processOrder(message.data));
-    message.ack();
-  } catch (error) {
-    message.nack();  // Requeue
-  }
-});
+        TRY
+            result = fn()
+            this.onSuccess()
+            RETURN result
+        CATCH error
+            this.onFailure()
+            THROW error
+        END TRY
+    END FUNCTION
+
+    FUNCTION onSuccess()
+        this.failureCount = 0
+        this.state = "CLOSED"
+    END FUNCTION
+
+    FUNCTION onFailure()
+        this.failureCount = this.failureCount + 1
+        IF this.failureCount >= this.threshold THEN
+            this.state = "OPEN"
+            AFTER this.timeout DO
+                this.state = "HALF_OPEN"
+                this.failureCount = 0
+            END AFTER
+        END IF
+    END FUNCTION
+END CLASS
+
+# Usage
+breaker = new CircuitBreaker()
+
+ON QUEUE_MESSAGE("orders") AS message
+    TRY
+        breaker.execute(FUNCTION() processOrder(message.data) END)
+        ACK(message)
+    CATCH error
+        NACK(message)   # Requeue
+    END TRY
+END ON
 ```
 
 ---
 
 ## 6️⃣ Real-World Example: Video Processing Pipeline
 
-```javascript
-// Use case: User uploads video, needs transcoding to multiple formats
+```text
+# Use case: User uploads video, needs transcoding to multiple formats
 
-// 1. Upload service publishes event
-async function handleVideoUpload(req, res) {
-  const videoId = uuidv4();
-  
-  // Upload to S3
-  await s3.upload(req.file, `videos/raw/${videoId}.mp4`);
-  
-  // Publish to Kafka
-  await kafka.send({
-    topic: 'video-uploaded',
-    messages: [{
-      key: videoId,
-      value: JSON.stringify({
-        videoId,
-        userId: req.user.id,
-        originalUrl: `s3://videos/raw/${videoId}.mp4`,
-        timestamp: Date.now()
-      })
-    }]
-  });
-  
-  res.json({ videoId, status: 'Processing' });
-}
+# 1. Upload service publishes event
+FUNCTION handleVideoUpload(request)
+    videoId = GENERATE_UUID()
 
-// 2. Transcoding workers consume from queue
-kafka.subscribe('video-uploaded', async (message) => {
-  const { videoId, originalUrl } = JSON.parse(message.value);
-  
-  const qualities = ['360p', '720p', '1080p'];
-  
-  for (const quality of qualities) {
-    // Add to work queue (RabbitMQ for task distribution)
-    await rabbitMQ.send('transcoding-tasks', {
-      videoId,
-      inputUrl: originalUrl,
-      outputQuality: quality,
-      outputUrl: `s3://videos/${quality}/${videoId}.mp4`
-    }, {
-      priority: quality === '360p' ? 10 : 5  // Prioritize low quality (quick preview)
-    });
-  }
-});
+    # Upload to object storage
+    OBJECT_STORE_UPLOAD(request.file, "videos/raw/" + videoId + ".mp4")
 
-// 3. Workers process transcoding
-rabbitMQ.subscribe('transcoding-tasks', async (message) => {
-  const { videoId, inputUrl, outputQuality, outputUrl } = message.data;
-  
-  try {
-    // Download from S3
-    const inputFile = await s3.download(inputUrl);
-    
-    // Transcode with FFmpeg
-    const outputFile = await ffmpeg.transcode(inputFile, { quality: outputQuality });
-    
-    // Upload result
-    await s3.upload(outputFile, outputUrl);
-    
-    // Publish completion event
-    await kafka.send({
-      topic: 'video-transcoded',
-      messages: [{
-        value: JSON.stringify({
-          videoId,
-          quality: outputQuality,
-          url: outputUrl,
-          timestamp: Date.now()
+    # Publish to event stream
+    PUBLISH TO topic "video-uploaded" WITH
+        key   = videoId
+        value = serialize({
+            videoId: videoId,
+            userId: request.user.id,
+            originalUrl: "store://videos/raw/" + videoId + ".mp4",
+            timestamp: NOW()
         })
-      }]
-    });
-    
-    message.ack();
-  } catch (error) {
-    console.error('Transcoding failed:', error);
-    
-    if (message.retryCount < 3) {
-      message.nack();  // Retry
-    } else {
-      await dlq.send('failed-transcoding', message);
-      message.ack();
-    }
-  }
-});
 
-// 4. Notification service notifies user
-kafka.subscribe('video-transcoded', async (message) => {
-  const { videoId, quality } = JSON.parse(message.value);
-  
-  // Check if all qualities done
-  const completed = await redis.sadd(`video:${videoId}:completed`, quality);
-  const total = await redis.scard(`video:${videoId}:completed`);
-  
-  if (total === 3) {
-    // All done, notify user
-    await sendPushNotification(userId, 'Your video is ready!');
-  }
-});
+    RETURN { videoId: videoId, status: "Processing" }
+END FUNCTION
+
+# 2. Transcoding workers consume from stream
+ON EVENT("video-uploaded") AS message
+    videoId = message.value.videoId
+    originalUrl = message.value.originalUrl
+
+    qualities = ["360p", "720p", "1080p"]
+
+    FOR EACH quality IN qualities
+        # Add to work queue (for task distribution)
+        QUEUE_SEND("transcoding-tasks", {
+            videoId: videoId,
+            inputUrl: originalUrl,
+            outputQuality: quality,
+            outputUrl: "store://videos/" + quality + "/" + videoId + ".mp4"
+        }, priority = IF quality == "360p" THEN 10 ELSE 5)  # Prioritize low quality (quick preview)
+    END FOR
+END ON
+
+# 3. Workers process transcoding
+ON QUEUE_MESSAGE("transcoding-tasks") AS message
+    videoId       = message.data.videoId
+    inputUrl      = message.data.inputUrl
+    outputQuality = message.data.outputQuality
+    outputUrl     = message.data.outputUrl
+
+    TRY
+        # Download from object storage
+        inputFile = OBJECT_STORE_DOWNLOAD(inputUrl)
+
+        # Transcode to the target quality
+        outputFile = TRANSCODE(inputFile, quality = outputQuality)
+
+        # Upload result
+        OBJECT_STORE_UPLOAD(outputFile, outputUrl)
+
+        # Publish completion event
+        PUBLISH TO topic "video-transcoded" WITH
+            value = serialize({
+                videoId: videoId,
+                quality: outputQuality,
+                url: outputUrl,
+                timestamp: NOW()
+            })
+
+        ACK(message)
+    CATCH error
+        PRINT_ERROR "Transcoding failed: " + error
+
+        IF message.retryCount < 3 THEN
+            NACK(message)   # Retry
+        ELSE
+            QUEUE_SEND("failed-transcoding", message)
+            ACK(message)
+        END IF
+    END TRY
+END ON
+
+# 4. Notification service notifies user
+ON EVENT("video-transcoded") AS message
+    videoId = message.value.videoId
+    quality = message.value.quality
+
+    # Check if all qualities done
+    SET_ADD("video:" + videoId + ":completed", quality)
+    total = SET_SIZE("video:" + videoId + ":completed")
+
+    IF total == 3 THEN
+        # All done, notify user
+        sendPushNotification(userId, "Your video is ready!")
+    END IF
+END ON
 ```
 
 ---

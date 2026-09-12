@@ -91,82 +91,78 @@ WebSocket Connections:
 
 ### Core APIs
 
-```javascript
-// 1. Send Message (WebSocket)
-{
-  type: "send_message",
-  message_id: "msg_abc123",  // Client-generated (for idempotency)
-  from: "user_123",
-  to: "user_456",  // or group_id
-  content: "Hello!",
-  encrypted_content: "AES256_encrypted_base64",  // E2EE
-  timestamp: 1676464123,
-  reply_to: "msg_xyz789"  // optional
+```text
+# 1. Send Message (WebSocket)
+Message {
+  type: "send_message"
+  message_id: "msg_abc123"        # Client-generated (for idempotency)
+  from: "user_123"
+  to: "user_456"                  # or group_id
+  content: "Hello!"
+  encrypted_content: "AES256_encrypted_base64"   # E2EE
+  timestamp: 1676464123
+  reply_to: "msg_xyz789"          # optional
 }
 
-// 2. Receive Message (WebSocket push)
-{
-  type: "new_message",
-  message_id: "msg_abc123",
-  from: "user_123",
-  to: "user_456",
-  encrypted_content: "AES256_encrypted_base64",
+# 2. Receive Message (WebSocket push)
+Message {
+  type: "new_message"
+  message_id: "msg_abc123"
+  from: "user_123"
+  to: "user_456"
+  encrypted_content: "AES256_encrypted_base64"
   timestamp: 1676464123
 }
 
-// 3. Delivery Receipt (WebSocket)
-{
-  type: "receipt",
-  message_id: "msg_abc123",
-  status: "delivered",  // sent, delivered, read
+# 3. Delivery Receipt (WebSocket)
+Message {
+  type: "receipt"
+  message_id: "msg_abc123"
+  status: "delivered"             # sent, delivered, read
   timestamp: 1676464125
 }
 
-// 4. Upload Media (REST API)
+# 4. Upload Media (REST API)
 POST /v1/media/upload
 Headers: { Authorization: "Bearer <token>" }
 Body: (multipart/form-data)
   file: <image.jpg>
 
-Response: {
-  media_id: "media_xyz789",
-  url: "https://cdn.whatsapp.com/media/xyz789.jpg",
-  thumbnail_url: "https://cdn.whatsapp.com/media/xyz789_thumb.jpg",
-  size: 524288,  // bytes
+Response:
+  media_id: "media_xyz789"
+  url: "https://cdn.whatsapp.com/media/xyz789.jpg"
+  thumbnail_url: "https://cdn.whatsapp.com/media/xyz789_thumb.jpg"
+  size: 524288                    # bytes
   mime_type: "image/jpeg"
-}
 
-// 5. Fetch Message History (REST API)
+# 5. Fetch Message History (REST API)
 GET /v1/messages?user_id=user_456&before=msg_abc123&limit=50
 
-Response: {
+Response:
   messages: [
     {
-      message_id: "msg_abc123",
-      from: "user_123",
-      to: "user_456",
-      encrypted_content: "...",
-      timestamp: 1676464123,
+      message_id: "msg_abc123"
+      from: "user_123"
+      to: "user_456"
+      encrypted_content: "..."
+      timestamp: 1676464123
       status: "read"
     }
-  ],
+  ]
   has_more: true
-}
 
-// 6. Create Group (REST API)
+# 6. Create Group (REST API)
 POST /v1/groups
-Body: {
-  name: "Family Group",
-  members: ["user_123", "user_456", "user_789"],
+Body:
+  name: "Family Group"
+  members: ["user_123", "user_456", "user_789"]
   admin: "user_123"
-}
 
-Response: {
-  group_id: "group_abc123",
-  name: "Family Group",
-  members: [...],
+Response:
+  group_id: "group_abc123"
+  name: "Family Group"
+  members: [...]
   created_at: 1676464123
-}
 ```
 
 ---
@@ -230,23 +226,23 @@ CREATE TABLE group_members (
 
 ### Redis (Online Status, WebSocket Mapping)
 
-```javascript
-// Online status
+```text
+# Online status
 Key: user:{user_id}:status
 Value: "online" | "offline"
 TTL: None
 
-// Last seen
+# Last seen
 Key: user:{user_id}:last_seen
 Value: timestamp
 TTL: None
 
-// WebSocket server mapping (for routing messages)
+# WebSocket server mapping (for routing messages)
 Key: user:{user_id}:ws_server
 Value: "ws-server-1.whatsapp.com"
 TTL: None (updated when connection changes)
 
-// Undelivered messages queue
+# Undelivered messages queue
 Key: user:{user_id}:pending_messages
 Type: List
 Value: [message_id1, message_id2, ...]
@@ -416,65 +412,64 @@ UserA   WS-Server1   MessageService   Redis   Cassandra   WS-Server2   UserB
 **Solution:** Horizontal scaling + Connection pooling
 
 **Approach:**
-```javascript
-class WebSocketServer {
-  constructor() {
-    this.connections = new Map();  // userId → WebSocket
-    this.serverId = process.env.SERVER_ID;
-  }
-  
-  async onConnect(ws, userId) {
-    // 1. Store connection
-    this.connections.set(userId, ws);
-    
-    // 2. Register in Redis (for routing)
-    await redis.set(`user:${userId}:ws_server`, this.serverId);
-    await redis.set(`user:${userId}:status`, 'online');
-    
-    // 3. Send pending messages (queued while offline)
-    const pending = await redis.lrange(`user:${userId}:pending`, 0, -1);
-    for (const msgId of pending) {
-      const message = await getMessageFromDB(msgId);
-      ws.send(JSON.stringify(message));
-    }
-    await redis.del(`user:${userId}:pending`);
-    
-    // 4. Notify contacts (user came online)
-    await notifyContacts(userId, { status: 'online' });
-  }
-  
-  async onMessage(ws, data) {
-    const msg = JSON.parse(data);
-    
-    // Route to message service
-    await messageService.send(msg);
-  }
-  
-  async onDisconnect(userId) {
-    // 1. Remove connection
-    this.connections.delete(userId);
-    
-    // 2. Update Redis
-    await redis.set(`user:${userId}:status`, 'offline');
-    await redis.set(`user:${userId}:last_seen`, Date.now());
-    await redis.del(`user:${userId}:ws_server`);
-    
-    // 3. Notify contacts
-    await notifyContacts(userId, { status: 'offline' });
-  }
-  
-  async sendToUser(userId, message) {
-    const ws = this.connections.get(userId);
-    
-    if (ws) {
-      ws.send(JSON.stringify(message));
-    } else {
-      // User not connected to this server
-      // Add to pending queue
-      await redis.rpush(`user:${userId}:pending`, message.id);
-    }
-  }
-}
+```text
+CLASS WebSocketServer
+
+  # State
+  connections = empty Map      # userId -> WebSocket connection
+  serverId    = config.SERVER_ID
+
+  FUNCTION onConnect(ws, userId)
+    # 1. Store connection
+    connections[userId] = ws
+
+    # 2. Register in Redis (for routing)
+    redis.set("user:" + userId + ":ws_server", serverId)
+    redis.set("user:" + userId + ":status", "online")
+
+    # 3. Send pending messages (queued while offline)
+    pending = redis.listRange("user:" + userId + ":pending", 0, -1)
+    FOR EACH msgId IN pending
+      message = getMessageFromDB(msgId)
+      ws.send(message)
+    END FOR
+    redis.delete("user:" + userId + ":pending")
+
+    # 4. Notify contacts (user came online)
+    notifyContacts(userId, { status: "online" })
+  END FUNCTION
+
+  FUNCTION onMessage(ws, data)
+    msg = parse(data)
+    # Route to message service
+    messageService.send(msg)
+  END FUNCTION
+
+  FUNCTION onDisconnect(userId)
+    # 1. Remove connection
+    connections.remove(userId)
+
+    # 2. Update Redis
+    redis.set("user:" + userId + ":status", "offline")
+    redis.set("user:" + userId + ":last_seen", currentTime())
+    redis.delete("user:" + userId + ":ws_server")
+
+    # 3. Notify contacts
+    notifyContacts(userId, { status: "offline" })
+  END FUNCTION
+
+  FUNCTION sendToUser(userId, message)
+    ws = connections[userId]
+
+    IF ws EXISTS THEN
+      ws.send(message)
+    ELSE
+      # User not connected to this server -> add to pending queue
+      redis.listPushRight("user:" + userId + ":pending", message.id)
+    END IF
+  END FUNCTION
+
+END CLASS
 ```
 
 **Scaling:**
@@ -497,64 +492,65 @@ class WebSocketServer {
 **Solution:** Redis Pub/Sub + Server-to-Server communication
 
 **Approach:**
-```javascript
-class MessageService {
-  async send(from, to, content) {
-    // 1. Generate message ID
-    const messageId = generateUUID();
-    
-    // 2. Store in Cassandra (sender's partition)
-    await cassandra.execute(
-      'INSERT INTO messages (user_id, message_id, from_user_id, to_user_id, encrypted_content, timestamp, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [from, messageId, from, to, content, Date.now(), 'sent']
-    );
-    
-    // 3. Store in Cassandra (recipient's partition)
-    await cassandra.execute(
-      'INSERT INTO messages (user_id, message_id, from_user_id, to_user_id, encrypted_content, timestamp, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [to, messageId, from, to, content, Date.now(), 'sent']
-    );
-    
-    // 4. Find recipient's WebSocket server
-    const recipientServer = await redis.get(`user:${to}:ws_server`);
-    
-    if (recipientServer) {
-      // 5. User is online → Push via Redis Pub/Sub
-      await redis.publish(`ws:${recipientServer}`, JSON.stringify({
-        type: 'new_message',
-        to: to,
+```text
+CLASS MessageService
+
+  FUNCTION send(from, to, content)
+    # 1. Generate message ID
+    messageId = generateUUID()
+
+    # 2. Store in Cassandra (sender's partition)
+    cassandra.execute(
+      "INSERT INTO messages (user_id, message_id, from_user_id, to_user_id, encrypted_content, timestamp, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [from, messageId, from, to, content, currentTime(), "sent"]
+    )
+
+    # 3. Store in Cassandra (recipient's partition)
+    cassandra.execute(
+      "INSERT INTO messages (user_id, message_id, from_user_id, to_user_id, encrypted_content, timestamp, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [to, messageId, from, to, content, currentTime(), "sent"]
+    )
+
+    # 4. Find recipient's WebSocket server
+    recipientServer = redis.get("user:" + to + ":ws_server")
+
+    IF recipientServer EXISTS THEN
+      # 5. User is online -> push via Redis Pub/Sub
+      redis.publish("ws:" + recipientServer, {
+        type: "new_message"
+        to: to
         message: {
-          message_id: messageId,
-          from: from,
-          encrypted_content: content,
-          timestamp: Date.now()
+          message_id: messageId
+          from: from
+          encrypted_content: content
+          timestamp: currentTime()
         }
-      }));
-    } else {
-      // 6. User is offline → Queue message
-      await redis.rpush(`user:${to}:pending`, messageId);
-    }
-    
-    // 7. Send delivery receipt to sender
-    return { message_id: messageId, status: 'sent' };
-  }
-}
+      })
+    ELSE
+      # 6. User is offline -> queue message
+      redis.listPushRight("user:" + to + ":pending", messageId)
+    END IF
 
-// WebSocket server subscribes to its channel
-redis.subscribe(`ws:${serverId}`);
+    # 7. Send delivery receipt to sender
+    RETURN { message_id: messageId, status: "sent" }
+  END FUNCTION
 
-redis.on('message', (channel, message) => {
-  const data = JSON.parse(message);
-  const userId = data.to;
-  const ws = connections.get(userId);
-  
-  if (ws) {
-    ws.send(JSON.stringify(data.message));
-    
-    // Send delivered receipt
-    sendReceipt(data.message.message_id, 'delivered');
-  }
-});
+END CLASS
+
+# WebSocket server subscribes to its channel
+redis.subscribe("ws:" + serverId)
+
+ON redis message (channel, message)
+  data   = parse(message)
+  userId = data.to
+  ws     = connections[userId]
+
+  IF ws EXISTS THEN
+    ws.send(data.message)
+    # Send delivered receipt
+    sendReceipt(data.message.message_id, "delivered")
+  END IF
+END ON
 ```
 
 **Trade-offs:**
@@ -595,33 +591,33 @@ redis.on('message', (channel, message) => {
 ```
 
 **Pseudo-code:**
-```javascript
-// User A (Sender)
-async function sendEncryptedMessage(content, recipientId) {
-  // 1. Fetch recipient's public key
-  const recipientPublicKey = await fetchPublicKey(recipientId);
-  
-  // 2. Encrypt message
-  const encryptedContent = encrypt(content, recipientPublicKey);
-  
-  // 3. Send to server
-  await sendMessage({
-    from: myUserId,
-    to: recipientId,
-    encrypted_content: encryptedContent
-  });
-}
+```text
+# User A (Sender)
+FUNCTION sendEncryptedMessage(content, recipientId)
+  # 1. Fetch recipient's public key
+  recipientPublicKey = fetchPublicKey(recipientId)
 
-// User B (Receiver)
-async function receiveEncryptedMessage(message) {
-  // 1. Decrypt with private key (stored on device)
-  const decryptedContent = decrypt(
+  # 2. Encrypt message
+  encryptedContent = encrypt(content, recipientPublicKey)
+
+  # 3. Send to server
+  sendMessage({
+    from: myUserId
+    to: recipientId
+    encrypted_content: encryptedContent
+  })
+END FUNCTION
+
+# User B (Receiver)
+FUNCTION receiveEncryptedMessage(message)
+  # 1. Decrypt with private key (stored on device)
+  decryptedContent = decrypt(
     message.encrypted_content,
-    myPrivateKey  // Never sent to server
-  );
-  
-  return decryptedContent;
-}
+    myPrivateKey        # Never sent to server
+  )
+
+  RETURN decryptedContent
+END FUNCTION
 ```
 
 **Trade-offs:**

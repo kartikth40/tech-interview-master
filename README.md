@@ -5,7 +5,7 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 ![Contributors](https://img.shields.io/github/contributors/kartikth40/tech-interview-master)
 ![Issues](https://img.shields.io/github/issues/kartikth40/tech-interview-master)
-![JavaScript](https://img.shields.io/badge/Language-JavaScript-yellow.svg)
+![Python](https://img.shields.io/badge/Language-Python-blue.svg)
 ![Target](https://img.shields.io/badge/Target-SDE--1%20%2F%20SDE--2-blue.svg)
 ![Companies](https://img.shields.io/badge/Companies-MAANG%20%2B%20Indian%20Unicorns-orange.svg)
 
@@ -118,7 +118,7 @@ cat DSA/DSACompleteGuide.md
 
 # Practice with implementations
 cd DSA/patterns
-node sliding-window.js
+python sliding_window.py
 ```
 
 ### For System Design:

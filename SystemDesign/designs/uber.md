@@ -96,91 +96,82 @@ Bandwidth:
 
 ### Core APIs
 
-```javascript
-// 1. Request Ride (Rider)
+```text
+# 1. Request Ride (Rider)
 POST /v1/rides/request
 Headers: { Authorization: "Bearer <user_token>" }
-Body: {
-  rider_id: "user_123",
-  pickup: { lat: 12.9716, lon: 77.5946 },
-  dropoff: { lat: 12.9352, lon: 77.6245 },
-  ride_type: "sedan"  // sedan, suv, auto
-}
-Response: {
-  ride_id: "ride_abc123",
-  estimated_fare: 250,  // rupees
-  estimated_time: 5,    // minutes to pickup
-  status: "searching"   // searching, matched, arrived, started, completed
-}
+Body:
+  rider_id: "user_123"
+  pickup: { lat: 12.9716, lon: 77.5946 }
+  dropoff: { lat: 12.9352, lon: 77.6245 }
+  ride_type: "sedan"        # sedan, suv, auto
+Response:
+  ride_id: "ride_abc123"
+  estimated_fare: 250       # rupees
+  estimated_time: 5         # minutes to pickup
+  status: "searching"       # searching, matched, arrived, started, completed
 
-// 2. Get Nearby Drivers (Rider - see drivers on map)
+# 2. Get Nearby Drivers (Rider - see drivers on map)
 GET /v1/drivers/nearby?lat=12.9716&lon=77.5946&radius=3
-Response: {
+Response:
   drivers: [
     {
-      driver_id: "driver_456",
-      location: { lat: 12.9720, lon: 77.5950 },
-      distance: 0.5,  // km
-      eta: 2          // minutes
+      driver_id: "driver_456"
+      location: { lat: 12.9720, lon: 77.5950 }
+      distance: 0.5         # km
+      eta: 2                # minutes
     }
   ]
-}
 
-// 3. Accept/Reject Ride (Driver)
+# 3. Accept/Reject Ride (Driver)
 POST /v1/rides/{ride_id}/accept
-Body: {
+Body:
   driver_id: "driver_456"
-}
-Response: {
-  ride_id: "ride_abc123",
+Response:
+  ride_id: "ride_abc123"
   rider: {
-    name: "John Doe",
-    phone: "+91-9876543210",
+    name: "John Doe"
+    phone: "+91-9876543210"
     pickup: { lat: 12.9716, lon: 77.5946 }
-  },
-  route: {
-    distance: 2.3,  // km to pickup
-    duration: 5     // minutes
   }
-}
+  route: {
+    distance: 2.3           # km to pickup
+    duration: 5             # minutes
+  }
 
-// 4. Update Location (Driver - GPS)
+# 4. Update Location (Driver - GPS)
 POST /v1/drivers/location
-Body: {
-  driver_id: "driver_456",
-  location: { lat: 12.9720, lon: 77.5950 },
+Body:
+  driver_id: "driver_456"
+  location: { lat: 12.9720, lon: 77.5950 }
   timestamp: 1676464123
-}
 Response: { success: true }
 
-// 5. Track Ride (Rider - real-time)
+# 5. Track Ride (Rider - real-time)
 GET /v1/rides/{ride_id}/track
-Response: {
-  ride_id: "ride_abc123",
-  status: "started",  // matched, arrived, started, completed
+Response:
+  ride_id: "ride_abc123"
+  status: "started"         # matched, arrived, started, completed
   driver: {
-    name: "Rajesh Kumar",
-    phone: "+91-9876543210",
-    location: { lat: 12.9500, lon: 77.6000 },
+    name: "Rajesh Kumar"
+    phone: "+91-9876543210"
+    location: { lat: 12.9500, lon: 77.6000 }
     rating: 4.8
-  },
-  eta: 15,  // minutes to destination
+  }
+  eta: 15                   # minutes to destination
   fare: 250
-}
 
-// 6. Complete Ride
+# 6. Complete Ride
 POST /v1/rides/{ride_id}/complete
-Body: {
-  driver_id: "driver_456",
-  final_fare: 275,
+Body:
+  driver_id: "driver_456"
+  final_fare: 275
   payment_method: "cash"
-}
-Response: {
-  ride_id: "ride_abc123",
-  fare: 275,
-  distance: 8.5,  // km
-  duration: 22    // minutes
-}
+Response:
+  ride_id: "ride_abc123"
+  fare: 275
+  distance: 8.5             # km
+  duration: 22              # minutes
 ```
 
 ---
@@ -246,26 +237,26 @@ CREATE INDEX idx_rides_status ON rides(status);
 
 ### Redis (Real-time Data)
 
-```javascript
-// Driver locations (geo-indexed)
+```text
+# Driver locations (geo-indexed)
 Key: drivers:available
 Type: Geo Set
 Command: GEOADD drivers:available 77.5946 12.9716 driver_456
 
-// Find nearby drivers:
+# Find nearby drivers:
 Command: GEORADIUS drivers:available 77.5946 12.9716 3 km
 
-// Driver status
+# Driver status
 Key: driver:{driver_id}:status
 Value: "online" | "offline" | "on_ride"
 TTL: None
 
-// Active ride
+# Active ride
 Key: driver:{driver_id}:active_ride
 Value: ride_id
 TTL: None
 
-// Ride lock (prevent double assignment)
+# Ride lock (prevent double assignment)
 Key: ride:lock:{ride_id}
 Value: 1
 TTL: 60 seconds
@@ -474,80 +465,75 @@ Rider    RideService   MatchingService   GeoService   Redis   Driver
 **Challenge:** Find the best driver among thousands nearby
 
 **Approach:**
-```javascript
-async function findBestDriver(ride) {
-  const pickup = ride.pickup_location;
-  
-  // 1. Find drivers within 3 km using Redis geo-index
-  const nearbyDrivers = await redis.georadius(
-    'drivers:available',
-    pickup.lon,
-    pickup.lat,
-    3,  // 3 km radius
-    'km',
-    'WITHDIST',  // Include distance
-    'ASC'        // Closest first
-  );
-  
-  if (nearbyDrivers.length === 0) {
-    // Expand radius to 5 km
-    nearbyDrivers = await redis.georadius(..., 5, ...);
-  }
-  
-  // 2. Filter available drivers (not on ride)
-  const available = [];
-  for (const [driverId, distance] of nearbyDrivers) {
-    const status = await redis.get(`driver:${driverId}:status`);
-    if (status === 'online') {
-      available.push({ driverId, distance: parseFloat(distance) });
-    }
-  }
-  
-  // 3. Calculate ETA for top 5 closest
-  const candidates = available.slice(0, 5);
-  const withETA = await Promise.all(
-    candidates.map(async (driver) => {
-      const driverLoc = await getDriverLocation(driver.driverId);
-      const route = await GoogleMaps.getRoute(driverLoc, pickup);
-      
-      return {
-        driverId: driver.driverId,
-        distance: driver.distance,
-        eta: route.duration  // minutes
-      };
-    })
-  );
-  
-  // 4. Pick driver with best ETA
-  withETA.sort((a, b) => a.eta - b.eta);
-  const bestDriver = withETA[0];
-  
-  // 5. Acquire lock (prevent double-assignment)
-  const locked = await redis.set(
-    `driver:${bestDriver.driverId}:lock`,
+```text
+FUNCTION findBestDriver(ride)
+  pickup = ride.pickup_location
+
+  # 1. Find drivers within 3 km using Redis geo-index
+  nearbyDrivers = redis.geoRadius(
+    "drivers:available",
+    pickup.lon, pickup.lat,
+    3, "km",              # 3 km radius
+    WITH_DISTANCE,        # include distance
+    ORDER_ASCENDING       # closest first
+  )
+
+  IF nearbyDrivers IS EMPTY THEN
+    # Expand radius to 5 km
+    nearbyDrivers = redis.geoRadius("drivers:available", pickup.lon, pickup.lat, 5, "km", ...)
+  END IF
+
+  # 2. Filter available drivers (not on ride)
+  available = empty list
+  FOR EACH (driverId, distance) IN nearbyDrivers
+    status = redis.get("driver:" + driverId + ":status")
+    IF status EQUALS "online" THEN
+      append { driverId: driverId, distance: toNumber(distance) } TO available
+    END IF
+  END FOR
+
+  # 3. Calculate ETA for top 5 closest
+  candidates = first 5 of available
+  withETA = empty list
+  FOR EACH driver IN candidates
+    driverLoc = getDriverLocation(driver.driverId)
+    route     = MapsProvider.getRoute(driverLoc, pickup)
+    append {
+      driverId: driver.driverId,
+      distance: driver.distance,
+      eta: route.duration      # minutes
+    } TO withETA
+  END FOR
+
+  # 4. Pick driver with best ETA
+  SORT withETA BY eta ASCENDING
+  bestDriver = withETA[0]
+
+  # 5. Acquire lock (prevent double-assignment)
+  locked = redis.setIfAbsent(
+    "driver:" + bestDriver.driverId + ":lock",
     ride.id,
-    'NX',
-    'EX', 60
-  );
-  
-  if (!locked) {
-    // Driver already assigned, try next
-    return findBestDriver(ride);  // Recursive retry
-  }
-  
-  // 6. Update driver status
-  await redis.set(`driver:${bestDriver.driverId}:status`, 'on_ride');
-  await redis.set(`driver:${bestDriver.driverId}:active_ride`, ride.id);
-  
-  // 7. Send push notification
-  await sendPushNotification(bestDriver.driverId, {
-    title: 'New Ride Request',
-    body: `Pickup in ${bestDriver.eta} min`,
-    data: { ride_id: ride.id }
-  });
-  
-  return bestDriver;
-}
+    expirySeconds = 60
+  )
+
+  IF NOT locked THEN
+    # Driver already assigned, try next
+    RETURN findBestDriver(ride)   # recursive retry
+  END IF
+
+  # 6. Update driver status
+  redis.set("driver:" + bestDriver.driverId + ":status", "on_ride")
+  redis.set("driver:" + bestDriver.driverId + ":active_ride", ride.id)
+
+  # 7. Send push notification
+  sendPushNotification(bestDriver.driverId, {
+    title: "New Ride Request",
+    body:  "Pickup in " + bestDriver.eta + " min",
+    data:  { ride_id: ride.id }
+  })
+
+  RETURN bestDriver
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -567,62 +553,57 @@ async function findBestDriver(ride) {
 **Solution:** Write to Redis (fast), batch write to Cassandra
 
 **Implementation:**
-```javascript
-// Driver app sends GPS every 4 seconds
-async function updateDriverLocation(driverId, location) {
-  // 1. Update Redis (for real-time queries)
-  await redis.geoadd(
-    'drivers:available',
-    location.lon,
-    location.lat,
-    driverId
-  );
-  
-  // 2. Cache location with timestamp
-  await redis.set(
-    `driver:${driverId}:location`,
-    JSON.stringify({ ...location, timestamp: Date.now() }),
-    'EX', 60  // 1 minute TTL
-  );
-  
-  // 3. Buffer for batch write to Cassandra
-  await locationBuffer.add({
-    driver_id: driverId,
-    timestamp: new Date(),
-    location: location
-  });
-  
-  // Flush buffer every 10 seconds or 5000 records
-  if (locationBuffer.size() >= 5000 || locationBuffer.elapsed() >= 10) {
-    await flushLocationBuffer();
-  }
-  
-  // 4. Notify rider via WebSocket (if driver is on active ride)
-  const rideId = await redis.get(`driver:${driverId}:active_ride`);
-  if (rideId) {
-    await websocket.send(rideId, {
-      type: 'location_update',
-      driver_location: location,
-      timestamp: Date.now()
-    });
-  }
-}
+```text
+# Driver app sends GPS every 4 seconds
+FUNCTION updateDriverLocation(driverId, location)
+  # 1. Update Redis (for real-time queries)
+  redis.geoAdd("drivers:available", location.lon, location.lat, driverId)
 
-// Batch write to Cassandra
-async function flushLocationBuffer() {
-  const locations = locationBuffer.getAll();
-  
-  const batch = cassandra.batch();
-  for (const loc of locations) {
+  # 2. Cache location with timestamp
+  redis.set(
+    "driver:" + driverId + ":location",
+    serialize({ location: location, timestamp: currentTime() }),
+    expirySeconds = 60          # 1 minute TTL
+  )
+
+  # 3. Buffer for batch write to Cassandra
+  locationBuffer.add({
+    driver_id: driverId,
+    timestamp: currentTime(),
+    location:  location
+  })
+
+  # Flush buffer every 10 seconds or 5000 records
+  IF locationBuffer.size() >= 5000 OR locationBuffer.elapsedSeconds() >= 10 THEN
+    flushLocationBuffer()
+  END IF
+
+  # 4. Notify rider via WebSocket (if driver is on active ride)
+  rideId = redis.get("driver:" + driverId + ":active_ride")
+  IF rideId EXISTS THEN
+    websocket.send(rideId, {
+      type: "location_update",
+      driver_location: location,
+      timestamp: currentTime()
+    })
+  END IF
+END FUNCTION
+
+# Batch write to Cassandra
+FUNCTION flushLocationBuffer()
+  locations = locationBuffer.getAll()
+
+  batch = cassandra.newBatch()
+  FOR EACH loc IN locations
     batch.add(
-      'INSERT INTO gps_tracking (driver_id, timestamp, location) VALUES (?, ?, ?)',
+      "INSERT INTO gps_tracking (driver_id, timestamp, location) VALUES (?, ?, ?)",
       [loc.driver_id, loc.timestamp, loc.location]
-    );
-  }
-  
-  await batch.execute();
-  locationBuffer.clear();
-}
+    )
+  END FOR
+
+  batch.execute()
+  locationBuffer.clear()
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -641,68 +622,65 @@ async function flushLocationBuffer() {
 **Challenge:** Dynamically adjust prices based on demand/supply
 
 **Algorithm:**
-```javascript
-async function calculateFare(pickup, dropoff, rideType) {
-  // 1. Base fare calculation
-  const route = await GoogleMaps.getRoute(pickup, dropoff);
-  const distance = route.distance;  // km
-  const duration = route.duration;  // minutes
-  
-  const baseFare = (distance × 10) + (duration × 2) + 50;  // ₹10/km, ₹2/min, ₹50 base
-  
-  // 2. Calculate surge multiplier
-  const surgeMultiplier = await calculateSurge(pickup);
-  
-  const finalFare = baseFare × surgeMultiplier;
-  
-  return {
+```text
+FUNCTION calculateFare(pickup, dropoff, rideType)
+  # 1. Base fare calculation
+  route    = MapsProvider.getRoute(pickup, dropoff)
+  distance = route.distance      # km
+  duration = route.duration      # minutes
+
+  baseFare = (distance * 10) + (duration * 2) + 50   # Rs 10/km, Rs 2/min, Rs 50 base
+
+  # 2. Calculate surge multiplier
+  surgeMultiplier = calculateSurge(pickup)
+
+  finalFare = baseFare * surgeMultiplier
+
+  RETURN {
     base_fare: baseFare,
     surge_multiplier: surgeMultiplier,
-    final_fare: Math.round(finalFare)
-  };
-}
+    final_fare: round(finalFare)
+  }
+END FUNCTION
 
-async function calculateSurge(location) {
-  // Get demand vs supply ratio in this area
-  
-  // 1. Count pending rides (demand)
-  const pendingRides = await Ride.count({
-    status: 'searching',
-    pickup_location: { near: location, radius: 2 }  // 2 km
-  });
-  
-  // 2. Count available drivers (supply)
-  const availableDrivers = await redis.georadius(
-    'drivers:available',
-    location.lon,
-    location.lat,
-    2,
-    'km'
-  );
-  
-  const ratio = pendingRides / Math.max(availableDrivers.length, 1);
-  
-  // 3. Calculate surge multiplier
-  let surge = 1.0;
-  
-  if (ratio > 5) surge = 2.0;      // 2x surge (very high demand)
-  else if (ratio > 3) surge = 1.5;  // 1.5x surge
-  else if (ratio > 2) surge = 1.2;  // 1.2x surge
-  
-  // 4. Time-based surge (peak hours)
-  const hour = new Date().getHours();
-  if ((hour >= 8 && hour <= 10) || (hour >= 18 && hour <= 20)) {
-    surge *= 1.1;  // Additional 10% during peak hours
-  }
-  
-  // 5. Weather-based surge (rain)
-  const weather = await WeatherAPI.get(location);
-  if (weather.rain) {
-    surge *= 1.2;  // Additional 20% in rain
-  }
-  
-  return Math.min(surge, 3.0);  // Cap at 3x
-}
+FUNCTION calculateSurge(location)
+  # Get demand vs supply ratio in this area
+
+  # 1. Count pending rides (demand)
+  pendingRides = Rides.count(
+    status = "searching",
+    pickup_location near location within 2 km
+  )
+
+  # 2. Count available drivers (supply)
+  availableDrivers = redis.geoRadius("drivers:available", location.lon, location.lat, 2, "km")
+
+  ratio = pendingRides / MAX(count(availableDrivers), 1)
+
+  # 3. Calculate surge multiplier
+  surge = 1.0
+  IF ratio > 5 THEN
+    surge = 2.0        # 2x surge (very high demand)
+  ELSE IF ratio > 3 THEN
+    surge = 1.5        # 1.5x surge
+  ELSE IF ratio > 2 THEN
+    surge = 1.2        # 1.2x surge
+  END IF
+
+  # 4. Time-based surge (peak hours)
+  hour = currentHour()
+  IF (hour >= 8 AND hour <= 10) OR (hour >= 18 AND hour <= 20) THEN
+    surge = surge * 1.1    # additional 10% during peak hours
+  END IF
+
+  # 5. Weather-based surge (rain)
+  weather = WeatherProvider.get(location)
+  IF weather.rain THEN
+    surge = surge * 1.2    # additional 20% in rain
+  END IF
+
+  RETURN MIN(surge, 3.0)   # cap at 3x
+END FUNCTION
 ```
 
 **Trade-offs:**

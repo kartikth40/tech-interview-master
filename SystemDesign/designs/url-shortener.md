@@ -76,13 +76,13 @@ Short URL length:
 
 ## 3️⃣ API Design
 
-```javascript
-// 1. Shorten URL
+```text
+# 1. Shorten URL
 POST /v1/shorten
 Body: {
   long_url: "https://www.example.com/very/long/url?param=value",
-  custom_alias: "my-link",  // optional
-  expiration_days: 30  // optional
+  custom_alias: "my-link",   # optional
+  expiration_days: 30        # optional
 }
 
 Response: {
@@ -92,11 +92,11 @@ Response: {
   expires_at: "2024-02-14T12:00:00Z"
 }
 
-// 2. Redirect (handled by web server, not API)
+# 2. Redirect (handled by web server, not API)
 GET /{short_code}
 → 301/302 Redirect to long_url
 
-// 3. Get Analytics (optional)
+# 3. Get Analytics (optional)
 GET /v1/analytics/{short_code}
 
 Response: {
@@ -145,13 +145,13 @@ CREATE INDEX idx_clicks_clicked_at ON clicks(clicked_at);
 
 ### Redis (Caching)
 
-```javascript
-// URL mapping cache (hot URLs)
+```text
+# URL mapping cache (hot URLs)
 Key: url:{short_code}
 Value: long_url
 TTL: 1 hour
 
-// Counter for click tracking
+# Counter for click tracking
 Key: clicks:{short_code}
 Type: Counter
 Value: 15000
@@ -257,28 +257,23 @@ User  WebServer  Redis  PostgreSQL
 
 **Approach 1: Random Generation + Collision Check**
 
-```javascript
-class ShortCodeGenerator {
-  async generateCode() {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    
-    while (true) {
-      // Generate random 7-character code
-      let code = '';
-      for (let i = 0; i < 7; i++) {
-        code += chars[Math.floor(Math.random() * 62)];
-      }
-      
-      // Check if code already exists
-      const exists = await db.query('SELECT 1 FROM urls WHERE short_code = ?', [code]);
-      
-      if (!exists) {
-        return code;
-      }
-      // If collision, retry (very rare with 62^7 space)
-    }
-  }
-}
+```text
+FUNCTION generateCode():
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+    LOOP forever:
+        # Generate random 7-character code
+        code = ""
+        FOR i FROM 0 TO 6:
+            code = code + chars[random integer in 0..61]
+
+        # Check if code already exists
+        exists = query database "SELECT 1 FROM urls WHERE short_code = code"
+
+        IF NOT exists:
+            RETURN code
+        # If collision, retry (very rare with 62^7 space)
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -289,44 +284,40 @@ class ShortCodeGenerator {
 
 **Approach 2: Counter-based (Base62 Encoding)**
 
-```javascript
-class ShortCodeGenerator {
-  async generateCode() {
-    // 1. Get next counter value from Redis (atomic)
-    const counter = await redis.incr('url:counter');
-    
-    // 2. Encode counter in base62
-    return this.base62Encode(counter);
-  }
-  
-  base62Encode(num) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    
-    while (num > 0) {
-      result = chars[num % 62] + result;
-      num = Math.floor(num / 62);
-    }
-    
-    return result.padStart(7, 'a');  // Pad to 7 characters
-  }
-  
-  base62Decode(code) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let num = 0;
-    
-    for (let i = 0; i < code.length; i++) {
-      num = num * 62 + chars.indexOf(code[i]);
-    }
-    
-    return num;
-  }
-}
+```text
+FUNCTION generateCode():
+    # 1. Get next counter value from Redis (atomic)
+    counter = atomic increment of "url:counter" in Redis
 
-// Example:
-// Counter = 1 → Short code = "aaaaaab"
-// Counter = 62 → Short code = "aaaaaBA"
-// Counter = 100000 → Short code = "aaaBwq"
+    # 2. Encode counter in base62
+    RETURN base62Encode(counter)
+END FUNCTION
+
+FUNCTION base62Encode(num):
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    result = ""
+
+    WHILE num > 0:
+        result = chars[num MOD 62] + result
+        num = floor(num / 62)
+
+    RETURN left-pad result with 'a' to 7 characters
+END FUNCTION
+
+FUNCTION base62Decode(code):
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    num = 0
+
+    FOR EACH character c IN code:
+        num = num * 62 + indexOf(c IN chars)
+
+    RETURN num
+END FUNCTION
+
+# Example:
+# Counter = 1      → Short code = "aaaaaab"
+# Counter = 62     → Short code = "aaaaaBA"
+# Counter = 100000 → Short code = "aaaBwq"
 ```
 
 **Trade-offs:**
@@ -337,19 +328,17 @@ class ShortCodeGenerator {
 
 **Best Approach: Counter + Salt (Hash)**
 
-```javascript
-class ShortCodeGenerator {
-  async generateCode() {
-    const counter = await redis.incr('url:counter');
-    
-    // Add randomness to make it unpredictable
-    const hash = md5(counter + SALT);
-    const shortHash = hash.substring(0, 7);
-    
-    // Encode in base62
-    return this.base62Encode(parseInt(shortHash, 16));
-  }
-}
+```text
+FUNCTION generateCode():
+    counter = atomic increment of "url:counter" in Redis
+
+    # Add randomness to make it unpredictable
+    hash = md5(counter + SALT)
+    shortHash = first 7 characters of hash
+
+    # Encode in base62
+    RETURN base62Encode(parse shortHash as hexadecimal integer)
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -366,43 +355,35 @@ class ShortCodeGenerator {
 
 **Solution: Multi-layer Caching**
 
-```javascript
-class URLService {
-  async getOriginalURL(shortCode) {
-    // Layer 1: In-memory cache (application level)
-    if (this.localCache.has(shortCode)) {
-      return this.localCache.get(shortCode);
-    }
-    
-    // Layer 2: Redis cache (distributed)
-    const cachedURL = await redis.get(`url:${shortCode}`);
-    if (cachedURL) {
-      // Update local cache
-      this.localCache.set(shortCode, cachedURL);
-      return cachedURL;
-    }
-    
-    // Layer 3: Database (cache miss)
-    const result = await db.query(
-      'SELECT long_url FROM urls WHERE short_code = ?',
-      [shortCode]
-    );
-    
-    if (result) {
-      const longURL = result.long_url;
-      
-      // Cache in Redis (1 hour TTL)
-      await redis.setex(`url:${shortCode}`, 3600, longURL);
-      
-      // Cache locally
-      this.localCache.set(shortCode, longURL);
-      
-      return longURL;
-    }
-    
-    return null;  // URL not found
-  }
-}
+```text
+FUNCTION getOriginalURL(shortCode):
+    # Layer 1: In-memory cache (application level)
+    IF localCache contains shortCode:
+        RETURN localCache[shortCode]
+
+    # Layer 2: Redis cache (distributed)
+    cachedURL = get "url:{shortCode}" from Redis
+    IF cachedURL exists:
+        # Update local cache
+        localCache[shortCode] = cachedURL
+        RETURN cachedURL
+
+    # Layer 3: Database (cache miss)
+    result = query database "SELECT long_url FROM urls WHERE short_code = shortCode"
+
+    IF result exists:
+        longURL = result.long_url
+
+        # Cache in Redis (1 hour TTL)
+        set "url:{shortCode}" = longURL in Redis with TTL 3600 seconds
+
+        # Cache locally
+        localCache[shortCode] = longURL
+
+        RETURN longURL
+
+    RETURN null   # URL not found
+END FUNCTION
 ```
 
 **Caching Strategy:**
@@ -428,64 +409,52 @@ class URLService {
 
 **Solution: Async Event Processing**
 
-```javascript
-class RedirectService {
-  async redirect(shortCode, request) {
-    // 1. Get original URL (fast, cached)
-    const longURL = await urlService.getOriginalURL(shortCode);
-    
-    if (!longURL) {
-      return 404;
-    }
-    
-    // 2. Fire-and-forget analytics event (async, non-blocking)
-    this.trackClick(shortCode, request).catch(err => {
-      // Log error but don't block redirect
-      logger.error('Analytics tracking failed', err);
-    });
-    
-    // 3. Redirect immediately (don't wait for analytics)
-    return redirect(301, longURL);
-  }
-  
-  async trackClick(shortCode, request) {
-    // Send event to Kafka (buffered, high throughput)
-    await kafka.send({
-      topic: 'url-clicks',
-      messages: [{
-        key: shortCode,
-        value: JSON.stringify({
-          short_code: shortCode,
-          ip: request.ip,
-          user_agent: request.headers['user-agent'],
-          referrer: request.headers['referer'],
-          timestamp: Date.now()
-        })
-      }]
-    });
-  }
-}
+```text
+FUNCTION redirect(shortCode, request):
+    # 1. Get original URL (fast, cached)
+    longURL = call getOriginalURL(shortCode)
 
-// Kafka consumer (separate service)
-class AnalyticsProcessor {
-  async processClickEvent(event) {
-    // 1. Increment counter in Redis (fast)
-    await redis.incr(`clicks:${event.short_code}`);
-    
-    // 2. Batch insert to PostgreSQL (every 10 seconds)
-    this.clickBuffer.push(event);
-    
-    if (this.clickBuffer.length >= 1000) {
-      await this.flushToDatabase();
-    }
-  }
-  
-  async flushToDatabase() {
-    // Batch insert 1000 rows at once
-    await db.batchInsert('clicks', this.clickBuffer);
-    this.clickBuffer = [];
-  }
-}
+    IF longURL is null:
+        RETURN 404
+
+    # 2. Fire-and-forget analytics event (async, non-blocking)
+    START trackClick(shortCode, request) in background
+        ON error: log "Analytics tracking failed" but do NOT block redirect
+
+    # 3. Redirect immediately (don't wait for analytics)
+    RETURN redirect(301, longURL)
+END FUNCTION
+
+FUNCTION trackClick(shortCode, request):
+    # Send event to Kafka (buffered, high throughput)
+    send to Kafka topic "url-clicks":
+        key   = shortCode
+        value = {
+            short_code: shortCode,
+            ip:         request.ip,
+            user_agent: request.header "user-agent",
+            referrer:   request.header "referer",
+            timestamp:  current time
+        }
+END FUNCTION
+
+# Kafka consumer (separate service)
+FUNCTION processClickEvent(event):
+    # 1. Increment counter in Redis (fast)
+    atomic increment of "clicks:{event.short_code}" in Redis
+
+    # 2. Batch insert to PostgreSQL (every 10 seconds)
+    append event to clickBuffer
+
+    IF size of clickBuffer >= 1000:
+        call flushToDatabase()
+END FUNCTION
+
+FUNCTION flushToDatabase():
+    # Batch insert 1000 rows at once
+    batch insert clickBuffer into "clicks" table
+    clickBuffer = empty list
+END FUNCTION
 ```
 
 **Trade-offs:**

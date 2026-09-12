@@ -163,15 +163,14 @@ Server 3 (15 connections, weight=3): Score = 5
 ---
 
 ### 5. **IP Hash (Session Affinity)**
-```javascript
-function selectServer(clientIP, servers) {
-  const hash = murmurhash(clientIP);
-  const index = hash % servers.length;
-  return servers[index];
-}
+```text
+FUNCTION select_server(client_ip, servers):
+    hash = murmurhash(client_ip)
+    index = hash MOD length(servers)
+    RETURN servers[index]
 
-// Same client always routed to same server
-Client 192.168.1.100 → Server 2 (always)
+# Same client always routed to same server
+Client 192.168.1.100 -> Server 2 (always)
 ```
 
 **Pros:** Session persistence without cookies  
@@ -195,36 +194,26 @@ Server 3 (avg 150ms response time)
 
 ## 🏥 Health Checks
 
-```javascript
-// Active Health Check (Proactive)
-async function healthCheck(server) {
-  try {
-    const response = await fetch(`${server.url}/health`, {
-      timeout: 2000
-    });
-    
-    return response.status === 200;
-  } catch (error) {
-    return false;
-  }
-}
+```text
+# Active Health Check (Proactive)
+FUNCTION health_check(server):
+    TRY:
+        response = HTTP GET server.url + "/health"  (timeout 2000 ms)
+        RETURN response.status == 200
+    CATCH error:
+        RETURN false
 
-// Run every 10 seconds
-setInterval(() => {
-  servers.forEach(server => {
-    const isHealthy = await healthCheck(server);
-    server.healthy = isHealthy;
-  });
-}, 10000);
+# Run every 10 seconds
+EVERY 10 seconds:
+    FOR EACH server IN servers:
+        server.healthy = health_check(server)
 
-// Passive Health Check (Reactive)
-function handleRequest(req, server) {
-  if (server.consecutiveFailures >= 3) {
-    server.healthy = false;
-    // Remove from rotation for 60 seconds
-    setTimeout(() => server.healthy = true, 60000);
-  }
-}
+# Passive Health Check (Reactive)
+FUNCTION handle_request(req, server):
+    IF server.consecutive_failures >= 3:
+        server.healthy = false
+        # Remove from rotation for 60 seconds, then restore
+        AFTER 60 seconds: server.healthy = true
 ```
 
 **Metrics to Monitor:**
@@ -260,29 +249,29 @@ User logs in → Session stored on Server 1 → Next request goes to Server 2 �
 ### **Solutions:**
 
 #### 1. **Cookie-Based Stickiness**
-```javascript
-// Load balancer sets cookie
+```text
+# Load balancer sets cookie
 Set-Cookie: SERVER_ID=server1; Path=/
 
-// Client includes cookie in subsequent requests
+# Client includes cookie in subsequent requests
 Cookie: SERVER_ID=server1
 
-// Load balancer reads cookie, routes to server1
+# Load balancer reads cookie, routes to server1
 ```
 
 #### 2. **IP Hash Stickiness**
-```javascript
-// Same client IP always → same server
-hash(client_ip) % num_servers = server_index
+```text
+# Same client IP always -> same server
+hash(client_ip) MOD num_servers = server_index
 ```
 
 #### 3. **Session Store (Better)** ⭐
-```javascript
-// Store session in Redis (shared)
-const session = await redis.get(`session:${sessionId}`);
+```text
+# Store session in a shared store (e.g. Redis)
+session = SHARED_STORE.get("session:" + session_id)
 
-// Any server can handle any request
-// No need for sticky sessions
+# Any server can handle any request
+# No need for sticky sessions
 ```
 
 ---

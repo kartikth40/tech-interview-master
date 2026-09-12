@@ -92,8 +92,8 @@ Bandwidth:
 
 ### Core APIs
 
-```javascript
-// 1. Upload Video
+```text
+# 1. Upload Video
 POST /v1/videos/upload
 Body: (multipart/form-data)
   video: <file>
@@ -103,11 +103,11 @@ Body: (multipart/form-data)
 
 Response: {
   video_id: "abc123",
-  status: "processing",  // processing → ready
+  status: "processing",  # processing → ready
   upload_url: "https://s3.amazonaws.com/presigned-url"
 }
 
-// 2. Get Video Metadata
+# 2. Get Video Metadata
 GET /v1/videos/{video_id}
 
 Response: {
@@ -122,19 +122,19 @@ Response: {
     subscribers: 500000
   },
   thumbnail_url: "https://cdn.youtube.com/thumbnails/abc123.jpg",
-  duration: 600,  // seconds
+  duration: 600,  # seconds
   resolutions: ["360p", "720p", "1080p"],
   status: "ready"
 }
 
-// 3. Stream Video (HLS/DASH)
+# 3. Stream Video (HLS/DASH)
 GET /v1/videos/{video_id}/stream
   ?resolution=720p
 
 Response: (302 Redirect to CDN)
 Location: https://cdn.youtube.com/videos/abc123/720p/playlist.m3u8
 
-// HLS Playlist (playlist.m3u8)
+# HLS Playlist (playlist.m3u8)
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-TARGETDURATION:10
@@ -144,7 +144,7 @@ segment0.ts
 segment1.ts
 ...
 
-// 4. Search Videos
+# 4. Search Videos
 GET /v1/search
   ?query=system+design
   &page=1&limit=20
@@ -164,7 +164,7 @@ Response: {
   page: 1
 }
 
-// 5. Like Video
+# 5. Like Video
 POST /v1/videos/{video_id}/like
 Body: { user_id: "user_123" }
 
@@ -174,7 +174,7 @@ Response: {
   user_liked: true
 }
 
-// 6. Get Recommendations
+# 6. Get Recommendations
 GET /v1/recommendations
   ?user_id=user_123&limit=20
 
@@ -250,23 +250,23 @@ CREATE TABLE video_views (
 
 ### Redis (Caching, Counters)
 
-```javascript
-// Video metadata cache
+```text
+# Video metadata cache
 Key: video:{video_id}:metadata
 Value: JSON { title, views, likes, ... }
 TTL: 1 hour
 
-// View count (real-time)
+# View count (real-time)
 Key: video:{video_id}:views
 Type: Counter
 Value: 1500000
 
-// Like count
+# Like count
 Key: video:{video_id}:likes
 Type: Counter
 Value: 50000
 
-// Trending videos
+# Trending videos
 Key: trending:videos:daily
 Type: Sorted Set (score = views in last 24h)
 Value: [(video_id, score), ...]
@@ -454,85 +454,64 @@ User  UploadService  S3  TranscodingService  PostgreSQL  Elasticsearch
 
 **Solution: Distributed Transcoding with Queue**
 
-```javascript
-// S3 Event → SNS → SQS → Transcoding Workers
+```text
+# S3 Event → SNS → SQS → Transcoding Workers
 
-class TranscodingService {
-  async processVideo(videoId) {
-    // 1. Download original video from S3
-    const originalVideo = await s3.getObject({
-      Bucket: 'youtube-videos',
-      Key: `videos/${videoId}/original.mp4`
-    });
-    
-    // 2. Transcode to multiple resolutions (parallel)
-    const resolutions = ['360p', '720p', '1080p', '4k'];
-    
-    await Promise.all(resolutions.map(async (resolution) => {
-      // Transcode using FFmpeg
-      const segments = await this.transcodeToHLS(originalVideo, resolution);
-      
-      // Upload segments to S3
-      for (const segment of segments) {
-        await s3.upload({
-          Bucket: 'youtube-videos',
-          Key: `videos/${videoId}/${resolution}/${segment.name}`,
-          Body: segment.data
-        });
-      }
-      
-      // Create HLS playlist
-      const playlist = this.createHLSPlaylist(segments);
-      await s3.upload({
-        Bucket: 'youtube-videos',
-        Key: `videos/${videoId}/${resolution}/playlist.m3u8`,
-        Body: playlist
-      });
-    }));
-    
-    // 3. Generate thumbnail (from frame at 2 seconds)
-    const thumbnail = await this.generateThumbnail(originalVideo, 2);
-    await s3.upload({
-      Bucket: 'youtube-videos',
-      Key: `thumbnails/${videoId}.jpg`,
-      Body: thumbnail
-    });
-    
-    // 4. Update video status in DB
-    await db.query(
-      'UPDATE videos SET status = ? WHERE id = ?',
-      ['ready', videoId]
-    );
-    
-    // 5. Index in Elasticsearch
-    await elasticsearch.index({
-      index: 'videos',
-      id: videoId,
-      body: {
-        video_id: videoId,
-        title: video.title,
+FUNCTION processVideo(videoId):
+    # 1. Download original video from S3
+    originalVideo = get object from S3 (bucket = "youtube-videos",
+                                        key = "videos/{videoId}/original.mp4")
+
+    # 2. Transcode to multiple resolutions (in parallel)
+    resolutions = ["360p", "720p", "1080p", "4k"]
+
+    FOR EACH resolution IN resolutions (in parallel):
+        # Transcode using FFmpeg
+        segments = transcodeToHLS(originalVideo, resolution)
+
+        # Upload segments to S3
+        FOR EACH segment IN segments:
+            upload to S3 (bucket = "youtube-videos",
+                          key    = "videos/{videoId}/{resolution}/{segment.name}",
+                          body   = segment.data)
+
+        # Create HLS playlist
+        playlist = createHLSPlaylist(segments)
+        upload to S3 (bucket = "youtube-videos",
+                      key    = "videos/{videoId}/{resolution}/playlist.m3u8",
+                      body   = playlist)
+
+    # 3. Generate thumbnail (from frame at 2 seconds)
+    thumbnail = generateThumbnail(originalVideo, at 2 seconds)
+    upload to S3 (bucket = "youtube-videos",
+                  key    = "thumbnails/{videoId}.jpg",
+                  body   = thumbnail)
+
+    # 4. Update video status in DB
+    query database "UPDATE videos SET status = 'ready' WHERE id = videoId"
+
+    # 5. Index in Elasticsearch
+    index into Elasticsearch index "videos" with id = videoId, document = {
+        video_id:    videoId,
+        title:       video.title,
         description: video.description,
-        created_at: video.created_at
-      }
-    });
-  }
-  
-  async transcodeToHLS(video, resolution) {
-    // Use FFmpeg to create HLS segments (10 seconds each)
-    const command = `
-      ffmpeg -i ${video} 
-        -vf scale=${getResolutionSize(resolution)} 
-        -c:v h264 -crf 23 
-        -hls_time 10 
-        -hls_list_size 0 
-        -hls_segment_filename segment%03d.ts 
-        playlist.m3u8
-    `;
-    
-    // Execute FFmpeg (returns array of segments)
-    return executeFFmpeg(command);
-  }
-}
+        created_at:  video.created_at
+    }
+END FUNCTION
+
+FUNCTION transcodeToHLS(video, resolution):
+    # Use FFmpeg to create HLS segments (10 seconds each)
+    command = "ffmpeg -i {video}
+                 -vf scale={getResolutionSize(resolution)}
+                 -c:v h264 -crf 23
+                 -hls_time 10
+                 -hls_list_size 0
+                 -hls_segment_filename segment%03d.ts
+                 playlist.m3u8"
+
+    # Execute FFmpeg (returns list of segments)
+    RETURN executeFFmpeg(command)
+END FUNCTION
 ```
 
 **Scaling:**
@@ -592,52 +571,48 @@ segment002.ts
 ```
 
 **Client Logic (Pseudo-code):**
-```javascript
-class VideoPlayer {
-  async play(videoId) {
-    // 1. Fetch master playlist
-    const masterPlaylist = await fetch(`/videos/${videoId}/master.m3u8`);
-    const resolutions = parseMasterPlaylist(masterPlaylist);
-    
-    // 2. Start with lowest resolution
-    let currentResolution = resolutions[0];  // 360p
-    let currentPlaylist = await fetch(currentResolution.url);
-    
-    // 3. Play segments
-    let segmentIndex = 0;
-    
-    while (true) {
-      const segment = currentPlaylist.segments[segmentIndex];
-      
-      // Download segment
-      const startTime = Date.now();
-      await downloadSegment(segment.url);
-      const downloadTime = Date.now() - startTime;
-      
-      // Calculate network speed
-      const segmentSize = segment.size;  // bytes
-      const bandwidth = (segmentSize * 8) / downloadTime;  // bps
-      
-      // Adjust quality based on bandwidth
-      const optimalResolution = this.selectResolution(bandwidth, resolutions);
-      
-      if (optimalResolution !== currentResolution) {
-        // Switch resolution
-        currentResolution = optimalResolution;
-        currentPlaylist = await fetch(currentResolution.url);
-      }
-      
-      segmentIndex++;
-    }
-  }
-  
-  selectResolution(bandwidth, resolutions) {
-    // Select highest resolution that fits bandwidth
-    return resolutions
-      .filter(r => r.bandwidth <= bandwidth * 0.8)  // 80% buffer
-      .sort((a, b) => b.bandwidth - a.bandwidth)[0];
-  }
-}
+```text
+FUNCTION play(videoId):
+    # 1. Fetch master playlist
+    masterPlaylist = fetch "/videos/{videoId}/master.m3u8"
+    resolutions = parseMasterPlaylist(masterPlaylist)
+
+    # 2. Start with lowest resolution
+    currentResolution = resolutions[0]   # 360p
+    currentPlaylist   = fetch currentResolution.url
+
+    # 3. Play segments
+    segmentIndex = 0
+
+    LOOP forever:
+        segment = currentPlaylist.segments[segmentIndex]
+
+        # Download segment
+        startTime = current time
+        downloadSegment(segment.url)
+        downloadTime = current time - startTime
+
+        # Calculate network speed
+        segmentSize = segment.size                        # bytes
+        bandwidth   = (segmentSize * 8) / downloadTime    # bps
+
+        # Adjust quality based on bandwidth
+        optimalResolution = selectResolution(bandwidth, resolutions)
+
+        IF optimalResolution is not currentResolution:
+            # Switch resolution
+            currentResolution = optimalResolution
+            currentPlaylist   = fetch currentResolution.url
+
+        segmentIndex = segmentIndex + 1
+END FUNCTION
+
+FUNCTION selectResolution(bandwidth, resolutions):
+    # Select highest resolution that fits bandwidth
+    candidates = resolutions WHERE r.bandwidth <= bandwidth * 0.8   # 80% buffer
+    SORT candidates by bandwidth descending
+    RETURN first item of candidates
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -654,48 +629,38 @@ class VideoPlayer {
 
 **Solution: Redis Counters + Periodic Batch Updates**
 
-```javascript
-class ViewCountService {
-  async recordView(videoId, userId) {
-    // 1. Increment counter in Redis (fast)
-    await redis.incr(`video:${videoId}:views`);
-    
-    // 2. Add to Kafka stream (for analytics)
-    await kafka.send({
-      topic: 'video_views',
-      messages: [{
-        key: videoId,
-        value: JSON.stringify({
-          video_id: videoId,
-          user_id: userId,
-          timestamp: Date.now()
-        })
-      }]
-    });
-    
-    // Note: Don't update PostgreSQL immediately (too slow)
-  }
-  
-  // Background job (runs every 5 minutes)
-  async syncViewCounts() {
-    // 1. Get all video IDs with updated views
-    const videoKeys = await redis.keys('video:*:views');
-    
-    // 2. Batch update PostgreSQL
-    for (const key of videoKeys) {
-      const videoId = key.split(':')[1];
-      const redisCount = await redis.get(key);
-      
-      await db.query(
-        'UPDATE videos SET views = views + ? WHERE id = ?',
-        [redisCount, videoId]
-      );
-      
-      // Reset Redis counter
-      await redis.del(key);
-    }
-  }
-}
+```text
+FUNCTION recordView(videoId, userId):
+    # 1. Increment counter in Redis (fast)
+    atomic increment of "video:{videoId}:views"
+
+    # 2. Add to Kafka stream (for analytics)
+    send to Kafka topic "video_views":
+        key   = videoId
+        value = {
+            video_id:  videoId,
+            user_id:   userId,
+            timestamp: current time
+        }
+
+    # Note: Don't update PostgreSQL immediately (too slow)
+END FUNCTION
+
+# Background job (runs every 5 minutes)
+FUNCTION syncViewCounts():
+    # 1. Get all video IDs with updated views
+    videoKeys = all Redis keys matching "video:*:views"
+
+    # 2. Batch update PostgreSQL
+    FOR EACH key IN videoKeys:
+        videoId    = second segment of key (split on ':')
+        redisCount = get value at key
+
+        query database "UPDATE videos SET views = views + redisCount WHERE id = videoId"
+
+        # Reset Redis counter
+        delete key from Redis
+END FUNCTION
 ```
 
 **Trade-offs:**

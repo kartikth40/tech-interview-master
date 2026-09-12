@@ -46,16 +46,16 @@ Use: Distribute data across multiple servers
 
 ### 1. **Range-Based Sharding**
 
-```javascript
-function getShard(userId) {
-  if (userId >= 1 && userId <= 1000000) return 'shard1';
-  if (userId >= 1000001 && userId <= 2000000) return 'shard2';
-  if (userId >= 2000001 && userId <= 3000000) return 'shard3';
-}
+```text
+FUNCTION getShard(userId)
+    IF userId >= 1 AND userId <= 1000000 THEN RETURN "shard1"
+    IF userId >= 1000001 AND userId <= 2000000 THEN RETURN "shard2"
+    IF userId >= 2000001 AND userId <= 3000000 THEN RETURN "shard3"
+END FUNCTION
 
-// Query
-const shard = getShard(userId);
-const user = await shard.query('SELECT * FROM users WHERE id = ?', [userId]);
+# Query
+shard = getShard(userId)
+user = SHARD_QUERY(shard, "SELECT * FROM users WHERE id = ?", userId)
 ```
 
 **Pros:**
@@ -77,31 +77,31 @@ const user = await shard.query('SELECT * FROM users WHERE id = ?', [userId]);
 
 ### 2. **Hash-Based Sharding** ⭐ Most Common
 
-```javascript
-function getShard(userId) {
-  const shardCount = 4;
-  const hash = murmurhash(userId.toString());
-  const shardIndex = hash % shardCount;
-  
-  return shards[shardIndex];
-}
+```text
+FUNCTION getShard(userId)
+    shardCount = 4
+    hash = HASH(toString(userId))
+    shardIndex = hash MOD shardCount
 
-// Examples
-getShard(123)   → shard2
-getShard(456)   → shard0
-getShard(789)   → shard3
+    RETURN shards[shardIndex]
+END FUNCTION
+
+# Examples
+getShard(123)   -> shard2
+getShard(456)   -> shard0
+getShard(789)   -> shard3
 ```
 
 **Hash Function:**
-```javascript
-function murmurhash(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // Convert to 32-bit integer
-  }
-  return Math.abs(hash);
-}
+```text
+FUNCTION hash(str)
+    h = 0
+    FOR EACH char IN str
+        h = (h << 5) - h + charCode(char)
+        h = h AS 32-bit integer
+    END FOR
+    RETURN ABS(h)
+END FUNCTION
 ```
 
 **Pros:**
@@ -123,62 +123,64 @@ function murmurhash(str) {
 
 ### 3. **Consistent Hashing** ⭐ Best for Dynamic Shards
 
-```javascript
-class ConsistentHash {
-  constructor(shards = [], virtualNodes = 150) {
-    this.ring = new Map();
-    this.virtualNodes = virtualNodes;
-    shards.forEach(shard => this.addShard(shard));
-  }
-  
-  addShard(shard) {
-    // Add virtual nodes for even distribution
-    for (let i = 0; i < this.virtualNodes; i++) {
-      const hash = this.hash(`${shard}:${i}`);
-      this.ring.set(hash, shard);
-    }
-  }
-  
-  removeShard(shard) {
-    for (let i = 0; i < this.virtualNodes; i++) {
-      const hash = this.hash(`${shard}:${i}`);
-      this.ring.delete(hash);
-    }
-  }
-  
-  getShard(key) {
-    const hash = this.hash(key);
-    
-    // Find first shard clockwise on ring
-    const sortedHashes = [...this.ring.keys()].sort((a, b) => a - b);
-    for (const ringHash of sortedHashes) {
-      if (ringHash >= hash) {
-        return this.ring.get(ringHash);
-      }
-    }
-    
-    // Wrap around
-    return this.ring.get(sortedHashes[0]);
-  }
-  
-  hash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  }
-}
+```text
+CLASS ConsistentHash
+    FUNCTION init(shards = [], virtualNodes = 150)
+        this.ring = empty map          # hash -> shard
+        this.virtualNodes = virtualNodes
+        FOR EACH shard IN shards
+            this.addShard(shard)
+        END FOR
+    END FUNCTION
 
-// Usage
-const ch = new ConsistentHash(['shard1', 'shard2', 'shard3']);
+    FUNCTION addShard(shard)
+        # Add virtual nodes for even distribution
+        FOR i FROM 0 TO this.virtualNodes - 1
+            hash = this.hash(shard + ":" + i)
+            this.ring.put(hash, shard)
+        END FOR
+    END FUNCTION
 
-ch.getShard('user:123') → shard2
-ch.getShard('user:456') → shard1
+    FUNCTION removeShard(shard)
+        FOR i FROM 0 TO this.virtualNodes - 1
+            hash = this.hash(shard + ":" + i)
+            this.ring.remove(hash)
+        END FOR
+    END FUNCTION
 
-// Add new shard - only ~25% data needs to move
-ch.addShard('shard4');
+    FUNCTION getShard(key)
+        hash = this.hash(key)
+
+        # Find first shard clockwise on ring
+        sortedHashes = SORT_ASCENDING(this.ring.keys())
+        FOR EACH ringHash IN sortedHashes
+            IF ringHash >= hash THEN
+                RETURN this.ring.get(ringHash)
+            END IF
+        END FOR
+
+        # Wrap around
+        RETURN this.ring.get(sortedHashes[0])
+    END FUNCTION
+
+    FUNCTION hash(str)
+        h = 0
+        FOR EACH char IN str
+            h = (h << 5) - h + charCode(char)
+            h = h AS 32-bit integer
+        END FOR
+        RETURN ABS(h)
+    END FUNCTION
+END CLASS
+
+# Usage
+ch = new ConsistentHash(["shard1", "shard2", "shard3"])
+
+ch.getShard("user:123") -> shard2
+ch.getShard("user:456") -> shard1
+
+# Add new shard - only ~25% data needs to move
+ch.addShard("shard4")
 ```
 
 **Pros:**
@@ -199,16 +201,16 @@ ch.addShard('shard4');
 
 ### 4. **Geographic Sharding**
 
-```javascript
-function getShard(userId) {
-  const userCountry = getUserCountry(userId);
-  
-  if (['US', 'CA', 'MX'].includes(userCountry)) return 'shard_americas';
-  if (['UK', 'FR', 'DE', 'IT'].includes(userCountry)) return 'shard_europe';
-  if (['IN', 'CN', 'JP', 'SG'].includes(userCountry)) return 'shard_asia';
-  
-  return 'shard_global';
-}
+```text
+FUNCTION getShard(userId)
+    userCountry = getUserCountry(userId)
+
+    IF userCountry IN ["US", "CA", "MX"] THEN RETURN "shard_americas"
+    IF userCountry IN ["UK", "FR", "DE", "IT"] THEN RETURN "shard_europe"
+    IF userCountry IN ["IN", "CN", "JP", "SG"] THEN RETURN "shard_asia"
+
+    RETURN "shard_global"
+END FUNCTION
 ```
 
 **Pros:**
@@ -230,21 +232,21 @@ function getShard(userId) {
 
 ### 5. **Directory-Based Sharding**
 
-```javascript
-// Lookup table (can be in separate database or cache)
-const directory = {
-  'user:123': 'shard1',
-  'user:456': 'shard2',
-  'user:789': 'shard1'
-};
-
-function getShard(userId) {
-  const key = `user:${userId}`;
-  return directory[key] || 'shard_default';
+```text
+# Lookup table (can be in separate database or cache)
+directory = {
+    "user:123": "shard1",
+    "user:456": "shard2",
+    "user:789": "shard1"
 }
 
-// When user data grows too large, migrate to different shard
-directory['user:123'] = 'shard3';
+FUNCTION getShard(userId)
+    key = "user:" + userId
+    RETURN directory[key] OR "shard_default"
+END FUNCTION
+
+# When user data grows too large, migrate to different shard
+directory["user:123"] = "shard3"
 ```
 
 **Pros:**
@@ -292,44 +294,42 @@ directory['user:123'] = 'shard3';
 ## 🎯 Querying Sharded Data
 
 ### **Single-Shard Query (Fast)** ✅
-```javascript
-// Query includes shard key
-async function getUser(userId) {
-  const shard = getShard(userId);
-  const user = await shard.query('SELECT * FROM users WHERE id = ?', [userId]);
-  return user;
-}
+```text
+# Query includes shard key
+FUNCTION getUser(userId)
+    shard = getShard(userId)
+    user = SHARD_QUERY(shard, "SELECT * FROM users WHERE id = ?", userId)
+    RETURN user
+END FUNCTION
 
-// Latency: 10ms
+# Latency: 10ms
 ```
 
 ### **Scatter-Gather Query (Slow)** ❌
-```javascript
-// Query does NOT include shard key - must query ALL shards
-async function getUserByEmail(email) {
-  const promises = shards.map(shard => 
-    shard.query('SELECT * FROM users WHERE email = ?', [email])
-  );
-  
-  const results = await Promise.all(promises);
-  return results.flat().find(user => user !== null);
-}
+```text
+# Query does NOT include shard key - must query ALL shards
+FUNCTION getUserByEmail(email)
+    # Fan out the query to every shard in parallel
+    results = []
+    FOR EACH shard IN shards IN PARALLEL
+        results.append(SHARD_QUERY(shard, "SELECT * FROM users WHERE email = ?", email))
+    END FOR
 
-// Latency: 10ms * num_shards (if 10 shards = 100ms)
+    RETURN FIRST(FLATTEN(results) WHERE user IS NOT null)
+END FUNCTION
+
+# Latency: 10ms * num_shards (if 10 shards = 100ms)
 ```
 
 **Solution: Denormalize or Secondary Index**
-```javascript
-// Option 1: Store email → user_id mapping
-const userId = await emailIndex.get(email);
-const shard = getShard(userId);
-const user = await shard.query('SELECT * FROM users WHERE id = ?', [userId]);
+```text
+# Option 1: Store email -> user_id mapping
+userId = INDEX_GET(emailIndex, email)
+shard = getShard(userId)
+user = SHARD_QUERY(shard, "SELECT * FROM users WHERE id = ?", userId)
 
-// Option 2: Global secondary index (Elasticsearch)
-const user = await elasticsearch.search({
-  index: 'users',
-  body: { query: { match: { email } } }
-});
+# Option 2: Global secondary index (search engine)
+user = SEARCH_ENGINE_QUERY(index = "users", match = { email: email })
 ```
 
 ---
@@ -350,24 +350,26 @@ JOIN users ON orders.user_id = users.id;
 ### **Solutions:**
 
 #### 1. **Denormalize** ⭐ Best
-```javascript
-// Store user data in orders table
+```text
+# Store user data in orders table
 Orders: id | user_id | user_name | product_id | total
 
-// No join needed
-const orders = await shard.query('SELECT * FROM orders WHERE user_id = ?', [userId]);
+# No join needed
+orders = SHARD_QUERY(shard, "SELECT * FROM orders WHERE user_id = ?", userId)
 ```
 
 #### 2. **Application-Level Join**
-```javascript
-// Fetch from multiple shards, join in app
-const orders = await ordersShard.query('SELECT * FROM orders WHERE user_id = ?', [userId]);
-const user = await usersShard.query('SELECT * FROM users WHERE id = ?', [userId]);
+```text
+# Fetch from multiple shards, join in app
+orders = SHARD_QUERY(ordersShard, "SELECT * FROM orders WHERE user_id = ?", userId)
+user = SHARD_QUERY(usersShard, "SELECT * FROM users WHERE id = ?", userId)
 
-const result = orders.map(order => ({
-  ...order,
-  user_name: user.name
-}));
+result = []
+FOR EACH order IN orders
+    enriched = COPY(order)
+    enriched.user_name = user.name
+    result.append(enriched)
+END FOR
 ```
 
 #### 3. **Co-locate Related Data** (Shard by Same Key)
@@ -397,52 +399,53 @@ WHERE users.id = 123;
 ### **Rebalancing Strategies:**
 
 #### 1. **Online Migration (Zero Downtime)**
-```javascript
-// Step 1: Start dual writes (write to both old and new shard)
-async function writeUser(userId, data) {
-  const oldShard = getOldShard(userId);
-  const newShard = getNewShard(userId);
-  
-  await Promise.all([
-    oldShard.insert(data),
-    newShard.insert(data)
-  ]);
-}
+```text
+# Step 1: Start dual writes (write to both old and new shard)
+FUNCTION writeUser(userId, data)
+    oldShard = getOldShard(userId)
+    newShard = getNewShard(userId)
 
-// Step 2: Background job migrates old data
-async function migrateData() {
-  const users = await oldShard.query('SELECT * FROM users WHERE id >= ? AND id < ?', [start, end]);
-  
-  for (const user of users) {
-    await newShard.insert(user);
-  }
-}
+    # Write to both shards in parallel
+    PARALLEL
+        SHARD_INSERT(oldShard, data)
+        SHARD_INSERT(newShard, data)
+    END PARALLEL
+END FUNCTION
 
-// Step 3: Switch reads to new shard
-async function readUser(userId) {
-  const newShard = getNewShard(userId);
-  return await newShard.query('SELECT * FROM users WHERE id = ?', [userId]);
-}
+# Step 2: Background job migrates old data
+FUNCTION migrateData()
+    users = SHARD_QUERY(oldShard, "SELECT * FROM users WHERE id >= ? AND id < ?", start, end)
 
-// Step 4: Stop dual writes, delete old data
+    FOR EACH user IN users
+        SHARD_INSERT(newShard, user)
+    END FOR
+END FUNCTION
+
+# Step 3: Switch reads to new shard
+FUNCTION readUser(userId)
+    newShard = getNewShard(userId)
+    RETURN SHARD_QUERY(newShard, "SELECT * FROM users WHERE id = ?", userId)
+END FUNCTION
+
+# Step 4: Stop dual writes, delete old data
 ```
 
 #### 2. **Virtual Shards**
-```javascript
-// Create 256 virtual shards, map to 4 physical shards
-const virtualShardCount = 256;
-const physicalShardCount = 4;
+```text
+# Create 256 virtual shards, map to 4 physical shards
+virtualShardCount = 256
+physicalShardCount = 4
 
-function getVirtualShard(userId) {
-  return hash(userId) % virtualShardCount;
-}
+FUNCTION getVirtualShard(userId)
+    RETURN hash(userId) MOD virtualShardCount
+END FUNCTION
 
-function getPhysicalShard(virtualShard) {
-  return Math.floor(virtualShard / (virtualShardCount / physicalShardCount));
-}
+FUNCTION getPhysicalShard(virtualShard)
+    RETURN FLOOR(virtualShard / (virtualShardCount / physicalShardCount))
+END FUNCTION
 
-// Add 5th physical shard: remap virtual shards 200-255 → shard5
-// Only ~20% data needs to move
+# Add 5th physical shard: remap virtual shards 200-255 -> shard5
+# Only ~20% data needs to move
 ```
 
 ---
@@ -485,68 +488,70 @@ Cons: Vendor-specific
 
 ## 🛠️ Sharding Implementation Example
 
-```javascript
-class ShardManager {
-  constructor(shards) {
-    this.shards = shards; // Array of database connections
-  }
-  
-  // Hash-based sharding
-  getShard(key) {
-    const hash = this.hash(key);
-    const index = hash % this.shards.length;
-    return this.shards[index];
-  }
-  
-  hash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  }
-  
-  // Insert
-  async insert(tableName, data) {
-    const shard = this.getShard(data.id);
-    return await shard.query(`INSERT INTO ${tableName} SET ?`, data);
-  }
-  
-  // Get by ID (single shard)
-  async getById(tableName, id) {
-    const shard = this.getShard(id);
-    const results = await shard.query(`SELECT * FROM ${tableName} WHERE id = ?`, [id]);
-    return results[0];
-  }
-  
-  // Scatter-gather query
-  async getAll(tableName, condition) {
-    const promises = this.shards.map(shard => 
-      shard.query(`SELECT * FROM ${tableName} WHERE ${condition}`)
-    );
-    
-    const results = await Promise.all(promises);
-    return results.flat();
-  }
-  
-  // Count (aggregate across shards)
-  async count(tableName) {
-    const promises = this.shards.map(shard => 
-      shard.query(`SELECT COUNT(*) as count FROM ${tableName}`)
-    );
-    
-    const results = await Promise.all(promises);
-    return results.reduce((sum, result) => sum + result[0].count, 0);
-  }
-}
+```text
+CLASS ShardManager
+    FUNCTION init(shards)
+        this.shards = shards   # list of database connections
+    END FUNCTION
 
-// Usage
-const shardManager = new ShardManager([shard1Connection, shard2Connection, shard3Connection]);
+    # Hash-based sharding
+    FUNCTION getShard(key)
+        hash = this.hash(key)
+        index = hash MOD LENGTH(this.shards)
+        RETURN this.shards[index]
+    END FUNCTION
 
-await shardManager.insert('users', { id: 123, name: 'Alice' });
-const user = await shardManager.getById('users', 123);
-const totalUsers = await shardManager.count('users');
+    FUNCTION hash(str)
+        h = 0
+        FOR EACH char IN str
+            h = (h << 5) - h + charCode(char)
+            h = h AS 32-bit integer
+        END FOR
+        RETURN ABS(h)
+    END FUNCTION
+
+    # Insert
+    FUNCTION insert(tableName, data)
+        shard = this.getShard(data.id)
+        RETURN SHARD_QUERY(shard, "INSERT INTO " + tableName + " SET ?", data)
+    END FUNCTION
+
+    # Get by ID (single shard)
+    FUNCTION getById(tableName, id)
+        shard = this.getShard(id)
+        results = SHARD_QUERY(shard, "SELECT * FROM " + tableName + " WHERE id = ?", id)
+        RETURN results[0]
+    END FUNCTION
+
+    # Scatter-gather query
+    FUNCTION getAll(tableName, condition)
+        results = []
+        FOR EACH shard IN this.shards IN PARALLEL
+            results.append(SHARD_QUERY(shard, "SELECT * FROM " + tableName + " WHERE " + condition))
+        END FOR
+        RETURN FLATTEN(results)
+    END FUNCTION
+
+    # Count (aggregate across shards)
+    FUNCTION count(tableName)
+        results = []
+        FOR EACH shard IN this.shards IN PARALLEL
+            results.append(SHARD_QUERY(shard, "SELECT COUNT(*) AS count FROM " + tableName))
+        END FOR
+        total = 0
+        FOR EACH result IN results
+            total = total + result[0].count
+        END FOR
+        RETURN total
+    END FUNCTION
+END CLASS
+
+# Usage
+shardManager = new ShardManager([shard1Connection, shard2Connection, shard3Connection])
+
+shardManager.insert("users", { id: 123, name: "Alice" })
+user = shardManager.getById("users", 123)
+totalUsers = shardManager.count("users")
 ```
 
 ---
@@ -576,70 +581,67 @@ Shard 2: users (id: 1, 2, 3, ...) ← Conflict!
 ### **Solutions:**
 
 #### 1. **UUID (128-bit)** ✅
-```javascript
-const { v4: uuidv4 } = require('uuid');
+```text
+userId = GENERATE_UUID()   # e.g. '550e8400-e29b-41d4-a716-446655440000'
 
-const userId = uuidv4(); // '550e8400-e29b-41d4-a716-446655440000'
-
-// Pros: Truly unique, no coordination
-// Cons: Large (36 chars), not time-sortable, poor database index performance
+# Pros: Truly unique, no coordination
+# Cons: Large (36 chars), not time-sortable, poor database index performance
 ```
 
 #### 2. **Twitter Snowflake (64-bit)** ⭐ Best
-```javascript
-class SnowflakeID {
-  constructor(datacenterId, workerId) {
-    this.epoch = 1609459200000; // Custom epoch (Jan 1, 2021)
-    this.datacenterIdBits = 5;
-    this.workerIdBits = 5;
-    this.sequenceBits = 12;
-    
-    this.datacenterId = datacenterId;
-    this.workerId = workerId;
-    this.sequence = 0;
-    this.lastTimestamp = -1;
-  }
-  
-  generate() {
-    let timestamp = Date.now();
-    
-    // Handle clock moving backwards
-    if (timestamp < this.lastTimestamp) {
-      throw new Error('Clock moved backwards');
-    }
-    
-    // Same millisecond
-    if (timestamp === this.lastTimestamp) {
-      this.sequence = (this.sequence + 1) & ((1 << this.sequenceBits) - 1);
-      
-      if (this.sequence === 0) {
-        // Sequence overflow - wait for next millisecond
-        while (timestamp <= this.lastTimestamp) {
-          timestamp = Date.now();
-        }
-      }
-    } else {
-      this.sequence = 0;
-    }
-    
-    this.lastTimestamp = timestamp;
-    
-    // Construct 64-bit ID
-    const id = 
-      ((timestamp - this.epoch) << (this.datacenterIdBits + this.workerIdBits + this.sequenceBits)) |
-      (this.datacenterId << (this.workerIdBits + this.sequenceBits)) |
-      (this.workerId << this.sequenceBits) |
-      this.sequence;
-    
-    return id.toString();
-  }
-}
+```text
+CLASS SnowflakeID
+    FUNCTION init(datacenterId, workerId)
+        this.epoch = 1609459200000   # Custom epoch (Jan 1, 2021)
+        this.datacenterIdBits = 5
+        this.workerIdBits = 5
+        this.sequenceBits = 12
 
-const snowflake = new SnowflakeID(1, 1);
-const id = snowflake.generate(); // '7234567890123456'
+        this.datacenterId = datacenterId
+        this.workerId = workerId
+        this.sequence = 0
+        this.lastTimestamp = -1
+    END FUNCTION
 
-// Pros: Time-sortable, 64-bit (fits in long), k-sorted
-// Cons: Requires coordination (datacenter + worker ID)
+    FUNCTION generate()
+        timestamp = CURRENT_TIME_MILLIS()
+
+        # Handle clock moving backwards
+        IF timestamp < this.lastTimestamp THEN
+            THROW Error("Clock moved backwards")
+        END IF
+
+        # Same millisecond
+        IF timestamp == this.lastTimestamp THEN
+            this.sequence = (this.sequence + 1) AND ((1 << this.sequenceBits) - 1)
+
+            IF this.sequence == 0 THEN
+                # Sequence overflow - wait for next millisecond
+                WHILE timestamp <= this.lastTimestamp
+                    timestamp = CURRENT_TIME_MILLIS()
+                END WHILE
+            END IF
+        ELSE
+            this.sequence = 0
+        END IF
+
+        this.lastTimestamp = timestamp
+
+        # Construct 64-bit ID by bit-shifting each component into place
+        id = ((timestamp - this.epoch) << (this.datacenterIdBits + this.workerIdBits + this.sequenceBits))
+             OR (this.datacenterId << (this.workerIdBits + this.sequenceBits))
+             OR (this.workerId << this.sequenceBits)
+             OR this.sequence
+
+        RETURN toString(id)
+    END FUNCTION
+END CLASS
+
+snowflake = new SnowflakeID(1, 1)
+id = snowflake.generate()   # e.g. '7234567890123456'
+
+# Pros: Time-sortable, 64-bit (fits in long), k-sorted
+# Cons: Requires coordination (datacenter + worker ID)
 ```
 
 **Snowflake Structure:**

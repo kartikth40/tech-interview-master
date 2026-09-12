@@ -57,8 +57,8 @@ GET /v2/users/123
 
 ### REST Response Structure
 
-```javascript
-// Standard response envelope
+```text
+# Standard response envelope
 {
   "success": true,
   "data": {
@@ -73,7 +73,7 @@ GET /v2/users/123
   }
 }
 
-// Error response
+# Error response
 {
   "success": false,
   "error": {
@@ -182,61 +182,59 @@ subscription TrackOrder {
 
 ### Resolver Implementation
 
-```javascript
-const resolvers = {
-  Query: {
-    user: async (_, { id }, { dataSources }) => {
-      return dataSources.userAPI.getUser(id)
-    },
-    users: async (_, { page = 1, limit = 20 }, { dataSources }) => {
-      return dataSources.userAPI.getUsers({ page, limit })
-    }
-  },
+```text
+# GraphQL resolvers (pseudocode)
+resolvers = {
 
-  Mutation: {
-    createUser: async (_, { name, email }, { dataSources }) => {
-      return dataSources.userAPI.createUser({ name, email })
-    }
-  },
+    Query:
+        RESOLVER user(parent, args, context)
+            RETURN context.userAPI.getUser(args.id)
+        END
 
-  // Field-level resolver — runs when 'orders' field is requested
-  User: {
-    orders: async (user, _, { dataSources }) => {
-      return dataSources.orderAPI.getOrdersByUser(user.id)
-    }
-  }
+        RESOLVER users(parent, args, context)
+            page  = args.page  OR 1
+            limit = args.limit OR 20
+            RETURN context.userAPI.getUsers({ page, limit })
+        END
+
+    Mutation:
+        RESOLVER createUser(parent, args, context)
+            RETURN context.userAPI.createUser({ name: args.name, email: args.email })
+        END
+
+    # Field-level resolver - runs when 'orders' field is requested
+    User:
+        RESOLVER orders(user, args, context)
+            RETURN context.orderAPI.getOrdersByUser(user.id)
+        END
 }
 ```
 
 ### N+1 Problem & DataLoader
 
-```javascript
-// ❌ Problem: 1 query for users + N queries for each user's orders
-// If 100 users → 101 DB queries!
+```text
+# Problem: 1 query for users + N queries for each user's orders
+# If 100 users -> 101 DB queries!
 
-// ✅ Solution: DataLoader batches requests
-const DataLoader = require('dataloader')
+# Solution: a batching loader collects keys and resolves them in one query
+orderLoader = BATCH_LOADER(FUNCTION(userIds)
+    # One query for ALL users' orders
+    orders = DB_QUERY("SELECT * FROM orders WHERE user_id IN (?)", userIds)
 
-const orderLoader = new DataLoader(async (userIds) => {
-  // One query for ALL users' orders
-  const orders = await db.query(
-    'SELECT * FROM orders WHERE user_id IN (?)',
-    [userIds]
-  )
+    # Group by userId, preserving the order of the requested ids
+    ordersByUser = []
+    FOR EACH id IN userIds
+        ordersByUser.append(FILTER(orders WHERE order.user_id == id))
+    END FOR
 
-  // Group by userId
-  const ordersByUser = userIds.map(id =>
-    orders.filter(o => o.user_id === id)
-  )
+    RETURN ordersByUser
+END)
 
-  return ordersByUser
-})
-
-// Now User.orders resolver uses the loader
-User: {
-  orders: (user, _, { loaders }) => loaders.order.load(user.id)
-}
-// 100 users → 2 DB queries (1 for users, 1 batched for all orders)
+# Now the User.orders resolver uses the loader
+RESOLVER User.orders(user, args, context)
+    RETURN context.loaders.order.load(user.id)
+END
+# 100 users -> 2 DB queries (1 for users, 1 batched for all orders)
 ```
 
 ### GraphQL Pros & Cons
@@ -308,35 +306,36 @@ message CreateUsersResponse {
 
 ### gRPC Server (Node.js)
 
-```javascript
-const grpc = require('@grpc/grpc-js')
-const protoLoader = require('@grpc/proto-loader')
+```text
+# gRPC server (pseudocode)
+# Load the service definition from the .proto schema
+serviceDef = LOAD_PROTO("user.proto").UserService
 
-const packageDef = protoLoader.loadSync('user.proto')
-const proto = grpc.loadPackageDefinition(packageDef).user
+server = CREATE_RPC_SERVER()
 
-const server = new grpc.Server()
+REGISTER_SERVICE(server, serviceDef, {
 
-server.addService(proto.UserService.service, {
-  getUser: async (call, callback) => {
-    const { id } = call.request
-    const user = await db.findUser(id)
-    if (!user) {
-      return callback({ code: grpc.status.NOT_FOUND, message: 'User not found' })
-    }
-    callback(null, user)
-  },
+    # Unary RPC
+    getUser: FUNCTION(call, callback)
+        id = call.request.id
+        user = DB_FIND_USER(id)
+        IF user IS null THEN
+            RETURN callback(ERROR(code = NOT_FOUND, message = "User not found"))
+        END IF
+        callback(null, user)
+    END,
 
-  listUsers: async (call) => {
-    const users = await db.getUsers(call.request)
-    users.forEach(user => call.write(user))
-    call.end()
-  }
+    # Server streaming RPC
+    listUsers: FUNCTION(call)
+        users = DB_GET_USERS(call.request)
+        FOR EACH user IN users
+            STREAM_WRITE(call, user)
+        END FOR
+        STREAM_END(call)
+    END
 })
 
-server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
-  server.start()
-})
+SERVER_LISTEN(server, "0.0.0.0:50051", credentials = INSECURE)
 ```
 
 ### gRPC Pros & Cons
@@ -390,106 +389,99 @@ Need real-time?
 
 ### Authentication & Authorization
 
-```javascript
-// JWT Authentication middleware
-const jwt = require('jsonwebtoken')
+```text
+# Token-based authentication middleware
+FUNCTION authenticate(request, response, next)
+    token = EXTRACT_BEARER_TOKEN(request.headers.authorization)
 
-function authenticate(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1]
+    IF token IS EMPTY THEN
+        RETURN RESPONSE(401, { error: "No token provided" })
+    END IF
 
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' })
-  }
+    TRY
+        decoded = VERIFY_TOKEN(token, SECRET_KEY)
+        request.user = decoded
+        next()
+    CATCH err
+        RETURN RESPONSE(401, { error: "Invalid token" })
+    END TRY
+END FUNCTION
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = decoded
-    next()
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid token' })
-  }
-}
+# Role-based authorization
+FUNCTION authorize(roles...)
+    RETURN FUNCTION(request, response, next)
+        IF request.user.role NOT IN roles THEN
+            RETURN RESPONSE(403, { error: "Insufficient permissions" })
+        END IF
+        next()
+    END
+END FUNCTION
 
-// Role-based authorization
-function authorize(...roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions' })
-    }
-    next()
-  }
-}
-
-// Usage
-app.get('/admin/users', authenticate, authorize('admin'), getUsers)
-app.get('/profile', authenticate, getProfile)
+# Usage
+ROUTE GET "/admin/users" -> authenticate -> authorize("admin") -> getUsers
+ROUTE GET "/profile"     -> authenticate -> getProfile
 ```
 
 ### Rate Limiting
 
-```javascript
-const rateLimit = require('express-rate-limit')
+```text
+# Global rate limit
+globalLimiter = RATE_LIMITER(
+    windowMs = 15 * 60 * 1000,   # 15 minutes
+    max = 100,                   # 100 requests per window
+    message = { error: "Too many requests, please try again later" })
 
-// Global rate limit
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100,                    // 100 requests per window
-  message: { error: 'Too many requests, please try again later' }
-})
+# Stricter limit for auth endpoints
+authLimiter = RATE_LIMITER(
+    windowMs = 15 * 60 * 1000,
+    max = 5,                     # Only 5 login attempts per 15 min
+    message = { error: "Too many login attempts" })
 
-// Stricter limit for auth endpoints
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,  // Only 5 login attempts per 15 min
-  message: { error: 'Too many login attempts' }
-})
-
-app.use('/api/', globalLimiter)
-app.use('/api/auth/login', authLimiter)
+APPLY globalLimiter TO "/api/"
+APPLY authLimiter TO "/api/auth/login"
 ```
 
 ### Input Validation
 
-```javascript
-const { body, validationResult } = require('express-validator')
-
-const createUserValidation = [
-  body('email').isEmail().normalizeEmail(),
-  body('name').trim().isLength({ min: 2, max: 50 }),
-  body('password').isLength({ min: 8 }).matches(/^(?=.*[A-Z])(?=.*[0-9])/),
+```text
+# Declare validation rules for the incoming fields
+createUserValidation = [
+    VALIDATE field "email"    IS valid email, normalized,
+    VALIDATE field "name"     IS trimmed, length BETWEEN 2 AND 50,
+    VALIDATE field "password" IS length >= 8 AND matches /^(?=.*[A-Z])(?=.*[0-9])/
 ]
 
-app.post('/users', createUserValidation, (req, res) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() })
-  }
-  // Proceed with creation
-})
+ON POST "/users" WITH createUserValidation (request, response)
+    errors = COLLECT_VALIDATION_ERRORS(request)
+    IF errors IS NOT EMPTY THEN
+        RETURN RESPONSE(422, { errors: errors })
+    END IF
+    # Proceed with creation
+END ON
 ```
 
 ---
 
 ## 6️⃣ API Versioning Strategies
 
-```javascript
-// Strategy 1: URL versioning (most common)
-app.use('/v1', v1Router)
-app.use('/v2', v2Router)
-// GET /v1/users vs GET /v2/users
+```text
+# Strategy 1: URL versioning (most common)
+MOUNT "/v1" -> v1Router
+MOUNT "/v2" -> v2Router
+# GET /v1/users vs GET /v2/users
 
-// Strategy 2: Header versioning
-app.use((req, res, next) => {
-  const version = req.headers['api-version'] || 'v1'
-  req.apiVersion = version
-  next()
-})
+# Strategy 2: Header versioning
+ON REQUEST (request, response, next)
+    version = request.headers["api-version"] OR "v1"
+    request.apiVersion = version
+    next()
+END ON
 
-// Strategy 3: Query param
-// GET /users?version=2
+# Strategy 3: Query param
+# GET /users?version=2
 
-// Strategy 4: Content negotiation
-// Accept: application/vnd.myapi.v2+json
+# Strategy 4: Content negotiation
+# Accept: application/vnd.myapi.v2+json
 ```
 
 **Recommendation:** URL versioning for public APIs (most visible, easiest to test)

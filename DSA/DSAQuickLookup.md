@@ -61,7 +61,7 @@
 | Top K elements | Heap / Quick Select | O(n log k) / O(n) | O(k) | Min-heap or Quick Select |
 | Running median | Heaps (max+min) | O(log n) | O(n) | Two heaps approach |
 | Merge K sorted lists | Priority Queue | O(nk log k) | O(k) | Min-heap of first elements |
-| Power of 2 check | Bit Manipulation | O(1) | O(1) | (n & (n-1)) === 0 |
+| Power of 2 check | Bit Manipulation | O(1) | O(1) | (n & (n-1)) == 0 |
 | Single number (XOR) | XOR | O(n) | O(1) | XOR all: duplicates cancel |
 | Subsets generation | Bit Manipulation | O(2^n) | O(2^n) | Iterate 0 to 2^n - 1 |
 | Range min/max query | Segment Tree | O(log n) | O(n) | Build tree, query/update O(log n) |
@@ -180,7 +180,7 @@
 ### 11. **BIT MANIPULATION**
 | Operation | Time | Use |
 |-----------|------|-----|
-| Check ith bit | O(1) | (num & (1 << i)) !== 0 |
+| Check ith bit | O(1) | (num & (1 << i)) != 0 |
 | Set ith bit | O(1) | num \| (1 << i) |
 | Count set bits | O(log n) | Loop: num &= (num - 1) |
 | XOR properties | O(1) | Find single element, swap |
@@ -362,19 +362,19 @@ Choose Your Pattern:
 
 ## 📚 File References
 
-- **Arrays:** [Two Pointers](patterns/two-pointers.js), [Sliding Window](patterns/sliding-window.js), [Prefix Sum](patterns/prefixSumPattern.js), [kSum Reduction](patterns/kSum-reduction.js)
-- **Graphs:** [DFS](algorithms/graph/dfs.js), [BFS](algorithms/graph/bfs.js), [Dijkstra's](algorithms/graph/dijkstra.js), [Bellman-Ford](algorithms/graph/bellman-ford.js), [Floyd-Warshall](algorithms/graph/floydWarshall.js), [Kruskal's](algorithms/graph/kruskals.js), [Prim's](algorithms/graph/prims.js), [Kosaraju's](algorithms/graph/kosaraju.js), [Tarjan's](algorithms/graph/tarjan.js)
-- **Strings:** [KMP](algorithms/string/KMP.js), [Rabin-Karp](algorithms/string/Rabin-karp.js), [Suffix Trie](patterns/suffix-trie.js)
-- **Search:** [Binary Search](patterns/binarySearch.js)
-- **Sorting:** [QuickSort](algorithms/sorting/quickSort.js), [MergeSort](algorithms/sorting/mergeSort.js), [QuickSelect](algorithms/sorting/quickSelect.js)
-- **Trees:** [BST](data-structures/tree/BST.js), [Trie](data-structures/tree/trie.js), [Segment Tree](data-structures/tree/segmentTree.js)
-- **Graph DS:** [Graph](data-structures/graph/graph.js) (adjacency list, matrix, weighted builders)
-- **Heaps:** [MinHeap](data-structures/heap/minHeap.js), [MaxHeap](data-structures/heap/maxHeap.js), [PriorityQueue](data-structures/heap/PriorityQueue.js)
-- **Linked List:** [LinkedList](data-structures/linked-list/linkedList.js)
-- **Stack:** [Stack + MinStack](data-structures/stack/stack.js), [Monotonic Stack](patterns/monotonicStack.js), [Monotonic Queue](patterns/monotonicQueue.js)
-- **DP:** [DP Patterns](patterns/DP-patterns.js), [Climbing Stairs](algorithms/dp/climbingStairs.js), [House Robber](algorithms/dp/houseRobber.js), [Coin Change](algorithms/dp/coinChange.js), [Knapsack](algorithms/dp/knapsack.js), [LCS](algorithms/dp/LCS.js), [Edit Distance](algorithms/dp/editDistance.js), [Unique Paths](algorithms/dp/uniquePaths.js)
-- **Patterns:** [Backtracking](patterns/backtracking.js), [Greedy](patterns/greedy.js), [Intervals](patterns/intervals.js), [Matrix](patterns/matrix.js), [Tree Patterns](patterns/tree-patterns.js), [Heap Patterns](patterns/heap-patterns.js)
-- **Other:** [Union-Find](patterns/union-find-patterns.js), [Bit Manipulation](patterns/bit-manipulation.js), [Boyer-Moore Voting](patterns/boyer–moore-majority-voting.js), [LRU Cache](data-structures/design/LRUCache.js)
+- **Arrays:** [Two Pointers](patterns/two_pointers.py), [Sliding Window](patterns/sliding_window.py), [Prefix Sum](patterns/prefix_sum_pattern.py), [kSum Reduction](patterns/k_sum_reduction.py)
+- **Graphs:** [DFS](algorithms/graph/dfs.py), [BFS](algorithms/graph/bfs.py), [Dijkstra's](algorithms/graph/dijkstra.py), [Bellman-Ford](algorithms/graph/bellman_ford.py), [Floyd-Warshall](algorithms/graph/floyd_warshall.py), [Kruskal's](algorithms/graph/kruskals.py), [Prim's](algorithms/graph/prims.py), [Kosaraju's](algorithms/graph/kosaraju.py), [Tarjan's](algorithms/graph/tarjan.py)
+- **Strings:** [KMP](algorithms/string/kmp.py), [Rabin-Karp](algorithms/string/rabin_karp.py), [Suffix Trie](patterns/suffix_trie.py)
+- **Search:** [Binary Search](patterns/binary_search.py)
+- **Sorting:** [QuickSort](algorithms/sorting/quick_sort.py), [MergeSort](algorithms/sorting/merge_sort.py), [QuickSelect](algorithms/sorting/quick_select.py)
+- **Trees:** [BST](data-structures/tree/bst.py), [Trie](data-structures/tree/trie.py), [Segment Tree](data-structures/tree/segment_tree.py)
+- **Graph DS:** [Graph](data-structures/graph/graph.py) (adjacency list, matrix, weighted builders)
+- **Heaps:** [MinHeap](data-structures/heap/min_heap.py), [MaxHeap](data-structures/heap/max_heap.py), [PriorityQueue](data-structures/heap/priority_queue.py)
+- **Linked List:** [LinkedList](data-structures/linked-list/linked_list.py)
+- **Stack:** [Stack + MinStack](data-structures/stack/stack.py), [Monotonic Stack](patterns/monotonic_stack.py), [Monotonic Queue](patterns/monotonic_queue.py)
+- **DP:** [DP Patterns](patterns/dp_patterns.py), [Climbing Stairs](algorithms/dp/climbing_stairs.py), [House Robber](algorithms/dp/house_robber.py), [Coin Change](algorithms/dp/coin_change.py), [Knapsack](algorithms/dp/knapsack.py), [LCS](algorithms/dp/lcs.py), [Edit Distance](algorithms/dp/edit_distance.py), [Unique Paths](algorithms/dp/unique_paths.py)
+- **Patterns:** [Backtracking](patterns/backtracking.py), [Greedy](patterns/greedy.py), [Intervals](patterns/intervals.py), [Matrix](patterns/matrix.py), [Tree Patterns](patterns/tree_patterns.py), [Heap Patterns](patterns/heap_patterns.py)
+- **Other:** [Union-Find](patterns/union_find_patterns.py), [Bit Manipulation](patterns/bit_manipulation.py), [Boyer-Moore Voting](patterns/boyer_moore_majority_voting.py), [LRU Cache](data-structures/design/lru_cache.py)
 
 ---
 

@@ -257,28 +257,28 @@ Orchestration: Central saga orchestrator tells each service what to do
 
 ### Cache Consistency Strategies
 
-```javascript
-// Strategy 1: Cache-Aside (most common)
-async function get(key) {
-  const cached = await cache.get(key)
-  if (cached) return cached
+```text
+# Strategy 1: Cache-Aside (most common)
+FUNCTION get(key)
+    cached = CACHE_GET(key)
+    IF cached EXISTS THEN RETURN cached
 
-  const data = await db.get(key)
-  await cache.set(key, data, TTL)
-  return data
-}
+    data = DB_GET(key)
+    CACHE_SET(key, data, TTL)
+    RETURN data
+END FUNCTION
 
-// Strategy 2: Write-Through
-async function set(key, value) {
-  await db.set(key, value)
-  await cache.set(key, value, TTL)
-}
+# Strategy 2: Write-Through
+FUNCTION set(key, value)
+    DB_SET(key, value)
+    CACHE_SET(key, value, TTL)
+END FUNCTION
 
-// Strategy 3: Write-Behind (async)
-async function set(key, value) {
-  await cache.set(key, value, TTL)
-  queue.push({ key, value })  // DB write happens async
-}
+# Strategy 3: Write-Behind (async)
+FUNCTION set(key, value)
+    CACHE_SET(key, value, TTL)
+    QUEUE_ENQUEUE({ key, value })   # DB write happens async
+END FUNCTION
 ```
 
 ### Consistent Hashing (for distributed cache)
@@ -341,30 +341,22 @@ Producer:
   - Same key → same partition → ordered for that key
 ```
 
-```javascript
-// Kafka producer
-const { Kafka } = require('kafkajs')
-const kafka = new Kafka({ brokers: ['kafka:9092'] })
-const producer = kafka.producer()
+```text
+# Kafka producer (pseudocode)
+producer = KAFKA_PRODUCER(brokers = ["kafka:9092"])
 
-await producer.send({
-  topic: 'order-events',
-  messages: [{
-    key: orderId,           // Same order → same partition → ordered
-    value: JSON.stringify({ orderId, status: 'placed', userId })
-  }]
-})
+PUBLISH producer TO topic "order-events" WITH
+    key   = orderId          # Same order -> same partition -> ordered
+    value = serialize({ orderId, status: "placed", userId })
 
-// Kafka consumer
-const consumer = kafka.consumer({ groupId: 'order-processor' })
-await consumer.subscribe({ topic: 'order-events' })
+# Kafka consumer (pseudocode)
+consumer = KAFKA_CONSUMER(groupId = "order-processor")
+SUBSCRIBE(consumer, topic = "order-events")
 
-await consumer.run({
-  eachMessage: async ({ message }) => {
-    const event = JSON.parse(message.value.toString())
-    await processOrder(event)
-  }
-})
+FOR EACH message CONSUMED FROM consumer
+    event = deserialize(message.value)
+    processOrder(event)
+END FOR
 ```
 
 ---
@@ -378,60 +370,51 @@ await consumer.run({
 
 ### Redis-Based Lock (Redlock)
 
-```javascript
-class DistributedLock {
-  constructor(redis) {
-    this.redis = redis
-  }
+```text
+CLASS DistributedLock
+    FUNCTION init(store)
+        this.store = store   # distributed key-value store (e.g. Redis)
+    END FUNCTION
 
-  async acquire(key, ttlMs) {
-    const lockValue = `${Date.now()}-${Math.random()}`
+    FUNCTION acquire(key, ttlMs)
+        lockValue = NOW() + "-" + RANDOM()
 
-    // SET key value NX PX ttl — atomic: only set if not exists
-    const result = await this.redis.set(
-      `lock:${key}`,
-      lockValue,
-      'NX',   // Only set if Not eXists
-      'PX',   // Expire in milliseconds
-      ttlMs
-    )
+        # Atomic set-if-not-exists with expiry
+        result = STORE_SET_IF_ABSENT(this.store, "lock:" + key, lockValue, expiryMillis = ttlMs)
 
-    if (result === 'OK') {
-      return lockValue  // Lock acquired
-    }
-    return null  // Lock not acquired
-  }
+        IF result == SUCCESS THEN
+            RETURN lockValue   # Lock acquired
+        END IF
+        RETURN null            # Lock not acquired
+    END FUNCTION
 
-  async release(key, lockValue) {
-    // Lua script for atomic check-and-delete
-    const script = `
-      if redis.call("get", KEYS[1]) == ARGV[1] then
-        return redis.call("del", KEYS[1])
-      else
-        return 0
-      end
-    `
-    await this.redis.eval(script, 1, `lock:${key}`, lockValue)
-  }
-}
+    FUNCTION release(key, lockValue)
+        # Atomic check-and-delete: only delete if we still own the lock
+        ATOMIC
+            IF STORE_GET(this.store, "lock:" + key) == lockValue THEN
+                STORE_DELETE(this.store, "lock:" + key)
+            END IF
+        END ATOMIC
+    END FUNCTION
+END CLASS
 
-// Usage
-async function bookSeat(seatId, userId) {
-  const lock = new DistributedLock(redis)
-  const lockValue = await lock.acquire(`seat:${seatId}`, 5000)  // 5s TTL
+# Usage
+FUNCTION bookSeat(seatId, userId)
+    lock = new DistributedLock(store)
+    lockValue = lock.acquire("seat:" + seatId, 5000)   # 5s TTL
 
-  if (!lockValue) {
-    throw new Error('Seat is being booked by someone else')
-  }
+    IF lockValue IS null THEN
+        THROW Error("Seat is being booked by someone else")
+    END IF
 
-  try {
-    const seat = await db.getSeat(seatId)
-    if (seat.booked) throw new Error('Seat already booked')
-    await db.bookSeat(seatId, userId)
-  } finally {
-    await lock.release(`seat:${seatId}`, lockValue)
-  }
-}
+    TRY
+        seat = DB_GET_SEAT(seatId)
+        IF seat.booked THEN THROW Error("Seat already booked")
+        DB_BOOK_SEAT(seatId, userId)
+    FINALLY
+        lock.release("seat:" + seatId, lockValue)
+    END TRY
+END FUNCTION
 ```
 
 ---
@@ -440,76 +423,78 @@ async function bookSeat(seatId, userId) {
 
 ### Circuit Breaker
 
-```javascript
-class CircuitBreaker {
-  constructor(threshold = 5, timeout = 60000) {
-    this.failureCount = 0
-    this.threshold = threshold    // Failures before opening
-    this.timeout = timeout        // Time before trying again
-    this.state = 'CLOSED'         // CLOSED, OPEN, HALF_OPEN
-    this.nextAttempt = Date.now()
-  }
+```text
+CLASS CircuitBreaker
+    FUNCTION init(threshold = 5, timeout = 60000)
+        this.failureCount = 0
+        this.threshold = threshold    # Failures before opening
+        this.timeout = timeout        # Time before trying again
+        this.state = "CLOSED"         # CLOSED, OPEN, HALF_OPEN
+        this.nextAttempt = NOW()
+    END FUNCTION
 
-  async call(fn) {
-    if (this.state === 'OPEN') {
-      if (Date.now() < this.nextAttempt) {
-        throw new Error('Circuit breaker is OPEN')
-      }
-      this.state = 'HALF_OPEN'
-    }
+    FUNCTION call(fn)
+        IF this.state == "OPEN" THEN
+            IF NOW() < this.nextAttempt THEN
+                THROW Error("Circuit breaker is OPEN")
+            END IF
+            this.state = "HALF_OPEN"
+        END IF
 
-    try {
-      const result = await fn()
-      this.#onSuccess()
-      return result
-    } catch (err) {
-      this.#onFailure()
-      throw err
-    }
-  }
+        TRY
+            result = fn()
+            this.onSuccess()
+            RETURN result
+        CATCH err
+            this.onFailure()
+            THROW err
+        END TRY
+    END FUNCTION
 
-  #onSuccess() {
-    this.failureCount = 0
-    this.state = 'CLOSED'
-  }
+    # private
+    FUNCTION onSuccess()
+        this.failureCount = 0
+        this.state = "CLOSED"
+    END FUNCTION
 
-  #onFailure() {
-    this.failureCount++
-    if (this.failureCount >= this.threshold) {
-      this.state = 'OPEN'
-      this.nextAttempt = Date.now() + this.timeout
-    }
-  }
-}
+    # private
+    FUNCTION onFailure()
+        this.failureCount = this.failureCount + 1
+        IF this.failureCount >= this.threshold THEN
+            this.state = "OPEN"
+            this.nextAttempt = NOW() + this.timeout
+        END IF
+    END FUNCTION
+END CLASS
 
-// Usage
-const breaker = new CircuitBreaker(5, 30000)
+# Usage
+breaker = new CircuitBreaker(5, 30000)
 
-async function callPaymentService(data) {
-  return breaker.call(() => paymentAPI.charge(data))
-}
+FUNCTION callPaymentService(data)
+    RETURN breaker.call(FUNCTION() RETURN paymentAPI.charge(data) END)
+END FUNCTION
 ```
 
 ### Retry with Exponential Backoff
 
-```javascript
-async function withRetry(fn, maxRetries = 3, baseDelay = 100) {
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn()
-    } catch (err) {
-      if (attempt === maxRetries) throw err
+```text
+FUNCTION withRetry(fn, maxRetries = 3, baseDelay = 100)
+    FOR attempt FROM 0 TO maxRetries
+        TRY
+            RETURN fn()
+        CATCH err
+            IF attempt == maxRetries THEN THROW err
 
-      // Exponential backoff with jitter
-      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 100
-      await new Promise(resolve => setTimeout(resolve, delay))
-    }
-  }
-}
+            # Exponential backoff with jitter
+            delay = baseDelay * (2 ^ attempt) + RANDOM() * 100
+            SLEEP(delay)
+        END TRY
+    END FOR
+END FUNCTION
 
-// Usage
-const result = await withRetry(() => externalAPI.getData(), 3, 200)
-// Retries at: 200ms, 400ms, 800ms (+ jitter)
+# Usage
+result = withRetry(FUNCTION() RETURN externalAPI.getData() END, 3, 200)
+# Retries at: 200ms, 400ms, 800ms (+ jitter)
 ```
 
 ### Bulkhead Pattern

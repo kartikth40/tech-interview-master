@@ -81,72 +81,64 @@ Bandwidth:
 
 ### Core APIs (4 endpoints)
 
-```javascript
-// 1. Create Payment Order
+```text
+# 1. Create Payment Order
 POST /v1/orders
 Headers: { Authorization: "Bearer <api_key>" }
-Body: {
-  amount: 50000,  // paise (₹500)
-  currency: "INR",
+Body:
+  amount: 50000             # paise (Rs 500)
+  currency: "INR"
   receipt: "order_12345"
-}
-Response: {
-  order_id: "order_Abc123",
-  amount: 50000,
+Response:
+  order_id: "order_Abc123"
+  amount: 50000
   status: "created"
-}
 
-// 2. Process Payment
+# 2. Process Payment
 POST /v1/payments
-Body: {
-  order_id: "order_Abc123",
-  method: "upi",
-  vpa: "user@paytm"  // UPI Virtual Payment Address
-}
-Response: {
-  payment_id: "pay_Xyz789",
-  status: "pending",  // pending, captured, failed
-  upi_transaction_id: "HDFC001234",
-  timeout: 30  // seconds
-}
+Body:
+  order_id: "order_Abc123"
+  method: "upi"
+  vpa: "user@paytm"         # UPI Virtual Payment Address
+Response:
+  payment_id: "pay_Xyz789"
+  status: "pending"         # pending, captured, failed
+  upi_transaction_id: "HDFC001234"
+  timeout: 30               # seconds
 
-// 3. Fetch Payment Status
+# 3. Fetch Payment Status
 GET /v1/payments/{payment_id}
-Response: {
-  payment_id: "pay_Xyz789",
-  order_id: "order_Abc123",
-  amount: 50000,
-  status: "captured",  // created, pending, captured, failed
-  method: "upi",
-  vpa: "user@paytm",
+Response:
+  payment_id: "pay_Xyz789"
+  order_id: "order_Abc123"
+  amount: 50000
+  status: "captured"        # created, pending, captured, failed
+  method: "upi"
+  vpa: "user@paytm"
   created_at: "2026-02-15T10:30:00Z"
-}
 
-// 4. Process Refund
+# 4. Process Refund
 POST /v1/refunds
-Body: {
-  payment_id: "pay_Xyz789",
-  amount: 50000  // partial or full
-}
-Response: {
-  refund_id: "rfnd_Def456",
+Body:
+  payment_id: "pay_Xyz789"
+  amount: 50000             # partial or full
+Response:
+  refund_id: "rfnd_Def456"
   status: "processed"
-}
 ```
 
 **Webhooks (sent to merchant):**
-```javascript
+```text
 POST <merchant_webhook_url>
 Headers: { X-Signature: "hmac_sha256..." }
-Body: {
-  event: "payment.captured",
+Body:
+  event: "payment.captured"
   payload: {
-    payment_id: "pay_Xyz789",
-    order_id: "order_Abc123",
-    status: "captured",
+    payment_id: "pay_Xyz789"
+    order_id: "order_Abc123"
+    status: "captured"
     amount: 50000
   }
-}
 ```
 
 ---
@@ -421,44 +413,38 @@ Payment State Transitions:
 **Solution:** Idempotency keys + Distributed locks
 
 **Approach:**
-```javascript
-async function processPayment(orderId, method, idempotencyKey) {
-  // 1. Check if already processed
-  const cached = await redis.get(`idem:${idempotencyKey}`);
-  if (cached) {
-    return JSON.parse(cached);  // Return cached result
-  }
-  
-  // 2. Acquire distributed lock (prevent concurrent processing)
-  const locked = await redis.set(
-    `payment:lock:${orderId}`, 
-    1, 
-    'NX',  // Only set if not exists
-    'EX', 60  // 60 seconds TTL
-  );
-  
-  if (!locked) {
-    throw new Error('Payment already in progress');
-  }
-  
-  try {
-    // 3. Process payment
-    const payment = await gateway.charge(method, amount);
-    
-    // 4. Cache result (24 hour TTL)
-    await redis.set(
-      `idem:${idempotencyKey}`, 
-      JSON.stringify(payment),
-      'EX', 86400
-    );
-    
-    return payment;
-    
-  } finally {
-    // 5. Release lock
-    await redis.del(`payment:lock:${orderId}`);
-  }
-}
+```text
+FUNCTION processPayment(orderId, method, idempotencyKey)
+  # 1. Check if already processed
+  cached = redis.get("idem:" + idempotencyKey)
+  IF cached EXISTS THEN
+    RETURN deserialize(cached)        # return cached result
+  END IF
+
+  # 2. Acquire distributed lock (prevent concurrent processing)
+  locked = redis.setIfAbsent(
+    "payment:lock:" + orderId,
+    1,
+    expirySeconds = 60                # 60 seconds TTL
+  )
+
+  IF NOT locked THEN
+    THROW Error("Payment already in progress")
+  END IF
+
+  TRY
+    # 3. Process payment
+    payment = gateway.charge(method, amount)
+
+    # 4. Cache result (24 hour TTL)
+    redis.set("idem:" + idempotencyKey, serialize(payment), expirySeconds = 86400)
+
+    RETURN payment
+  FINALLY
+    # 5. Release lock
+    redis.delete("payment:lock:" + orderId)
+  END TRY
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -491,46 +477,46 @@ async function processPayment(orderId, method, idempotencyKey) {
 ```
 
 **Pseudo-code:**
-```javascript
-async function processUPI(payment, vpa) {
-  // Initiate
-  const { upi_txn_id } = await NPCI.initiate({
+```text
+FUNCTION processUPI(payment, vpa)
+  # Initiate
+  upi_txn_id = NPCI.initiate({
     vpa: vpa,
     amount: payment.amount,
     ref_id: payment.id
-  });
-  
-  // Poll for 30 seconds
-  const startTime = Date.now();
-  while ((Date.now() - startTime) < 30000) {
-    const status = await NPCI.checkStatus(upi_txn_id);
-    
-    if (status === 'SUCCESS') {
-      return { status: 'captured', upi_txn_id };
-    }
-    if (status === 'FAILED') {
-      return { status: 'failed', upi_txn_id };
-    }
-    
-    await sleep(2000);  // Poll every 2 seconds
-  }
-  
-  // Timeout → mark PENDING
-  return { status: 'pending', upi_txn_id };
-}
+  })
 
-// Webhook from NPCI (can arrive later)
-async function handleNPCIWebhook(data) {
-  const payment = await Payment.findByUPITxnId(data.upi_txn_id);
-  
-  if (payment.status === 'pending') {
-    payment.status = data.status;  // SUCCESS or FAILED
-    await payment.save();
-    
-    // Notify merchant
-    await sendWebhook(payment.merchant_id, 'payment.captured', payment);
-  }
-}
+  # Poll for 30 seconds
+  startTime = currentTime()
+  WHILE (currentTime() - startTime) < 30000 DO
+    status = NPCI.checkStatus(upi_txn_id)
+
+    IF status EQUALS "SUCCESS" THEN
+      RETURN { status: "captured", upi_txn_id: upi_txn_id }
+    END IF
+    IF status EQUALS "FAILED" THEN
+      RETURN { status: "failed", upi_txn_id: upi_txn_id }
+    END IF
+
+    sleep(2000)         # poll every 2 seconds
+  END WHILE
+
+  # Timeout -> mark PENDING
+  RETURN { status: "pending", upi_txn_id: upi_txn_id }
+END FUNCTION
+
+# Webhook from NPCI (can arrive later)
+FUNCTION handleNPCIWebhook(data)
+  payment = Payment.findByUPITxnId(data.upi_txn_id)
+
+  IF payment.status EQUALS "pending" THEN
+    payment.status = data.status      # SUCCESS or FAILED
+    payment.save()
+
+    # Notify merchant
+    sendWebhook(payment.merchant_id, "payment.captured", payment)
+  END IF
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -556,64 +542,58 @@ async function handleNPCIWebhook(data) {
 - **Give up after 24 hours**
 
 **Implementation:**
-```javascript
-async function sendWebhook(merchantId, event, payload) {
-  const merchant = await Merchant.findById(merchantId);
-  
-  if (!merchant.webhook_url) return;
-  
-  const signature = generateSignature(payload, merchant.webhook_secret);
-  
-  try {
-    const response = await axios.post(merchant.webhook_url, {
-      event: event,
-      payload: payload
-    }, {
-      headers: { 'X-Signature': signature },
-      timeout: 10000
-    });
-    
-    if (response.status === 200) {
-      console.log('Webhook delivered');
-    }
-    
-  } catch (error) {
-    // Schedule retry
-    await WebhookQueue.add({
-      merchant_id: merchantId,
-      event: event,
-      payload: payload,
-      attempt: 1
-    }, {
-      delay: 60000  // 1 minute
-    });
-  }
-}
+```text
+FUNCTION sendWebhook(merchantId, event, payload)
+  merchant = Merchant.findById(merchantId)
 
-// Retry handler
-async function retryWebhook(job) {
-  const retryDelays = [60, 300, 1800, 7200, 21600, 86400];  // seconds
-  
-  if (job.attempt > 6) {
-    // Give up, send email alert
-    await sendEmailAlert(job.merchant_id, 'Webhook failed after 6 attempts');
-    return;
-  }
-  
-  // Try to deliver
-  const success = await attemptWebhookDelivery(job);
-  
-  if (!success) {
-    // Schedule next retry
-    const nextDelay = retryDelays[job.attempt];
-    await WebhookQueue.add({
-      ...job,
-      attempt: job.attempt + 1
-    }, {
-      delay: nextDelay * 1000
-    });
-  }
-}
+  IF merchant.webhook_url IS EMPTY THEN
+    RETURN
+  END IF
+
+  signature = generateSignature(payload, merchant.webhook_secret)
+
+  TRY
+    response = httpPost(
+      merchant.webhook_url,
+      body    = { event: event, payload: payload },
+      headers = { "X-Signature": signature },
+      timeout = 10000
+    )
+
+    IF response.status EQUALS 200 THEN
+      log("Webhook delivered")
+    END IF
+  CATCH error
+    # Schedule retry
+    WebhookQueue.add(
+      { merchant_id: merchantId, event: event, payload: payload, attempt: 1 },
+      delay = 60000       # 1 minute
+    )
+  END TRY
+END FUNCTION
+
+# Retry handler
+FUNCTION retryWebhook(job)
+  retryDelays = [60, 300, 1800, 7200, 21600, 86400]   # seconds
+
+  IF job.attempt > 6 THEN
+    # Give up, send email alert
+    sendEmailAlert(job.merchant_id, "Webhook failed after 6 attempts")
+    RETURN
+  END IF
+
+  # Try to deliver
+  success = attemptWebhookDelivery(job)
+
+  IF NOT success THEN
+    # Schedule next retry
+    nextDelay = retryDelays[job.attempt]
+    WebhookQueue.add(
+      merge(job, { attempt: job.attempt + 1 }),
+      delay = nextDelay * 1000
+    )
+  END IF
+END FUNCTION
 ```
 
 **Fallback:** Merchant must poll `GET /payments/{id}` if webhook doesn't arrive

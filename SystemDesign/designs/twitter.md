@@ -79,13 +79,13 @@ Follower distribution:
 
 ## 3️⃣ API Design
 
-```javascript
-// 1. Post Tweet
+```text
+# 1. Post Tweet
 POST /v1/tweets
 Body: {
   text: "Hello Twitter! #systemdesign",
-  media_urls: ["https://cdn.twitter.com/img123.jpg"],  // optional
-  reply_to: "tweet_xyz"  // optional
+  media_urls: ["https://cdn.twitter.com/img123.jpg"],  # optional
+  reply_to: "tweet_xyz"  # optional
 }
 
 Response: {
@@ -97,7 +97,7 @@ Response: {
   retweets: 0
 }
 
-// 2. Get Home Timeline
+# 2. Get Home Timeline
 GET /v1/timeline/home
   ?user_id=user_456&page=1&limit=20
 
@@ -116,15 +116,15 @@ Response: {
   next_page: 2
 }
 
-// 3. Get User Timeline
+# 3. Get User Timeline
 GET /v1/timeline/user/{user_id}
   ?page=1&limit=20
 
 Response: {
-  tweets: [ /* user's tweets */ ]
+  tweets: [ ...user's tweets... ]
 }
 
-// 4. Follow User
+# 4. Follow User
 POST /v1/users/{user_id}/follow
 Body: { follower_id: "user_456" }
 
@@ -134,7 +134,7 @@ Response: {
   followed_at: "2024-01-15T12:00:00Z"
 }
 
-// 5. Like Tweet
+# 5. Like Tweet
 POST /v1/tweets/{tweet_id}/like
 Body: { user_id: "user_456" }
 
@@ -144,12 +144,12 @@ Response: {
   user_liked: true
 }
 
-// 6. Search Tweets
+# 6. Search Tweets
 GET /v1/search
   ?query=systemdesign&page=1&limit=20
 
 Response: {
-  tweets: [ /* matching tweets */ ],
+  tweets: [ ...matching tweets... ],
   total: 5000
 }
 ```
@@ -212,19 +212,19 @@ CREATE TABLE home_timeline (
 
 ### Redis (Caching, Timeline)
 
-```javascript
-// Home timeline cache (most recent 100 tweets)
+```text
+# Home timeline cache (most recent 100 tweets)
 Key: timeline:home:{user_id}
 Type: List
 Value: [tweet_id1, tweet_id2, ...]
 TTL: 1 hour
 
-// Tweet cache
+# Tweet cache
 Key: tweet:{tweet_id}
 Value: JSON { text, user_id, likes, ... }
 TTL: 1 hour
 
-// User cache
+# User cache
 Key: user:{user_id}
 Value: JSON { name, username, followers_count, ... }
 TTL: 1 hour
@@ -338,95 +338,75 @@ User  TweetService  Cassandra  Kafka  FanoutService  Redis
 **Solution: Hybrid Fanout (Push + Pull)**
 
 **Push Model (Write Fanout):**
-```javascript
-// When user posts tweet, push to all followers' timelines
+```text
+# When user posts tweet, push to all followers' timelines
 
-class FanoutService {
-  async fanoutTweet(tweet) {
-    // 1. Get user's followers
-    const followers = await getFollowers(tweet.user_id);
-    
-    // 2. For each follower, add tweet to their home timeline
-    for (const followerId of followers) {
-      // Push to Redis (fast)
-      await redis.lpush(`timeline:home:${followerId}`, tweet.id);
-      await redis.ltrim(`timeline:home:${followerId}`, 0, 999);  // Keep last 1000
-    }
-    
-    // 3. Also store in Cassandra (durable)
-    await Promise.all(followers.map(followerId =>
-      cassandra.execute(
-        'INSERT INTO home_timeline (user_id, tweet_id, author_id, created_at) VALUES (?, ?, ?, ?)',
-        [followerId, tweet.id, tweet.user_id, new Date()]
-      )
-    ));
-  }
-}
+FUNCTION fanoutTweet(tweet):
+    # 1. Get user's followers
+    followers = getFollowers(tweet.user_id)
+
+    # 2. For each follower, add tweet to their home timeline
+    FOR EACH followerId IN followers:
+        # Push to Redis (fast)
+        list-prepend tweet.id to "timeline:home:{followerId}"
+        trim "timeline:home:{followerId}" to keep only indices 0..999   # Keep last 1000
+
+    # 3. Also store in Cassandra (durable), in parallel for all followers
+    FOR EACH followerId IN followers (in parallel):
+        execute Cassandra "INSERT INTO home_timeline (user_id, tweet_id, author_id, created_at)
+                           VALUES (followerId, tweet.id, tweet.user_id, current time)"
+END FUNCTION
 ```
 
 **Problem:** Celebrities with 50M followers → 50M writes per tweet!
 
 **Solution: Hybrid Approach**
 
-```javascript
-class HybridFanoutService {
-  async fanoutTweet(tweet) {
-    const user = await getUser(tweet.user_id);
-    
-    // 1. If user has < 10K followers → Push (write fanout)
-    if (user.followers_count < 10000) {
-      await this.pushFanout(tweet);
-    } 
-    // 2. If user has > 10K followers → Pull (read fanout)
-    else {
-      await this.pullFanout(tweet);
-    }
-  }
-  
-  async pushFanout(tweet) {
-    // Write to all followers' timelines (as shown above)
-    const followers = await getFollowers(tweet.user_id);
-    for (const followerId of followers) {
-      await redis.lpush(`timeline:home:${followerId}`, tweet.id);
-    }
-  }
-  
-  async pullFanout(tweet) {
-    // Just store tweet, don't fanout
-    // When followers fetch timeline, merge celebrity tweets on-the-fly
-    await cassandra.execute(
-      'INSERT INTO tweets (user_id, tweet_id, text, created_at) VALUES (?, ?, ?, ?)',
-      [tweet.user_id, tweet.id, tweet.text, new Date()]
-    );
-  }
-}
+```text
+FUNCTION fanoutTweet(tweet):
+    user = getUser(tweet.user_id)
 
-// Timeline generation (read time)
-class TimelineService {
-  async getHomeTimeline(userId, limit = 20) {
-    // 1. Get pre-computed timeline (regular users)
-    const timelineIds = await redis.lrange(`timeline:home:${userId}`, 0, limit);
-    
-    // 2. Get users this person follows who are celebrities
-    const celebrityFollows = await getCelebrityFollows(userId);
-    
-    // 3. Fetch recent tweets from celebrities (pull)
-    const celebrityTweets = await Promise.all(
-      celebrityFollows.map(celebId =>
-        cassandra.execute(
-          'SELECT * FROM tweets WHERE user_id = ? ORDER BY tweet_id DESC LIMIT 20',
-          [celebId]
-        )
-      )
-    );
-    
-    // 4. Merge and sort by timestamp
-    const allTweets = [...timelineIds, ...celebrityTweets.flat()];
-    allTweets.sort((a, b) => b.created_at - a.created_at);
-    
-    return allTweets.slice(0, limit);
-  }
-}
+    # 1. If user has < 10K followers → Push (write fanout)
+    IF user.followers_count < 10000:
+        pushFanout(tweet)
+    # 2. If user has > 10K followers → Pull (read fanout)
+    ELSE:
+        pullFanout(tweet)
+END FUNCTION
+
+FUNCTION pushFanout(tweet):
+    # Write to all followers' timelines (as shown above)
+    followers = getFollowers(tweet.user_id)
+    FOR EACH followerId IN followers:
+        list-prepend tweet.id to "timeline:home:{followerId}"
+END FUNCTION
+
+FUNCTION pullFanout(tweet):
+    # Just store tweet, don't fanout
+    # When followers fetch timeline, merge celebrity tweets on-the-fly
+    execute Cassandra "INSERT INTO tweets (user_id, tweet_id, text, created_at)
+                       VALUES (tweet.user_id, tweet.id, tweet.text, current time)"
+END FUNCTION
+
+# Timeline generation (read time)
+FUNCTION getHomeTimeline(userId, limit = 20):
+    # 1. Get pre-computed timeline (regular users)
+    timelineIds = get range 0..limit from list "timeline:home:{userId}"
+
+    # 2. Get users this person follows who are celebrities
+    celebrityFollows = getCelebrityFollows(userId)
+
+    # 3. Fetch recent tweets from celebrities (pull), in parallel
+    celebrityTweets = FOR EACH celebId IN celebrityFollows (in parallel):
+        execute Cassandra "SELECT * FROM tweets WHERE user_id = celebId
+                           ORDER BY tweet_id DESC LIMIT 20"
+
+    # 4. Merge and sort by timestamp (newest first)
+    allTweets = timelineIds combined with flattened celebrityTweets
+    SORT allTweets by created_at descending
+
+    RETURN first `limit` items of allTweets
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -451,42 +431,40 @@ class TimelineService {
 
 **Solution: Distributed Counters**
 
-```javascript
-class LikeService {
-  async likeTweet(tweetId, userId) {
-    // 1. Record user's like (idempotency)
-    const alreadyLiked = await redis.sismember(`tweet:${tweetId}:likers`, userId);
-    if (alreadyLiked) return;
-    
-    await redis.sadd(`tweet:${tweetId}:likers`, userId);
-    
-    // 2. Increment counter (use sharding for hot tweets)
-    const shard = this.getShardId(tweetId);
-    await redis.incr(`tweet:${tweetId}:likes:shard:${shard}`);
-    
-    // Note: Don't update Cassandra counter immediately
-  }
-  
-  getShardId(tweetId) {
-    // Use 100 shards for popular tweets to distribute load
-    return Math.abs(hash(tweetId + Date.now())) % 100;
-  }
-  
-  async getLikeCount(tweetId) {
-    // Sum across all shards
-    let total = 0;
-    for (let shard = 0; shard < 100; shard++) {
-      const count = await redis.get(`tweet:${tweetId}:likes:shard:${shard}`);
-      total += parseInt(count || 0);
-    }
-    return total;
-  }
-  
-  // Background job: Sync to Cassandra every 5 minutes
-  async syncLikeCounts() {
-    // Aggregate shards and update Cassandra
-  }
-}
+```text
+FUNCTION likeTweet(tweetId, userId):
+    # 1. Record user's like (idempotency)
+    alreadyLiked = is userId a member of set "tweet:{tweetId}:likers"
+    IF alreadyLiked:
+        RETURN
+
+    add userId to set "tweet:{tweetId}:likers"
+
+    # 2. Increment counter (use sharding for hot tweets)
+    shard = getShardId(tweetId)
+    atomic increment of "tweet:{tweetId}:likes:shard:{shard}"
+
+    # Note: Don't update Cassandra counter immediately
+END FUNCTION
+
+FUNCTION getShardId(tweetId):
+    # Use 100 shards for popular tweets to distribute load
+    RETURN absolute value of hash(tweetId + current time) MOD 100
+END FUNCTION
+
+FUNCTION getLikeCount(tweetId):
+    # Sum across all shards
+    total = 0
+    FOR shard FROM 0 TO 99:
+        count = get "tweet:{tweetId}:likes:shard:{shard}"
+        total = total + (count as integer, or 0 if missing)
+    RETURN total
+END FUNCTION
+
+# Background job: Sync to Cassandra every 5 minutes
+FUNCTION syncLikeCounts():
+    # Aggregate shards and update Cassandra
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -502,47 +480,30 @@ class LikeService {
 
 **Solution: Elasticsearch with Kafka Pipeline**
 
-```javascript
-// 1. Post tweet → Kafka topic "tweets"
-// 2. Kafka consumer → Index in Elasticsearch
+```text
+# 1. Post tweet → Kafka topic "tweets"
+# 2. Kafka consumer → Index in Elasticsearch
 
-class SearchIndexer {
-  async indexTweet(tweet) {
-    await elasticsearch.index({
-      index: 'tweets',
-      id: tweet.id,
-      body: {
-        tweet_id: tweet.id,
-        text: tweet.text,
-        user_id: tweet.user_id,
-        hashtags: extractHashtags(tweet.text),
+FUNCTION indexTweet(tweet):
+    index into Elasticsearch index "tweets" with id = tweet.id, document = {
+        tweet_id:   tweet.id,
+        text:       tweet.text,
+        user_id:    tweet.user_id,
+        hashtags:   extractHashtags(tweet.text),
         created_at: tweet.created_at,
-        likes: 0,
-        retweets: 0
-      }
-    });
-  }
-  
-  async searchTweets(query, limit = 20) {
-    const result = await elasticsearch.search({
-      index: 'tweets',
-      body: {
-        query: {
-          multi_match: {
-            query: query,
-            fields: ['text', 'hashtags']
-          }
-        },
-        sort: [
-          { created_at: 'desc' }
-        ],
-        size: limit
-      }
-    });
-    
-    return result.hits.hits.map(hit => hit._source);
-  }
-}
+        likes:      0,
+        retweets:   0
+    }
+END FUNCTION
+
+FUNCTION searchTweets(query, limit = 20):
+    result = search Elasticsearch index "tweets" with:
+        query:  multi_match on fields ["text", "hashtags"] using `query`
+        sort:   created_at descending
+        size:   limit
+
+    RETURN the source document of each hit in result
+END FUNCTION
 ```
 
 **Scaling:**

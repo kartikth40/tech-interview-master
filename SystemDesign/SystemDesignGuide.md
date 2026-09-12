@@ -46,16 +46,16 @@ Bandwidth Estimates:
 ### **Step 3: System Interface (API Design) (5 min)**
 Define core APIs:
 
-```javascript
-// Example: URL Shortener
-createShortURL(api_key, long_url, custom_alias?, expire_date?)
-  → returns: short_url
+```text
+# Example: URL Shortener
+createShortURL(api_key, long_url, [custom_alias], [expire_date])
+  -> returns: short_url
 
 getOriginalURL(short_url)
-  → redirect to: long_url
+  -> redirect to: long_url
 
 deleteURL(api_key, short_url)
-  → returns: success/failure
+  -> returns: success/failure
 ```
 
 ### **Step 4: High-Level Design (10 min)**

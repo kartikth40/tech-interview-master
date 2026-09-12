@@ -53,36 +53,34 @@ Every LLD answer should demonstrate SOLID awareness.
 ### S — Single Responsibility Principle
 > A class should have only one reason to change.
 
-```javascript
-// ❌ Bad: One class doing too much
-class UserManager {
-  createUser(data) { /* ... */ }
-  sendWelcomeEmail(user) { /* ... */ }  // Email logic here?
-  saveToDatabase(user) { /* ... */ }    // DB logic here?
-}
+```python
+# ❌ Bad: One class doing too much
+class UserManager:
+    def create_user(self, data): ...
+    def send_welcome_email(self, user): ...  # Email logic here?
+    def save_to_database(self, user): ...     # DB logic here?
 
-// ✅ Good: Separate responsibilities
-class UserService {
-  constructor(userRepo, emailService) {
-    this.userRepo = userRepo
-    this.emailService = emailService
-  }
-  createUser(data) {
-    const user = new User(data)
-    this.userRepo.save(user)
-    this.emailService.sendWelcome(user)
-    return user
-  }
-}
 
-class UserRepository {
-  save(user) { /* DB logic */ }
-  findById(id) { /* DB logic */ }
-}
+# ✅ Good: Separate responsibilities
+class UserService:
+    def __init__(self, user_repo, email_service):
+        self.user_repo = user_repo
+        self.email_service = email_service
 
-class EmailService {
-  sendWelcome(user) { /* Email logic */ }
-}
+    def create_user(self, data):
+        user = User(data)
+        self.user_repo.save(user)
+        self.email_service.send_welcome(user)
+        return user
+
+
+class UserRepository:
+    def save(self, user): ...      # DB logic
+    def find_by_id(self, id): ...  # DB logic
+
+
+class EmailService:
+    def send_welcome(self, user): ...  # Email logic
 ```
 
 ---
@@ -90,34 +88,42 @@ class EmailService {
 ### O — Open/Closed Principle
 > Open for extension, closed for modification.
 
-```javascript
-// ❌ Bad: Adding new payment type requires modifying existing class
-class PaymentProcessor {
-  process(type, amount) {
-    if (type === 'credit') { /* ... */ }
-    else if (type === 'debit') { /* ... */ }
-    else if (type === 'upi') { /* ... */ }  // Keep adding ifs?
-  }
-}
+```python
+from abc import ABC, abstractmethod
 
-// ✅ Good: Extend without modifying
-class PaymentProcessor {
-  process(payment) {
-    payment.execute()  // Polymorphism
-  }
-}
 
-class CreditCardPayment {
-  execute() { /* credit card logic */ }
-}
+# ❌ Bad: Adding a new payment type requires modifying the existing class
+class PaymentProcessor:
+    def process(self, type, amount):
+        if type == "credit":
+            ...
+        elif type == "debit":
+            ...
+        elif type == "upi":
+            ...  # keep adding branches?
 
-class UPIPayment {
-  execute() { /* UPI logic */ }
-}
 
-class CryptoPayment {  // New type — no existing code changed
-  execute() { /* crypto logic */ }
-}
+# ✅ Good: Extend without modifying
+class Payment(ABC):
+    @abstractmethod
+    def execute(self): ...
+
+
+class PaymentProcessor:
+    def process(self, payment: Payment):
+        payment.execute()  # polymorphism
+
+
+class CreditCardPayment(Payment):
+    def execute(self): ...  # credit card logic
+
+
+class UPIPayment(Payment):
+    def execute(self): ...  # UPI logic
+
+
+class CryptoPayment(Payment):  # new type — no existing code changed
+    def execute(self): ...  # crypto logic
 ```
 
 ---
@@ -125,33 +131,42 @@ class CryptoPayment {  // New type — no existing code changed
 ### L — Liskov Substitution Principle
 > Subtypes must be substitutable for their base types.
 
-```javascript
-// ❌ Bad: Square breaks Rectangle's contract
-class Rectangle {
-  setWidth(w) { this.width = w }
-  setHeight(h) { this.height = h }
-  area() { return this.width * this.height }
-}
+```python
+from abc import ABC, abstractmethod
 
-class Square extends Rectangle {
-  setWidth(w) { this.width = w; this.height = w }  // Breaks LSP!
-  setHeight(h) { this.width = h; this.height = h }  // Breaks LSP!
-}
 
-// ✅ Good: Use composition or separate hierarchy
-class Shape {
-  area() { throw new Error('Not implemented') }
-}
+# ❌ Bad: Square breaks Rectangle's contract
+class Rectangle:
+    def set_width(self, w): self.width = w
+    def set_height(self, h): self.height = h
+    def area(self): return self.width * self.height
 
-class Rectangle extends Shape {
-  constructor(w, h) { super(); this.w = w; this.h = h }
-  area() { return this.w * this.h }
-}
 
-class Square extends Shape {
-  constructor(s) { super(); this.side = s }
-  area() { return this.side * this.side }
-}
+class Square(Rectangle):
+    def set_width(self, w): self.width = self.height = w   # breaks LSP!
+    def set_height(self, h): self.width = self.height = h  # breaks LSP!
+
+
+# ✅ Good: Use a separate hierarchy
+class Shape(ABC):
+    @abstractmethod
+    def area(self): ...
+
+
+class Rectangle(Shape):
+    def __init__(self, w, h):
+        self.w, self.h = w, h
+
+    def area(self):
+        return self.w * self.h
+
+
+class Square(Shape):
+    def __init__(self, side):
+        self.side = side
+
+    def area(self):
+        return self.side * self.side
 ```
 
 ---
@@ -159,39 +174,53 @@ class Square extends Shape {
 ### I — Interface Segregation Principle
 > Clients should not be forced to depend on interfaces they don't use.
 
-```javascript
-// ❌ Bad: Fat interface forces all implementors to implement everything
-class Animal {
-  eat() {}
-  sleep() {}
-  fly() {}   // Not all animals fly!
-  swim() {}  // Not all animals swim!
-}
+```python
+from abc import ABC, abstractmethod
 
-// ✅ Good: Segregated interfaces
-class Animal {
-  eat() {}
-  sleep() {}
-}
 
-class Flyable {
-  fly() {}
-}
+# ❌ Bad: Fat interface forces all implementors to implement everything
+class Animal(ABC):
+    @abstractmethod
+    def eat(self): ...
+    @abstractmethod
+    def sleep(self): ...
+    @abstractmethod
+    def fly(self): ...   # not all animals fly!
+    @abstractmethod
+    def swim(self): ...  # not all animals swim!
 
-class Swimmable {
-  swim() {}
-}
 
-// Duck can fly AND swim
-class Duck extends Animal {
-  fly() { /* ... */ }
-  swim() { /* ... */ }
-}
+# ✅ Good: Segregated interfaces (mixins)
+class Animal(ABC):
+    @abstractmethod
+    def eat(self): ...
+    @abstractmethod
+    def sleep(self): ...
 
-// Dog can only swim
-class Dog extends Animal {
-  swim() { /* ... */ }
-}
+
+class Flyable(ABC):
+    @abstractmethod
+    def fly(self): ...
+
+
+class Swimmable(ABC):
+    @abstractmethod
+    def swim(self): ...
+
+
+# Duck can fly AND swim
+class Duck(Animal, Flyable, Swimmable):
+    def eat(self): ...
+    def sleep(self): ...
+    def fly(self): ...
+    def swim(self): ...
+
+
+# Dog can only swim
+class Dog(Animal, Swimmable):
+    def eat(self): ...
+    def sleep(self): ...
+    def swim(self): ...
 ```
 
 ---
@@ -199,28 +228,26 @@ class Dog extends Animal {
 ### D — Dependency Inversion Principle
 > Depend on abstractions, not concretions.
 
-```javascript
-// ❌ Bad: High-level module depends on low-level module
-class OrderService {
-  constructor() {
-    this.db = new MySQLDatabase()  // Tightly coupled to MySQL!
-  }
-}
+```python
+# ❌ Bad: High-level module depends on a low-level module
+class OrderService:
+    def __init__(self):
+        self.db = MySQLDatabase()  # tightly coupled to MySQL!
 
-// ✅ Good: Depend on abstraction
-class OrderService {
-  constructor(database) {  // Inject the dependency
-    this.db = database
-  }
-  createOrder(data) {
-    return this.db.save(data)
-  }
-}
 
-// Can swap implementations without changing OrderService
-const mysqlService = new OrderService(new MySQLDatabase())
-const mongoService = new OrderService(new MongoDatabase())
-const testService = new OrderService(new InMemoryDatabase())
+# ✅ Good: Depend on an abstraction (inject the dependency)
+class OrderService:
+    def __init__(self, database):
+        self.db = database
+
+    def create_order(self, data):
+        return self.db.save(data)
+
+
+# Swap implementations without changing OrderService
+mysql_service = OrderService(MySQLDatabase())
+mongo_service = OrderService(MongoDatabase())
+test_service = OrderService(InMemoryDatabase())
 ```
 
 ---
@@ -232,35 +259,32 @@ const testService = new OrderService(new InMemoryDatabase())
 #### Singleton
 > Ensure only one instance of a class exists.
 
-```javascript
-class DatabaseConnection {
-  static #instance = null
+```python
+class DatabaseConnection:
+    _instance = None
 
-  constructor(config) {
-    if (DatabaseConnection.#instance) {
-      return DatabaseConnection.#instance
-    }
-    this.connection = this.#connect(config)
-    DatabaseConnection.#instance = this
-  }
+    def __new__(cls, config=None):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.connection = cls._connect(config)
+        return cls._instance
 
-  static getInstance(config) {
-    if (!DatabaseConnection.#instance) {
-      new DatabaseConnection(config)
-    }
-    return DatabaseConnection.#instance
-  }
+    @classmethod
+    def get_instance(cls, config=None):
+        if cls._instance is None:
+            cls(config)
+        return cls._instance
 
-  #connect(config) {
-    // establish connection
-    return { host: config.host, status: 'connected' }
-  }
-}
+    @staticmethod
+    def _connect(config):
+        # establish connection
+        return {"host": config["host"], "status": "connected"}
 
-// Usage
-const db1 = DatabaseConnection.getInstance({ host: 'localhost' })
-const db2 = DatabaseConnection.getInstance()
-console.log(db1 === db2)  // true
+
+# Usage
+db1 = DatabaseConnection.get_instance({"host": "localhost"})
+db2 = DatabaseConnection.get_instance()
+print(db1 is db2)  # True
 ```
 
 **Use when:** Logger, config manager, connection pool, cache
@@ -268,35 +292,40 @@ console.log(db1 === db2)  // true
 ---
 
 #### Factory Method
-> Let subclasses decide which class to instantiate.
+> Let a factory decide which class to instantiate.
 
-```javascript
-class NotificationFactory {
-  static create(type) {
-    switch (type) {
-      case 'email': return new EmailNotification()
-      case 'sms': return new SMSNotification()
-      case 'push': return new PushNotification()
-      default: throw new Error(`Unknown notification type: ${type}`)
-    }
-  }
-}
+```python
+class EmailNotification:
+    def send(self, to, message):
+        print(f"Email to {to}: {message}")
 
-class EmailNotification {
-  send(to, message) { console.log(`Email to ${to}: ${message}`) }
-}
 
-class SMSNotification {
-  send(to, message) { console.log(`SMS to ${to}: ${message}`) }
-}
+class SMSNotification:
+    def send(self, to, message):
+        print(f"SMS to {to}: {message}")
 
-class PushNotification {
-  send(to, message) { console.log(`Push to ${to}: ${message}`) }
-}
 
-// Usage
-const notif = NotificationFactory.create('email')
-notif.send('user@example.com', 'Welcome!')
+class PushNotification:
+    def send(self, to, message):
+        print(f"Push to {to}: {message}")
+
+
+class NotificationFactory:
+    @staticmethod
+    def create(type):
+        factories = {
+            "email": EmailNotification,
+            "sms": SMSNotification,
+            "push": PushNotification,
+        }
+        if type not in factories:
+            raise ValueError(f"Unknown notification type: {type}")
+        return factories[type]()
+
+
+# Usage
+notif = NotificationFactory.create("email")
+notif.send("user@example.com", "Welcome!")
 ```
 
 **Use when:** Object creation logic is complex or varies by type
@@ -306,51 +335,47 @@ notif.send('user@example.com', 'Welcome!')
 #### Builder
 > Construct complex objects step by step.
 
-```javascript
-class QueryBuilder {
-  constructor() {
-    this.query = { table: '', conditions: [], fields: ['*'], limit: null }
-  }
+```python
+class QueryBuilder:
+    def __init__(self):
+        self.query = {"table": "", "conditions": [], "fields": ["*"], "limit": None}
 
-  from(table) {
-    this.query.table = table
-    return this  // Enable chaining
-  }
+    def from_(self, table):
+        self.query["table"] = table
+        return self  # enable chaining
 
-  select(...fields) {
-    this.query.fields = fields
-    return this
-  }
+    def select(self, *fields):
+        self.query["fields"] = list(fields)
+        return self
 
-  where(condition) {
-    this.query.conditions.push(condition)
-    return this
-  }
+    def where(self, condition):
+        self.query["conditions"].append(condition)
+        return self
 
-  limitTo(n) {
-    this.query.limit = n
-    return this
-  }
+    def limit_to(self, n):
+        self.query["limit"] = n
+        return self
 
-  build() {
-    let sql = `SELECT ${this.query.fields.join(', ')} FROM ${this.query.table}`
-    if (this.query.conditions.length) {
-      sql += ` WHERE ${this.query.conditions.join(' AND ')}`
-    }
-    if (this.query.limit) sql += ` LIMIT ${this.query.limit}`
-    return sql
-  }
-}
+    def build(self):
+        sql = f"SELECT {', '.join(self.query['fields'])} FROM {self.query['table']}"
+        if self.query["conditions"]:
+            sql += " WHERE " + " AND ".join(self.query["conditions"])
+        if self.query["limit"]:
+            sql += f" LIMIT {self.query['limit']}"
+        return sql
 
-// Usage
-const sql = new QueryBuilder()
-  .from('users')
-  .select('id', 'name', 'email')
-  .where('age > 18')
-  .where('active = true')
-  .limitTo(10)
-  .build()
-// SELECT id, name, email FROM users WHERE age > 18 AND active = true LIMIT 10
+
+# Usage
+sql = (
+    QueryBuilder()
+    .from_("users")
+    .select("id", "name", "email")
+    .where("age > 18")
+    .where("active = true")
+    .limit_to(10)
+    .build()
+)
+# SELECT id, name, email FROM users WHERE age > 18 AND active = true LIMIT 10
 ```
 
 **Use when:** Object has many optional parameters (avoids telescoping constructors)
@@ -362,33 +387,30 @@ const sql = new QueryBuilder()
 #### Adapter
 > Convert one interface to another that clients expect.
 
-```javascript
-// Old payment API
-class LegacyPaymentGateway {
-  makePayment(cardNumber, amount, currency) {
-    return { status: 'success', transactionId: 'TXN123' }
-  }
-}
+```python
+# Old payment API
+class LegacyPaymentGateway:
+    def make_payment(self, card_number, amount, currency):
+        return {"status": "success", "transaction_id": "TXN123"}
 
-// New interface your app expects
-class PaymentAdapter {
-  constructor(legacyGateway) {
-    this.gateway = legacyGateway
-  }
 
-  // New interface: pay({ card, amount, currency })
-  pay({ card, amount, currency }) {
-    const result = this.gateway.makePayment(card, amount, currency)
-    return {
-      success: result.status === 'success',
-      id: result.transactionId
-    }
-  }
-}
+# New interface your app expects
+class PaymentAdapter:
+    def __init__(self, legacy_gateway):
+        self.gateway = legacy_gateway
 
-// Usage — app only knows the new interface
-const adapter = new PaymentAdapter(new LegacyPaymentGateway())
-adapter.pay({ card: '4111...', amount: 100, currency: 'INR' })
+    # New interface: pay(card=..., amount=..., currency=...)
+    def pay(self, card, amount, currency):
+        result = self.gateway.make_payment(card, amount, currency)
+        return {
+            "success": result["status"] == "success",
+            "id": result["transaction_id"],
+        }
+
+
+# Usage — app only knows the new interface
+adapter = PaymentAdapter(LegacyPaymentGateway())
+adapter.pay(card="4111...", amount=100, currency="INR")
 ```
 
 **Use when:** Integrating third-party libraries, legacy code migration
@@ -398,38 +420,56 @@ adapter.pay({ card: '4111...', amount: 100, currency: 'INR' })
 #### Decorator
 > Add behavior to objects dynamically without subclassing.
 
-```javascript
-class Coffee {
-  cost() { return 50 }
-  description() { return 'Plain coffee' }
-}
+```python
+class Coffee:
+    def cost(self):
+        return 50
 
-class MilkDecorator {
-  constructor(coffee) { this.coffee = coffee }
-  cost() { return this.coffee.cost() + 15 }
-  description() { return this.coffee.description() + ', milk' }
-}
+    def description(self):
+        return "Plain coffee"
 
-class SugarDecorator {
-  constructor(coffee) { this.coffee = coffee }
-  cost() { return this.coffee.cost() + 5 }
-  description() { return this.coffee.description() + ', sugar' }
-}
 
-class VanillaDecorator {
-  constructor(coffee) { this.coffee = coffee }
-  cost() { return this.coffee.cost() + 20 }
-  description() { return this.coffee.description() + ', vanilla' }
-}
+class MilkDecorator:
+    def __init__(self, coffee):
+        self.coffee = coffee
 
-// Usage
-let myCoffee = new Coffee()
-myCoffee = new MilkDecorator(myCoffee)
-myCoffee = new SugarDecorator(myCoffee)
-myCoffee = new VanillaDecorator(myCoffee)
+    def cost(self):
+        return self.coffee.cost() + 15
 
-console.log(myCoffee.description())  // Plain coffee, milk, sugar, vanilla
-console.log(myCoffee.cost())         // 90
+    def description(self):
+        return self.coffee.description() + ", milk"
+
+
+class SugarDecorator:
+    def __init__(self, coffee):
+        self.coffee = coffee
+
+    def cost(self):
+        return self.coffee.cost() + 5
+
+    def description(self):
+        return self.coffee.description() + ", sugar"
+
+
+class VanillaDecorator:
+    def __init__(self, coffee):
+        self.coffee = coffee
+
+    def cost(self):
+        return self.coffee.cost() + 20
+
+    def description(self):
+        return self.coffee.description() + ", vanilla"
+
+
+# Usage
+my_coffee = Coffee()
+my_coffee = MilkDecorator(my_coffee)
+my_coffee = SugarDecorator(my_coffee)
+my_coffee = VanillaDecorator(my_coffee)
+
+print(my_coffee.description())  # Plain coffee, milk, sugar, vanilla
+print(my_coffee.cost())         # 90
 ```
 
 **Use when:** Adding features to objects at runtime (logging, auth, caching middleware)
@@ -439,35 +479,31 @@ console.log(myCoffee.cost())         // 90
 #### Proxy
 > Control access to an object.
 
-```javascript
-class ExpensiveService {
-  fetchData(key) {
-    console.log(`Fetching ${key} from DB...`)
-    return { key, data: 'expensive result' }
-  }
-}
+```python
+class ExpensiveService:
+    def fetch_data(self, key):
+        print(f"Fetching {key} from DB...")
+        return {"key": key, "data": "expensive result"}
 
-class CachingProxy {
-  constructor(service) {
-    this.service = service
-    this.cache = new Map()
-  }
 
-  fetchData(key) {
-    if (this.cache.has(key)) {
-      console.log(`Cache hit for ${key}`)
-      return this.cache.get(key)
-    }
-    const result = this.service.fetchData(key)
-    this.cache.set(key, result)
-    return result
-  }
-}
+class CachingProxy:
+    def __init__(self, service):
+        self.service = service
+        self.cache = {}
 
-// Usage — client doesn't know it's using a proxy
-const service = new CachingProxy(new ExpensiveService())
-service.fetchData('user:123')  // Fetching from DB
-service.fetchData('user:123')  // Cache hit
+    def fetch_data(self, key):
+        if key in self.cache:
+            print(f"Cache hit for {key}")
+            return self.cache[key]
+        result = self.service.fetch_data(key)
+        self.cache[key] = result
+        return result
+
+
+# Usage — client doesn't know it's using a proxy
+service = CachingProxy(ExpensiveService())
+service.fetch_data("user:123")  # Fetching from DB
+service.fetch_data("user:123")  # Cache hit
 ```
 
 **Use when:** Lazy loading, caching, access control, logging
@@ -479,48 +515,35 @@ service.fetchData('user:123')  // Cache hit
 #### Observer
 > Define a one-to-many dependency so when one object changes, all dependents are notified.
 
-```javascript
-class EventEmitter {
-  constructor() {
-    this.listeners = new Map()
-  }
+```python
+from collections import defaultdict
 
-  on(event, callback) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, [])
-    }
-    this.listeners.get(event).push(callback)
-    return this
-  }
 
-  off(event, callback) {
-    const callbacks = this.listeners.get(event) || []
-    this.listeners.set(event, callbacks.filter(cb => cb !== callback))
-  }
+class EventEmitter:
+    def __init__(self):
+        self.listeners = defaultdict(list)
 
-  emit(event, data) {
-    const callbacks = this.listeners.get(event) || []
-    callbacks.forEach(cb => cb(data))
-  }
-}
+    def on(self, event, callback):
+        self.listeners[event].append(callback)
+        return self
 
-// Usage: Order system
-const orderEvents = new EventEmitter()
+    def off(self, event, callback):
+        self.listeners[event] = [cb for cb in self.listeners[event] if cb != callback]
 
-orderEvents.on('order:placed', ({ orderId }) => {
-  console.log(`Send confirmation email for order ${orderId}`)
-})
+    def emit(self, event, data):
+        for cb in self.listeners[event]:
+            cb(data)
 
-orderEvents.on('order:placed', ({ orderId }) => {
-  console.log(`Notify warehouse for order ${orderId}`)
-})
 
-orderEvents.on('order:placed', ({ orderId }) => {
-  console.log(`Update analytics for order ${orderId}`)
-})
+# Usage: Order system
+order_events = EventEmitter()
 
-orderEvents.emit('order:placed', { orderId: 'ORD-001' })
-// All 3 handlers fire
+order_events.on("order:placed", lambda d: print(f"Send confirmation email for order {d['order_id']}"))
+order_events.on("order:placed", lambda d: print(f"Notify warehouse for order {d['order_id']}"))
+order_events.on("order:placed", lambda d: print(f"Update analytics for order {d['order_id']}"))
+
+order_events.emit("order:placed", {"order_id": "ORD-001"})
+# All 3 handlers fire
 ```
 
 **Use when:** Event systems, pub/sub, UI state management, notifications
@@ -530,48 +553,52 @@ orderEvents.emit('order:placed', { orderId: 'ORD-001' })
 #### Strategy
 > Define a family of algorithms, encapsulate each one, make them interchangeable.
 
-```javascript
-// Sorting strategies
-class BubbleSort {
-  sort(arr) {
-    const a = [...arr]
-    for (let i = 0; i < a.length; i++)
-      for (let j = 0; j < a.length - i - 1; j++)
-        if (a[j] > a[j+1]) [a[j], a[j+1]] = [a[j+1], a[j]]
-    return a
-  }
-}
+```python
+from abc import ABC, abstractmethod
 
-class QuickSort {
-  sort(arr) {
-    if (arr.length <= 1) return arr
-    const pivot = arr[arr.length - 1]
-    const left = arr.slice(0, -1).filter(x => x <= pivot)
-    const right = arr.slice(0, -1).filter(x => x > pivot)
-    return [...this.sort(left), pivot, ...this.sort(right)]
-  }
-}
 
-class Sorter {
-  constructor(strategy) {
-    this.strategy = strategy
-  }
+class SortStrategy(ABC):
+    @abstractmethod
+    def sort(self, arr): ...
 
-  setStrategy(strategy) {
-    this.strategy = strategy
-  }
 
-  sort(arr) {
-    return this.strategy.sort(arr)
-  }
-}
+class BubbleSort(SortStrategy):
+    def sort(self, arr):
+        a = list(arr)
+        for i in range(len(a)):
+            for j in range(len(a) - i - 1):
+                if a[j] > a[j + 1]:
+                    a[j], a[j + 1] = a[j + 1], a[j]
+        return a
 
-// Usage
-const sorter = new Sorter(new QuickSort())
+
+class QuickSort(SortStrategy):
+    def sort(self, arr):
+        if len(arr) <= 1:
+            return arr
+        pivot = arr[-1]
+        left = [x for x in arr[:-1] if x <= pivot]
+        right = [x for x in arr[:-1] if x > pivot]
+        return self.sort(left) + [pivot] + self.sort(right)
+
+
+class Sorter:
+    def __init__(self, strategy: SortStrategy):
+        self.strategy = strategy
+
+    def set_strategy(self, strategy: SortStrategy):
+        self.strategy = strategy
+
+    def sort(self, arr):
+        return self.strategy.sort(arr)
+
+
+# Usage
+sorter = Sorter(QuickSort())
 sorter.sort([3, 1, 4, 1, 5])
 
-// Swap strategy at runtime
-sorter.setStrategy(new BubbleSort())
+# Swap strategy at runtime
+sorter.set_strategy(BubbleSort())
 sorter.sort([3, 1, 4, 1, 5])
 ```
 
@@ -582,46 +609,62 @@ sorter.sort([3, 1, 4, 1, 5])
 #### Command
 > Encapsulate a request as an object, enabling undo/redo.
 
-```javascript
-class TextEditor {
-  constructor() {
-    this.text = ''
-    this.history = []
-  }
+```python
+from abc import ABC, abstractmethod
 
-  execute(command) {
-    command.execute(this)
-    this.history.push(command)
-  }
 
-  undo() {
-    const command = this.history.pop()
-    if (command) command.undo(this)
-  }
-}
+class Command(ABC):
+    @abstractmethod
+    def execute(self, editor): ...
+    @abstractmethod
+    def undo(self, editor): ...
 
-class InsertCommand {
-  constructor(text) { this.text = text }
-  execute(editor) { editor.text += this.text }
-  undo(editor) { editor.text = editor.text.slice(0, -this.text.length) }
-}
 
-class DeleteCommand {
-  constructor(n) { this.n = n; this.deleted = '' }
-  execute(editor) {
-    this.deleted = editor.text.slice(-this.n)
-    editor.text = editor.text.slice(0, -this.n)
-  }
-  undo(editor) { editor.text += this.deleted }
-}
+class TextEditor:
+    def __init__(self):
+        self.text = ""
+        self.history = []
 
-// Usage
-const editor = new TextEditor()
-editor.execute(new InsertCommand('Hello'))
-editor.execute(new InsertCommand(' World'))
-console.log(editor.text)  // Hello World
+    def execute(self, command: Command):
+        command.execute(self)
+        self.history.append(command)
+
+    def undo(self):
+        if self.history:
+            self.history.pop().undo(self)
+
+
+class InsertCommand(Command):
+    def __init__(self, text):
+        self.text = text
+
+    def execute(self, editor):
+        editor.text += self.text
+
+    def undo(self, editor):
+        editor.text = editor.text[: -len(self.text)]
+
+
+class DeleteCommand(Command):
+    def __init__(self, n):
+        self.n = n
+        self.deleted = ""
+
+    def execute(self, editor):
+        self.deleted = editor.text[-self.n:]
+        editor.text = editor.text[: -self.n]
+
+    def undo(self, editor):
+        editor.text += self.deleted
+
+
+# Usage
+editor = TextEditor()
+editor.execute(InsertCommand("Hello"))
+editor.execute(InsertCommand(" World"))
+print(editor.text)  # Hello World
 editor.undo()
-console.log(editor.text)  // Hello
+print(editor.text)  # Hello
 ```
 
 **Use when:** Undo/redo, transaction queues, macro recording
@@ -632,234 +675,217 @@ console.log(editor.text)  // Hello
 
 ### 1. Parking Lot
 
-```javascript
-// Entities: ParkingLot, Floor, Spot, Vehicle, Ticket
+```python
+# Entities: ParkingLot, ParkingFloor, ParkingSpot, Vehicle, ParkingTicket
+import time
 
-class Vehicle {
-  constructor(plate, type) {
-    this.plate = plate
-    this.type = type  // 'bike', 'car', 'truck'
-  }
-}
 
-class ParkingSpot {
-  constructor(id, type) {
-    this.id = id
-    this.type = type  // 'small', 'medium', 'large'
-    this.vehicle = null
-  }
+class Vehicle:
+    def __init__(self, plate, type):
+        self.plate = plate
+        self.type = type  # 'bike', 'car', 'truck'
 
-  isAvailable() { return this.vehicle === null }
 
-  canFit(vehicle) {
-    const fits = { small: ['bike'], medium: ['bike', 'car'], large: ['bike', 'car', 'truck'] }
-    return fits[this.type].includes(vehicle.type)
-  }
+class ParkingSpot:
+    def __init__(self, id, type):
+        self.id = id
+        self.type = type  # 'small', 'medium', 'large'
+        self.vehicle = None
 
-  park(vehicle) { this.vehicle = vehicle }
-  vacate() { this.vehicle = null }
-}
+    def is_available(self):
+        return self.vehicle is None
 
-class ParkingFloor {
-  constructor(floorNum, spots) {
-    this.floorNum = floorNum
-    this.spots = spots
-  }
+    def can_fit(self, vehicle):
+        fits = {
+            "small": ["bike"],
+            "medium": ["bike", "car"],
+            "large": ["bike", "car", "truck"],
+        }
+        return vehicle.type in fits[self.type]
 
-  findAvailableSpot(vehicle) {
-    return this.spots.find(s => s.isAvailable() && s.canFit(vehicle)) || null
-  }
-}
+    def park(self, vehicle):
+        self.vehicle = vehicle
 
-class ParkingTicket {
-  constructor(vehicle, spot, floor) {
-    this.id = `TKT-${Date.now()}`
-    this.vehicle = vehicle
-    this.spot = spot
-    this.floor = floor
-    this.entryTime = new Date()
-    this.exitTime = null
-  }
+    def vacate(self):
+        self.vehicle = None
 
-  checkout() {
-    this.exitTime = new Date()
-    this.spot.vacate()
-    return this.#calculateFee()
-  }
 
-  #calculateFee() {
-    const hours = Math.ceil((this.exitTime - this.entryTime) / 3600000)
-    const rates = { small: 20, medium: 40, large: 60 }
-    return hours * rates[this.spot.type]
-  }
-}
+class ParkingFloor:
+    def __init__(self, floor_num, spots):
+        self.floor_num = floor_num
+        self.spots = spots
 
-class ParkingLot {
-  constructor(floors) {
-    this.floors = floors
-    this.activeTickets = new Map()
-  }
+    def find_available_spot(self, vehicle):
+        for s in self.spots:
+            if s.is_available() and s.can_fit(vehicle):
+                return s
+        return None
 
-  park(vehicle) {
-    for (const floor of this.floors) {
-      const spot = floor.findAvailableSpot(vehicle)
-      if (spot) {
-        spot.park(vehicle)
-        const ticket = new ParkingTicket(vehicle, spot, floor)
-        this.activeTickets.set(ticket.id, ticket)
-        return ticket
-      }
-    }
-    throw new Error('Parking lot is full')
-  }
 
-  checkout(ticketId) {
-    const ticket = this.activeTickets.get(ticketId)
-    if (!ticket) throw new Error('Invalid ticket')
-    const fee = ticket.checkout()
-    this.activeTickets.delete(ticketId)
-    return fee
-  }
-}
+class ParkingTicket:
+    def __init__(self, vehicle, spot, floor):
+        self.id = f"TKT-{int(time.time() * 1000)}"
+        self.vehicle = vehicle
+        self.spot = spot
+        self.floor = floor
+        self.entry_time = time.time()
+        self.exit_time = None
+
+    def checkout(self):
+        self.exit_time = time.time()
+        self.spot.vacate()
+        return self._calculate_fee()
+
+    def _calculate_fee(self):
+        import math
+        hours = math.ceil((self.exit_time - self.entry_time) / 3600)
+        rates = {"small": 20, "medium": 40, "large": 60}
+        return hours * rates[self.spot.type]
+
+
+class ParkingLot:
+    def __init__(self, floors):
+        self.floors = floors
+        self.active_tickets = {}
+
+    def park(self, vehicle):
+        for floor in self.floors:
+            spot = floor.find_available_spot(vehicle)
+            if spot:
+                spot.park(vehicle)
+                ticket = ParkingTicket(vehicle, spot, floor)
+                self.active_tickets[ticket.id] = ticket
+                return ticket
+        raise RuntimeError("Parking lot is full")
+
+    def checkout(self, ticket_id):
+        ticket = self.active_tickets.get(ticket_id)
+        if not ticket:
+            raise ValueError("Invalid ticket")
+        fee = ticket.checkout()
+        del self.active_tickets[ticket_id]
+        return fee
 ```
 
 ---
 
 ### 2. Elevator System
 
-```javascript
-// Entities: ElevatorSystem, Elevator, Request, Direction
+```python
+# Entities: ElevatorSystem, Elevator, Request, Direction
 
-class Request {
-  constructor(floor, direction) {
-    this.floor = floor
-    this.direction = direction  // 'up' | 'down'
-  }
-}
 
-class Elevator {
-  constructor(id, totalFloors) {
-    this.id = id
-    this.currentFloor = 0
-    this.direction = 'idle'  // 'up' | 'down' | 'idle'
-    this.destinations = new Set()
-    this.totalFloors = totalFloors
-  }
+class Request:
+    def __init__(self, floor, direction):
+        self.floor = floor
+        self.direction = direction  # 'up' | 'down'
 
-  addDestination(floor) {
-    this.destinations.add(floor)
-    this.#updateDirection()
-  }
 
-  move() {
-    if (this.destinations.size === 0) {
-      this.direction = 'idle'
-      return
-    }
+class Elevator:
+    def __init__(self, id, total_floors):
+        self.id = id
+        self.current_floor = 0
+        self.direction = "idle"  # 'up' | 'down' | 'idle'
+        self.destinations = set()
+        self.total_floors = total_floors
 
-    if (this.direction === 'up') {
-      this.currentFloor++
-    } else if (this.direction === 'down') {
-      this.currentFloor--
-    }
+    def add_destination(self, floor):
+        self.destinations.add(floor)
+        self._update_direction()
 
-    if (this.destinations.has(this.currentFloor)) {
-      this.destinations.delete(this.currentFloor)
-      console.log(`Elevator ${this.id} stopped at floor ${this.currentFloor}`)
-    }
+    def move(self):
+        if not self.destinations:
+            self.direction = "idle"
+            return
 
-    this.#updateDirection()
-  }
+        if self.direction == "up":
+            self.current_floor += 1
+        elif self.direction == "down":
+            self.current_floor -= 1
 
-  #updateDirection() {
-    if (this.destinations.size === 0) {
-      this.direction = 'idle'
-      return
-    }
-    const maxDest = Math.max(...this.destinations)
-    const minDest = Math.min(...this.destinations)
-    if (this.direction === 'up' && maxDest > this.currentFloor) return
-    if (this.direction === 'down' && minDest < this.currentFloor) return
-    this.direction = maxDest > this.currentFloor ? 'up' : 'down'
-  }
+        if self.current_floor in self.destinations:
+            self.destinations.discard(self.current_floor)
+            print(f"Elevator {self.id} stopped at floor {self.current_floor}")
 
-  distanceTo(floor) {
-    return Math.abs(this.currentFloor - floor)
-  }
-}
+        self._update_direction()
 
-class ElevatorSystem {
-  constructor(numElevators, totalFloors) {
-    this.elevators = Array.from({ length: numElevators },
-      (_, i) => new Elevator(i, totalFloors))
-  }
+    def _update_direction(self):
+        if not self.destinations:
+            self.direction = "idle"
+            return
+        max_dest = max(self.destinations)
+        min_dest = min(self.destinations)
+        if self.direction == "up" and max_dest > self.current_floor:
+            return
+        if self.direction == "down" and min_dest < self.current_floor:
+            return
+        self.direction = "up" if max_dest > self.current_floor else "down"
 
-  // Dispatch: find nearest idle or same-direction elevator
-  dispatch(request) {
-    const best = this.elevators
-      .filter(e => e.direction === 'idle' ||
-                   e.direction === request.direction)
-      .sort((a, b) => a.distanceTo(request.floor) - b.distanceTo(request.floor))[0]
-      || this.elevators.sort((a, b) =>
-           a.distanceTo(request.floor) - b.distanceTo(request.floor))[0]
+    def distance_to(self, floor):
+        return abs(self.current_floor - floor)
 
-    best.addDestination(request.floor)
-    return best
-  }
-}
+
+class ElevatorSystem:
+    def __init__(self, num_elevators, total_floors):
+        self.elevators = [Elevator(i, total_floors) for i in range(num_elevators)]
+
+    # Dispatch: find nearest idle or same-direction elevator
+    def dispatch(self, request):
+        candidates = [
+            e for e in self.elevators
+            if e.direction == "idle" or e.direction == request.direction
+        ]
+        pool = candidates or self.elevators
+        best = min(pool, key=lambda e: e.distance_to(request.floor))
+        best.add_destination(request.floor)
+        return best
 ```
 
 ---
 
 ### 3. Rate Limiter
 
-```javascript
-// Token Bucket Algorithm
+```python
+# Token Bucket Algorithm
+import time
 
-class TokenBucket {
-  constructor(capacity, refillRate) {
-    this.capacity = capacity      // Max tokens
-    this.tokens = capacity        // Current tokens
-    this.refillRate = refillRate  // Tokens per second
-    this.lastRefill = Date.now()
-  }
 
-  #refill() {
-    const now = Date.now()
-    const elapsed = (now - this.lastRefill) / 1000
-    const newTokens = elapsed * this.refillRate
-    this.tokens = Math.min(this.capacity, this.tokens + newTokens)
-    this.lastRefill = now
-  }
+class TokenBucket:
+    def __init__(self, capacity, refill_rate):
+        self.capacity = capacity        # max tokens
+        self.tokens = capacity          # current tokens
+        self.refill_rate = refill_rate  # tokens per second
+        self.last_refill = time.time()
 
-  consume(tokens = 1) {
-    this.#refill()
-    if (this.tokens >= tokens) {
-      this.tokens -= tokens
-      return true  // Allowed
-    }
-    return false  // Rate limited
-  }
-}
+    def _refill(self):
+        now = time.time()
+        elapsed = now - self.last_refill
+        self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)
+        self.last_refill = now
 
-class RateLimiter {
-  constructor(capacity, refillRate) {
-    this.capacity = capacity
-    this.refillRate = refillRate
-    this.buckets = new Map()  // userId → TokenBucket
-  }
+    def consume(self, tokens=1):
+        self._refill()
+        if self.tokens >= tokens:
+            self.tokens -= tokens
+            return True   # allowed
+        return False      # rate limited
 
-  isAllowed(userId) {
-    if (!this.buckets.has(userId)) {
-      this.buckets.set(userId, new TokenBucket(this.capacity, this.refillRate))
-    }
-    return this.buckets.get(userId).consume()
-  }
-}
 
-// Usage: 10 requests/sec per user
-const limiter = new RateLimiter(10, 10)
-console.log(limiter.isAllowed('user1'))  // true
+class RateLimiter:
+    def __init__(self, capacity, refill_rate):
+        self.capacity = capacity
+        self.refill_rate = refill_rate
+        self.buckets = {}  # user_id -> TokenBucket
+
+    def is_allowed(self, user_id):
+        if user_id not in self.buckets:
+            self.buckets[user_id] = TokenBucket(self.capacity, self.refill_rate)
+        return self.buckets[user_id].consume()
+
+
+# Usage: 10 requests/sec per user
+limiter = RateLimiter(10, 10)
+print(limiter.is_allowed("user1"))  # True
 ```
 
 ---
@@ -886,7 +912,7 @@ console.log(limiter.isAllowed('user1'))  // true
 |---------|-----|
 | God class (one class does everything) | Apply SRP, split responsibilities |
 | Hardcoded dependencies | Use dependency injection |
-| No interfaces/abstractions | Program to interfaces, not implementations |
+| No interfaces/abstractions | Program to interfaces (abc.ABC), not implementations |
 | Inheritance over composition | Prefer composition for flexibility |
 | Ignoring thread safety | Mention locks/atomic ops for shared state |
 | Over-engineering | Start simple, add patterns only when needed |

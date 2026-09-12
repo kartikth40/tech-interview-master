@@ -92,125 +92,116 @@ Bandwidth:
 
 ### Core APIs (6 endpoints)
 
-```javascript
-// 1. Search Restaurants
+```text
+# 1. Search Restaurants
 GET /v1/restaurants/search
-  ?lat=12.9716&lon=77.5946     // Bangalore coordinates
+  ?lat=12.9716&lon=77.5946     # Bangalore coordinates
   &cuisine=north-indian
   &sort_by=rating
   &page=1&limit=20
 
-Response: {
+Response:
   restaurants: [
     {
-      id: "rest_123",
-      name: "Biryani House",
-      cuisine: ["North Indian", "Biryani"],
-      rating: 4.3,
-      delivery_time: "30-35 min",
-      distance: 2.5,  // km
-      is_open: true,
-      avg_cost_for_two: 400  // INR
+      id: "rest_123"
+      name: "Biryani House"
+      cuisine: ["North Indian", "Biryani"]
+      rating: 4.3
+      delivery_time: "30-35 min"
+      distance: 2.5             # km
+      is_open: true
+      avg_cost_for_two: 400     # INR
     }
-  ],
-  total: 150,
+  ]
+  total: 150
   page: 1
-}
 
-// 2. Get Restaurant Menu
+# 2. Get Restaurant Menu
 GET /v1/restaurants/{restaurant_id}/menu
 
-Response: {
-  restaurant_id: "rest_123",
+Response:
+  restaurant_id: "rest_123"
   categories: [
     {
-      name: "Biryani",
+      name: "Biryani"
       items: [
         {
-          id: "item_456",
-          name: "Chicken Biryani",
-          description: "Hyderabadi style",
-          price: 220,
-          veg: false,
-          in_stock: true,
+          id: "item_456"
+          name: "Chicken Biryani"
+          description: "Hyderabadi style"
+          price: 220
+          veg: false
+          in_stock: true
           image_url: "https://cdn.swiggy.com/..."
         }
       ]
     }
   ]
-}
 
-// 3. Place Order
+# 3. Place Order
 POST /v1/orders
-Body: {
-  restaurant_id: "rest_123",
+Body:
+  restaurant_id: "rest_123"
   items: [
     { item_id: "item_456", quantity: 2, price: 220 }
-  ],
+  ]
   delivery_address: {
-    lat: 12.9716,
-    lon: 77.5946,
+    lat: 12.9716
+    lon: 77.5946
     address: "123, MG Road, Bangalore"
-  },
-  payment_method: "UPI",
-  total_amount: 500  // 440 + 40 delivery + 20 taxes
-}
+  }
+  payment_method: "UPI"
+  total_amount: 500            # 440 + 40 delivery + 20 taxes
 
-Response: {
-  order_id: "order_abc123",
-  status: "placed",
-  estimated_delivery_time: "2024-01-15T13:30:00Z",
+Response:
+  order_id: "order_abc123"
+  status: "placed"
+  estimated_delivery_time: "2024-01-15T13:30:00Z"
   payment_status: "pending"
-}
 
-// 4. Get Order Status (Real-time tracking)
+# 4. Get Order Status (Real-time tracking)
 GET /v1/orders/{order_id}
 
-Response: {
-  order_id: "order_abc123",
-  status: "out_for_delivery",
-  restaurant: { name: "Biryani House", ... },
+Response:
+  order_id: "order_abc123"
+  status: "out_for_delivery"
+  restaurant: { name: "Biryani House", ... }
   delivery_partner: {
-    name: "Rajesh",
-    phone: "+91-9876543210",
-    current_location: { lat: 12.9750, lon: 77.5980 },
+    name: "Rajesh"
+    phone: "+91-9876543210"
+    current_location: { lat: 12.9750, lon: 77.5980 }
     vehicle_number: "KA-01-AB-1234"
-  },
+  }
   timeline: [
-    { status: "placed", timestamp: "2024-01-15T12:45:00Z" },
-    { status: "accepted", timestamp: "2024-01-15T12:46:00Z" },
-    { status: "preparing", timestamp: "2024-01-15T12:47:00Z" },
-    { status: "ready_for_pickup", timestamp: "2024-01-15T13:05:00Z" },
-    { status: "picked_up", timestamp: "2024-01-15T13:10:00Z" },
+    { status: "placed", timestamp: "2024-01-15T12:45:00Z" }
+    { status: "accepted", timestamp: "2024-01-15T12:46:00Z" }
+    { status: "preparing", timestamp: "2024-01-15T12:47:00Z" }
+    { status: "ready_for_pickup", timestamp: "2024-01-15T13:05:00Z" }
+    { status: "picked_up", timestamp: "2024-01-15T13:10:00Z" }
     { status: "out_for_delivery", timestamp: "2024-01-15T13:15:00Z" }
-  ],
+  ]
   eta: "15 min"
-}
 
-// 5. Assign Delivery Partner (Internal API - called by matching service)
+# 5. Assign Delivery Partner (Internal API - called by matching service)
 POST /v1/internal/orders/{order_id}/assign
-Body: {
+Body:
   delivery_partner_id: "partner_789"
-}
 
-Response: {
-  order_id: "order_abc123",
-  delivery_partner_id: "partner_789",
+Response:
+  order_id: "order_abc123"
+  delivery_partner_id: "partner_789"
   assigned_at: "2024-01-15T13:05:00Z"
-}
 
-// 6. Update Delivery Status (by delivery partner)
+# 6. Update Delivery Status (by delivery partner)
 PATCH /v1/orders/{order_id}/status
-Body: {
-  status: "picked_up",
+Body:
+  status: "picked_up"
   current_location: { lat: 12.9750, lon: 77.5980 }
-}
 
-Response: {
-  order_id: "order_abc123",
-  status: "picked_up",
+Response:
+  order_id: "order_abc123"
+  status: "picked_up"
   updated_at: "2024-01-15T13:10:00Z"
-}
 ```
 
 ---
@@ -298,23 +289,23 @@ CREATE TABLE delivery_partners (
 
 ### Redis (Caching, Real-time Tracking)
 
-```javascript
-// Restaurant search cache (frequently searched locations)
+```text
+# Restaurant search cache (frequently searched locations)
 Key: restaurants:location:12.9716:77.5946:north-indian
-Value: JSON [{ id: "rest_123", name: "...", ... }]
+Value: JSON list [{ id: "rest_123", name: "...", ... }]
 TTL: 5 minutes
 
-// Delivery partner location (real-time)
+# Delivery partner location (real-time)
 Key: partner:{partner_id}:location
-Value: "12.9750,77.5980"  // lat,lon
+Value: "12.9750,77.5980"  # lat,lon
 TTL: 60 seconds
 
-// Available delivery partners (geospatial)
+# Available delivery partners (geospatial)
 Key: partners:available
 Type: Geo (Redis geospatial data structure)
 Value: partner_id at (lat, lon)
 
-// Order status cache
+# Order status cache
 Key: order:{order_id}:status
 Value: "out_for_delivery"
 TTL: 1 hour
@@ -495,81 +486,79 @@ Customer  OrderService  Kafka  MatchingService  DeliveryPartner  Restaurant
 
 **Approach: Distance + ETA + Load Balancing**
 
-```javascript
-class MatchingService {
-  async findDeliveryPartner(order) {
-    const { restaurant_lat, restaurant_lon, delivery_lat, delivery_lon } = order;
-    
-    // 1. Find delivery partners within 3 km of restaurant (Redis GEORADIUS)
-    const nearbyPartners = await redis.georadius(
-      'partners:available',
-      restaurant_lon,
-      restaurant_lat,
-      3,  // 3 km radius
-      'km',
-      'WITHDIST',  // Include distance
-      'ASC'  // Sort by distance
-    );
-    
-    if (nearbyPartners.length === 0) {
-      // Expand radius to 5 km
-      nearbyPartners = await redis.georadius(
-        'partners:available',
-        restaurant_lon,
-        restaurant_lat,
-        5,
-        'km',
-        'WITHDIST',
-        'ASC'
-      );
-    }
-    
-    // 2. Calculate ETA for each partner
-    const partnersWithETA = await Promise.all(
-      nearbyPartners.map(async ({ partnerId, distance }) => {
-        const partner = await getPartnerDetails(partnerId);
-        
-        // ETA = distance / average_speed (20 km/h in city)
-        const etaMinutes = (distance / 20) * 60;
-        
-        // Consider partner rating & current load
-        const score = calculateScore(distance, partner.rating, partner.active_orders);
-        
-        return { partnerId, distance, etaMinutes, score };
-      })
-    );
-    
-    // 3. Select best partner (lowest score = best)
-    partnersWithETA.sort((a, b) => a.score - b.score);
-    const bestPartner = partnersWithETA[0];
-    
-    // 4. Try to assign (with distributed lock to prevent double-assignment)
-    const lockKey = `partner:${bestPartner.partnerId}:lock`;
-    const lockAcquired = await redis.set(lockKey, order.id, 'EX', 10, 'NX');
-    
-    if (lockAcquired) {
-      // Assign partner
-      await assignPartner(order.id, bestPartner.partnerId);
-      
-      // Remove from available pool
-      await redis.zrem('partners:available', bestPartner.partnerId);
-      
-      return bestPartner;
-    } else {
-      // Partner already assigned, try next
-      return this.findDeliveryPartner(order);
-    }
-  }
-  
-  calculateScore(distance, rating, activeOrders) {
-    // Lower score = better
-    return (
-      distance * 2 +                // Distance weight: 2x
-      (5 - rating) * 5 +            // Rating weight: 5x (prefer 4.5+ rating)
-      activeOrders * 3              // Load weight: 3x (prefer low load)
-    );
-  }
-}
+```text
+CLASS MatchingService
+
+  FUNCTION findDeliveryPartner(order)
+    restaurant_lat = order.restaurant_lat
+    restaurant_lon = order.restaurant_lon
+
+    # 1. Find delivery partners within 3 km of restaurant (Redis GEORADIUS)
+    nearbyPartners = redis.geoRadius(
+      "partners:available",
+      restaurant_lon, restaurant_lat,
+      3, "km",              # 3 km radius
+      WITH_DISTANCE,        # include distance
+      ORDER_ASCENDING       # sort by distance
+    )
+
+    IF nearbyPartners IS EMPTY THEN
+      # Expand radius to 5 km
+      nearbyPartners = redis.geoRadius(
+        "partners:available",
+        restaurant_lon, restaurant_lat,
+        5, "km",
+        WITH_DISTANCE,
+        ORDER_ASCENDING
+      )
+    END IF
+
+    # 2. Calculate ETA for each partner
+    partnersWithETA = empty list
+    FOR EACH (partnerId, distance) IN nearbyPartners
+      partner = getPartnerDetails(partnerId)
+
+      # ETA = distance / average_speed (20 km/h in city)
+      etaMinutes = (distance / 20) * 60
+
+      # Consider partner rating & current load
+      score = calculateScore(distance, partner.rating, partner.active_orders)
+
+      append { partnerId: partnerId, distance: distance, etaMinutes: etaMinutes, score: score } TO partnersWithETA
+    END FOR
+
+    # 3. Select best partner (lowest score = best)
+    SORT partnersWithETA BY score ASCENDING
+    bestPartner = partnersWithETA[0]
+
+    # 4. Try to assign (with distributed lock to prevent double-assignment)
+    lockKey      = "partner:" + bestPartner.partnerId + ":lock"
+    lockAcquired = redis.setIfAbsent(lockKey, order.id, expirySeconds = 10)
+
+    IF lockAcquired THEN
+      # Assign partner
+      assignPartner(order.id, bestPartner.partnerId)
+
+      # Remove from available pool
+      redis.geoRemove("partners:available", bestPartner.partnerId)
+
+      RETURN bestPartner
+    ELSE
+      # Partner already assigned, try next
+      RETURN findDeliveryPartner(order)
+    END IF
+  END FUNCTION
+
+  FUNCTION calculateScore(distance, rating, activeOrders)
+    # Lower score = better
+    RETURN (
+      distance * 2 +          # distance weight: 2x
+      (5 - rating) * 5 +      # rating weight: 5x (prefer 4.5+ rating)
+      activeOrders * 3        # load weight: 3x (prefer low load)
+    )
+  END FUNCTION
+
+END CLASS
 ```
 
 **Trade-offs:**
@@ -590,44 +579,46 @@ class MatchingService {
 
 **Solution: WebSocket + Redis + Cassandra**
 
-```javascript
-// Delivery Partner App (sends location every 5 seconds)
-class DeliveryPartnerService {
-  async updateLocation(partnerId, lat, lon) {
-    // 1. Update Redis (for real-time tracking)
-    await redis.geoadd('partners:location', lon, lat, partnerId);
-    await redis.set(`partner:${partnerId}:location`, `${lat},${lon}`, 'EX', 60);
-    
-    // 2. Get active order for this partner
-    const orderId = await redis.get(`partner:${partnerId}:active_order`);
-    
-    if (orderId) {
-      // 3. Push to WebSocket server (for customer app)
-      await publishEvent({
-        type: 'location_update',
-        order_id: orderId,
-        location: { lat, lon },
-        timestamp: Date.now()
-      });
-      
-      // 4. Store in Cassandra (for analytics)
-      await cassandra.execute(
-        'INSERT INTO delivery_tracking (partner_id, timestamp, lat, lon, order_id) VALUES (?, ?, ?, ?, ?)',
-        [partnerId, new Date(), lat, lon, orderId]
-      );
-    }
-  }
-}
+```text
+# Delivery Partner App (sends location every 5 seconds)
+CLASS DeliveryPartnerService
 
-// Customer App (receives updates via WebSocket)
-websocket.on('location_update', (data) => {
-  // Update map marker position
-  updateDeliveryPartnerMarker(data.location);
-  
-  // Recalculate ETA
-  const eta = calculateETA(currentLocation, data.location);
-  updateETADisplay(eta);
-});
+  FUNCTION updateLocation(partnerId, lat, lon)
+    # 1. Update Redis (for real-time tracking)
+    redis.geoAdd("partners:location", lon, lat, partnerId)
+    redis.set("partner:" + partnerId + ":location", lat + "," + lon, expirySeconds = 60)
+
+    # 2. Get active order for this partner
+    orderId = redis.get("partner:" + partnerId + ":active_order")
+
+    IF orderId EXISTS THEN
+      # 3. Push to WebSocket server (for customer app)
+      publishEvent({
+        type: "location_update",
+        order_id: orderId,
+        location: { lat: lat, lon: lon },
+        timestamp: currentTime()
+      })
+
+      # 4. Store in Cassandra (for analytics)
+      cassandra.execute(
+        "INSERT INTO delivery_tracking (partner_id, timestamp, lat, lon, order_id) VALUES (?, ?, ?, ?, ?)",
+        [partnerId, currentTime(), lat, lon, orderId]
+      )
+    END IF
+  END FUNCTION
+
+END CLASS
+
+# Customer App (receives updates via WebSocket)
+ON websocket "location_update" (data)
+  # Update map marker position
+  updateDeliveryPartnerMarker(data.location)
+
+  # Recalculate ETA
+  eta = calculateETA(currentLocation, data.location)
+  updateETADisplay(eta)
+END ON
 ```
 
 **Optimizations:**
@@ -649,54 +640,54 @@ websocket.on('location_update', (data) => {
 
 **Solution: Dynamic Pricing Algorithm**
 
-```javascript
-class PricingService {
-  async calculateDeliveryFee(restaurantId, deliveryLocation, timestamp) {
-    const basePrice = 40;  // INR
-    
-    // 1. Calculate distance
-    const distance = calculateDistance(restaurant.location, deliveryLocation);
-    const distanceFee = distance * 5;  // ₹5/km
-    
-    // 2. Peak hours multiplier
-    const hour = new Date(timestamp).getHours();
-    let peakMultiplier = 1.0;
-    
-    if ((hour >= 12 && hour <= 14) || (hour >= 19 && hour <= 22)) {
-      peakMultiplier = 1.5;  // 50% surge during lunch/dinner
-    }
-    
-    // 3. Demand-supply ratio (from cache)
-    const areaGrid = getGridId(deliveryLocation);
-    const pendingOrders = await redis.get(`area:${areaGrid}:pending_orders`) || 0;
-    const availablePartners = await redis.get(`area:${areaGrid}:available_partners`) || 1;
-    
-    const demandSupplyRatio = pendingOrders / availablePartners;
-    let surgeMultiplier = 1.0;
-    
-    if (demandSupplyRatio > 5) {
-      surgeMultiplier = 2.0;  // 2x surge when demand is 5x supply
-    } else if (demandSupplyRatio > 3) {
-      surgeMultiplier = 1.5;
-    }
-    
-    // 4. Weather (from external API)
-    const isRaining = await checkWeather(deliveryLocation);
-    const weatherMultiplier = isRaining ? 1.3 : 1.0;
-    
-    // 5. Final price
-    const totalFee = Math.round(
+```text
+CLASS PricingService
+
+  FUNCTION calculateDeliveryFee(restaurantId, deliveryLocation, timestamp)
+    basePrice = 40    # INR
+
+    # 1. Calculate distance
+    distance    = calculateDistance(restaurant.location, deliveryLocation)
+    distanceFee = distance * 5    # Rs 5/km
+
+    # 2. Peak hours multiplier
+    hour = hourOf(timestamp)
+    peakMultiplier = 1.0
+    IF (hour >= 12 AND hour <= 14) OR (hour >= 19 AND hour <= 22) THEN
+      peakMultiplier = 1.5    # 50% surge during lunch/dinner
+    END IF
+
+    # 3. Demand-supply ratio (from cache)
+    areaGrid          = getGridId(deliveryLocation)
+    pendingOrders     = redis.get("area:" + areaGrid + ":pending_orders") OR DEFAULT 0
+    availablePartners = redis.get("area:" + areaGrid + ":available_partners") OR DEFAULT 1
+
+    demandSupplyRatio = pendingOrders / availablePartners
+    surgeMultiplier   = 1.0
+    IF demandSupplyRatio > 5 THEN
+      surgeMultiplier = 2.0    # 2x surge when demand is 5x supply
+    ELSE IF demandSupplyRatio > 3 THEN
+      surgeMultiplier = 1.5
+    END IF
+
+    # 4. Weather (from external API)
+    isRaining         = checkWeather(deliveryLocation)
+    weatherMultiplier = IF isRaining THEN 1.3 ELSE 1.0
+
+    # 5. Final price
+    totalFee = round(
       (basePrice + distanceFee) * peakMultiplier * surgeMultiplier * weatherMultiplier
-    );
-    
-    return {
+    )
+
+    RETURN {
       base: basePrice,
       distance_fee: distanceFee,
       surge_multiplier: peakMultiplier * surgeMultiplier * weatherMultiplier,
       total: totalFee
-    };
-  }
-}
+    }
+  END FUNCTION
+
+END CLASS
 ```
 
 **Trade-offs:**

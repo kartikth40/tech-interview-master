@@ -87,8 +87,8 @@ Bandwidth:
 
 ## 3️⃣ API Design
 
-```javascript
-// 1. Upload Photo
+```text
+# 1. Upload Photo
 POST /v1/photos
 Body: (multipart/form-data)
   photo: <file>
@@ -97,11 +97,11 @@ Body: (multipart/form-data)
 
 Response: {
   photo_id: "abc123",
-  status: "processing",  // processing → ready
+  status: "processing",  # processing → ready
   upload_url: "https://s3.amazonaws.com/presigned-url"
 }
 
-// 2. Get Photo
+# 2. Get Photo
 GET /v1/photos/{photo_id}
 
 Response: {
@@ -116,7 +116,7 @@ Response: {
   created_at: "2024-01-15T12:00:00Z"
 }
 
-// 3. Get News Feed
+# 3. Get News Feed
 GET /v1/feed
   ?user_id=user_123&page=1&limit=20
 
@@ -134,7 +134,7 @@ Response: {
   next_page: 2
 }
 
-// 4. Follow User
+# 4. Follow User
 POST /v1/users/{user_id}/follow
 Body: { follower_id: "user_456" }
 
@@ -144,7 +144,7 @@ Response: {
   followed_at: "2024-01-15T12:00:00Z"
 }
 
-// 5. Like Photo
+# 5. Like Photo
 POST /v1/photos/{photo_id}/like
 Body: { user_id: "user_456" }
 
@@ -154,7 +154,7 @@ Response: {
   user_liked: true
 }
 
-// 6. Comment on Photo
+# 6. Comment on Photo
 POST /v1/photos/{photo_id}/comments
 Body: {
   user_id: "user_456",
@@ -240,19 +240,19 @@ CREATE TABLE comments (
 
 ### Redis (Caching)
 
-```javascript
-// Feed cache (recent 100 photos)
+```text
+# Feed cache (recent 100 photos)
 Key: feed:{user_id}
 Type: List
 Value: [photo_id1, photo_id2, ...]
 TTL: 30 minutes
 
-// Photo metadata cache
+# Photo metadata cache
 Key: photo:{photo_id}
 Value: JSON { user, image_url, caption, likes, ... }
 TTL: 1 hour
 
-// Like count
+# Like count
 Key: photo:{photo_id}:likes
 Type: Counter
 Value: 5000
@@ -394,71 +394,57 @@ User  UploadService  S3  ImageProcessor  Cassandra  FanoutService
 
 **Solution: Hybrid Push-Pull (same as Twitter)**
 
-```javascript
-class FanoutService {
-  async fanoutPhoto(photo) {
-    const user = await getUser(photo.user_id);
-    
-    // 1. Regular users (<10K followers) → Push to all followers
-    if (user.followers_count < 10000) {
-      await this.pushFanout(photo);
-    }
-    // 2. Celebrities (>10K followers) → Pull at read time
-    else {
-      await this.pullFanout(photo);
-    }
-  }
-  
-  async pushFanout(photo) {
-    // Get user's followers
-    const followers = await getFollowers(photo.user_id);
-    
-    // Push to each follower's feed (Redis + Cassandra)
-    for (const followerId of followers) {
-      // Redis (fast)
-      await redis.lpush(`feed:${followerId}`, photo.id);
-      await redis.ltrim(`feed:${followerId}`, 0, 999);  // Keep last 1000
-      
-      // Cassandra (durable)
-      await cassandra.execute(
-        'INSERT INTO user_feed (user_id, photo_id, author_id, created_at) VALUES (?, ?, ?, ?)',
-        [followerId, photo.id, photo.user_id, new Date()]
-      );
-    }
-  }
-  
-  async pullFanout(photo) {
-    // Just store photo, no fanout
-    // Fetched at read time and merged with regular feed
-  }
-}
+```text
+FUNCTION fanoutPhoto(photo):
+    user = getUser(photo.user_id)
 
-// Feed generation (read time)
-class FeedService {
-  async getFeed(userId, limit = 20) {
-    // 1. Get pre-computed feed (regular users)
-    const cachedFeed = await redis.lrange(`feed:${userId}`, 0, limit);
-    
-    // 2. Get celebrity follows
-    const celebrityFollows = await getCelebrityFollows(userId);
-    
-    // 3. Fetch recent photos from celebrities
-    const celebrityPhotos = await Promise.all(
-      celebrityFollows.map(celebId =>
-        cassandra.execute(
-          'SELECT * FROM photos WHERE user_id = ? ORDER BY photo_id DESC LIMIT 20',
-          [celebId]
-        )
-      )
-    );
-    
-    // 4. Merge and sort by timestamp
-    const allPhotos = [...cachedFeed, ...celebrityPhotos.flat()];
-    allPhotos.sort((a, b) => b.created_at - a.created_at);
-    
-    return allPhotos.slice(0, limit);
-  }
-}
+    # 1. Regular users (<10K followers) → Push to all followers
+    IF user.followers_count < 10000:
+        pushFanout(photo)
+    # 2. Celebrities (>10K followers) → Pull at read time
+    ELSE:
+        pullFanout(photo)
+END FUNCTION
+
+FUNCTION pushFanout(photo):
+    # Get user's followers
+    followers = getFollowers(photo.user_id)
+
+    # Push to each follower's feed (Redis + Cassandra)
+    FOR EACH followerId IN followers:
+        # Redis (fast)
+        list-prepend photo.id to "feed:{followerId}"
+        trim "feed:{followerId}" to keep only indices 0..999   # Keep last 1000
+
+        # Cassandra (durable)
+        execute Cassandra "INSERT INTO user_feed (user_id, photo_id, author_id, created_at)
+                           VALUES (followerId, photo.id, photo.user_id, current time)"
+END FUNCTION
+
+FUNCTION pullFanout(photo):
+    # Just store photo, no fanout
+    # Fetched at read time and merged with regular feed
+END FUNCTION
+
+# Feed generation (read time)
+FUNCTION getFeed(userId, limit = 20):
+    # 1. Get pre-computed feed (regular users)
+    cachedFeed = get range 0..limit from list "feed:{userId}"
+
+    # 2. Get celebrity follows
+    celebrityFollows = getCelebrityFollows(userId)
+
+    # 3. Fetch recent photos from celebrities, in parallel
+    celebrityPhotos = FOR EACH celebId IN celebrityFollows (in parallel):
+        execute Cassandra "SELECT * FROM photos WHERE user_id = celebId
+                           ORDER BY photo_id DESC LIMIT 20"
+
+    # 4. Merge and sort by timestamp (newest first)
+    allPhotos = cachedFeed combined with flattened celebrityPhotos
+    SORT allPhotos by created_at descending
+
+    RETURN first `limit` items of allPhotos
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -474,65 +460,57 @@ class FeedService {
 
 **Solution: Async Processing + CDN**
 
-```javascript
-class ImageProcessor {
-  async processPhoto(s3Event) {
-    const { bucketName, key } = s3Event;  // photos/{user_id}/{photo_id}/original.jpg
-    
-    // 1. Download original from S3
-    const originalImage = await s3.getObject({ Bucket: bucketName, Key: key });
-    
-    // 2. Resize to 3 sizes (parallel)
-    const sizes = [
-      { name: 'large', width: 1080, height: 1080 },
-      { name: 'medium', width: 640, height: 640 },
-      { name: 'thumb', width: 320, height: 320 }
-    ];
-    
-    await Promise.all(sizes.map(async (size) => {
-      // Resize using Sharp library
-      const resized = await sharp(originalImage)
-        .resize(size.width, size.height, { fit: 'cover' })
-        .jpeg({ quality: 85 })
-        .toBuffer();
-      
-      // Upload to S3
-      const resizedKey = key.replace('original.jpg', `${size.name}.jpg`);
-      await s3.upload({
-        Bucket: bucketName,
-        Key: resizedKey,
-        Body: resized,
-        ContentType: 'image/jpeg',
-        CacheControl: 'public, max-age=31536000'  // 1 year
-      });
-    }));
-    
-    // 3. Update photo status in Cassandra
-    const photoId = extractPhotoId(key);
-    await cassandra.execute(
-      'UPDATE photos SET status = ? WHERE photo_id = ?',
-      ['ready', photoId]
-    );
-  }
-}
+```text
+FUNCTION processPhoto(s3Event):
+    bucketName = s3Event.bucketName
+    key        = s3Event.key   # photos/{user_id}/{photo_id}/original.jpg
+
+    # 1. Download original from S3
+    originalImage = get object from S3 (bucket = bucketName, key = key)
+
+    # 2. Resize to 3 sizes (in parallel)
+    sizes = [
+        { name: "large",  width: 1080, height: 1080 },
+        { name: "medium", width: 640,  height: 640  },
+        { name: "thumb",  width: 320,  height: 320  }
+    ]
+
+    FOR EACH size IN sizes (in parallel):
+        # Resize the image, cover-fit, JPEG quality 85
+        resized = resize originalImage to (size.width x size.height), fit = cover,
+                  encode as JPEG quality 85
+
+        # Upload to S3
+        resizedKey = key with "original.jpg" replaced by "{size.name}.jpg"
+        upload to S3:
+            bucket        = bucketName
+            key           = resizedKey
+            body          = resized
+            contentType   = "image/jpeg"
+            cacheControl  = "public, max-age=31536000"   # 1 year
+
+    # 3. Update photo status in Cassandra
+    photoId = extractPhotoId(key)
+    execute Cassandra "UPDATE photos SET status = 'ready' WHERE photo_id = photoId"
+END FUNCTION
 ```
 
 **CDN Configuration:**
-```javascript
-// CloudFront distribution
+```text
+# CloudFront distribution
 {
   origins: [
     {
-      id: 's3-instagram-photos',
-      domainName: 'instagram-photos.s3.amazonaws.com',
-      path: '/photos'
+      id:         "s3-instagram-photos",
+      domainName: "instagram-photos.s3.amazonaws.com",
+      path:       "/photos"
     }
   ],
   cacheBehaviors: {
-    pathPattern: '/photos/*',
-    targetOriginId: 's3-instagram-photos',
-    ttl: 31536000,  // 1 year (images never change)
-    compress: true
+    pathPattern:    "/photos/*",
+    targetOriginId: "s3-instagram-photos",
+    ttl:            31536000,   # 1 year (images never change)
+    compress:       true
   }
 }
 ```
@@ -550,21 +528,21 @@ class ImageProcessor {
 
 **Solution: Shard by User ID**
 
-```javascript
-// Cassandra already handles sharding automatically via partition key
+```text
+# Cassandra already handles sharding automatically via partition key
 
-// Photos table: partitioned by user_id
-// - All photos for a user are on same node
-// - Fast profile queries: SELECT * FROM photos WHERE user_id = ?
-// - Distribution: Hash(user_id) % num_nodes
+# Photos table: partitioned by user_id
+# - All photos for a user are on same node
+# - Fast profile queries: SELECT * FROM photos WHERE user_id = ?
+# - Distribution: Hash(user_id) MOD num_nodes
 
-// Feed table: partitioned by user_id
-// - Each user's feed on one node
-// - Fast feed queries: SELECT * FROM user_feed WHERE user_id = ?
+# Feed table: partitioned by user_id
+# - Each user's feed on one node
+# - Fast feed queries: SELECT * FROM user_feed WHERE user_id = ?
 
-// Example with 100 Cassandra nodes:
-// - User 'user_123' → Hash('user_123') % 100 = Node 23
-// - All photos and feed for 'user_123' on Node 23
+# Example with 100 Cassandra nodes:
+# - User 'user_123' → Hash('user_123') MOD 100 = Node 23
+# - All photos and feed for 'user_123' on Node 23
 ```
 
 **Why shard by user_id (not photo_id)?**

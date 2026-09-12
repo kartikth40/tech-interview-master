@@ -55,57 +55,53 @@ User Request → [API Gateway] → [User Service] → [Database]
 
 ### **Implementing Metrics**
 
-```javascript
-// Using Prometheus client
+```text
+# Metrics instrumentation (pseudocode)
 
-const client = require('prom-client');
+# Register default metrics (CPU, memory, etc.)
+COLLECT_DEFAULT_METRICS()
 
-// Register default metrics (CPU, memory, etc.)
-client.collectDefaultMetrics();
+# Custom counter
+httpRequestsTotal = DEFINE_COUNTER(
+    name = "http_requests_total",
+    help = "Total number of HTTP requests",
+    labels = ["method", "route", "status"])
 
-// Custom counter
-const httpRequestsTotal = new client.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status']
-});
+# Custom histogram (for latency)
+httpRequestDuration = DEFINE_HISTOGRAM(
+    name = "http_request_duration_seconds",
+    help = "Duration of HTTP requests in seconds",
+    labels = ["method", "route", "status"],
+    buckets = [0.1, 0.5, 1, 2, 5])   # Buckets for latency ranges
 
-// Custom histogram (for latency)
-const httpRequestDuration = new client.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route', 'status'],
-  buckets: [0.1, 0.5, 1, 2, 5]  // Buckets for latency ranges
-});
+# Middleware to track metrics on every request
+ON REQUEST (request, response)
+    start = NOW()
 
-// Middleware to track metrics
-app.use((req, res, next) => {
-  const start = Date.now();
-  
-  res.on('finish', () => {
-    const duration = (Date.now() - start) / 1000;
-    
-    httpRequestsTotal.inc({
-      method: req.method,
-      route: req.route?.path || 'unknown',
-      status: res.statusCode
-    });
-    
-    httpRequestDuration.observe({
-      method: req.method,
-      route: req.route?.path || 'unknown',
-      status: res.statusCode
-    }, duration);
-  });
-  
-  next();
-});
+    ON RESPONSE_FINISHED
+        duration = (NOW() - start) / 1000
 
-// Expose metrics endpoint
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', client.register.contentType);
-  res.end(await client.register.metrics());
-});
+        httpRequestsTotal.increment({
+            method: request.method,
+            route: request.route.path OR "unknown",
+            status: response.statusCode
+        })
+
+        httpRequestDuration.observe({
+            method: request.method,
+            route: request.route.path OR "unknown",
+            status: response.statusCode
+        }, duration)
+    END ON
+
+    CONTINUE
+END ON
+
+# Expose metrics endpoint
+ON GET "/metrics" (request, response)
+    SET_RESPONSE_HEADER(response, "Content-Type", METRICS_CONTENT_TYPE)
+    RETURN RENDER_METRICS()
+END ON
 ```
 
 **Prometheus scrapes `/metrics` endpoint:**
@@ -189,27 +185,20 @@ Create dashboards showing:
 
 ### **Structured Logging**
 
-```javascript
-// BAD: Unstructured logs
-console.log('User 123 created order 456 worth $99.99');
+```text
+# BAD: Unstructured logs
+PRINT "User 123 created order 456 worth $99.99"
 
-// GOOD: Structured logs (JSON)
-const winston = require('winston');
+# GOOD: Structured logs (JSON)
+logger = CREATE_LOGGER(format = JSON, output = FILE("app.log"))
 
-const logger = winston.createLogger({
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'app.log' })
-  ]
-});
-
-logger.info('Order created', {
-  userId: '123',
-  orderId: '456',
-  amount: 99.99,
-  currency: 'USD',
-  timestamp: new Date().toISOString()
-});
+logger.info("Order created", {
+    userId: "123",
+    orderId: "456",
+    amount: 99.99,
+    currency: "USD",
+    timestamp: CURRENT_TIMESTAMP_ISO()
+})
 ```
 
 **Output:**
@@ -234,11 +223,11 @@ logger.info('Order created', {
 
 ### **Log Levels**
 
-```javascript
-logger.error('Payment failed', { orderId: '123', error: err.message });  // Needs immediate attention
-logger.warn('Slow query detected', { query: sql, duration: 5000 });     // Potential issue
-logger.info('User logged in', { userId: '123' });                       // Normal operation
-logger.debug('Cache hit', { key: 'user:123' });                         // Debugging info
+```text
+logger.error("Payment failed", { orderId: "123", error: err.message })  # Needs immediate attention
+logger.warn("Slow query detected", { query: sql, duration: 5000 })      # Potential issue
+logger.info("User logged in", { userId: "123" })                        # Normal operation
+logger.debug("Cache hit", { key: "user:123" })                          # Debugging info
 ```
 
 **Best Practices:**
@@ -284,43 +273,38 @@ duration:>1000 AND route:"/api/*"
 
 Track single request across multiple services:
 
-```javascript
-// Middleware to add request ID
-const { v4: uuidv4 } = require('uuid');
+```text
+# Middleware to add request ID
+ON REQUEST (request, response)
+    request.id = request.headers["x-request-id"] OR GENERATE_UUID()
+    SET_RESPONSE_HEADER(response, "x-request-id", request.id)
+    CONTINUE
+END ON
 
-app.use((req, res, next) => {
-  req.id = req.headers['x-request-id'] || uuidv4();
-  res.setHeader('x-request-id', req.id);
-  next();
-});
+# Include request ID in all logs
+ON POST "/api/orders" (request, response)
+    logger.info("Creating order", { requestId: request.id, userId: request.user.id })
 
-// Include request ID in all logs
-app.post('/api/orders', async (req, res) => {
-  logger.info('Creating order', { requestId: req.id, userId: req.user.id });
-  
-  try {
-    const order = await createOrder(req.body);
-    logger.info('Order created', { requestId: req.id, orderId: order.id });
-    res.json(order);
-  } catch (error) {
-    logger.error('Order creation failed', { requestId: req.id, error: error.message });
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    TRY
+        order = createOrder(request.body)
+        logger.info("Order created", { requestId: request.id, orderId: order.id })
+        RETURN RESPONSE(200, order)
+    CATCH error
+        logger.error("Order creation failed", { requestId: request.id, error: error.message })
+        RETURN RESPONSE(500, { error: "Internal server error" })
+    END TRY
+END ON
 
-// When calling downstream service, propagate request ID
-async function chargePayment(orderId, amount, requestId) {
-  logger.info('Charging payment', { requestId, orderId, amount });
-  
-  const response = await axios.post('http://payment-service/charge', {
-    orderId,
-    amount
-  }, {
-    headers: { 'x-request-id': requestId }
-  });
-  
-  logger.info('Payment charged', { requestId, orderId, transactionId: response.data.id });
-}
+# When calling downstream service, propagate request ID
+FUNCTION chargePayment(orderId, amount, requestId)
+    logger.info("Charging payment", { requestId, orderId, amount })
+
+    response = HTTP_POST("http://payment-service/charge",
+        body = { orderId: orderId, amount: amount },
+        headers = { "x-request-id": requestId })
+
+    logger.info("Payment charged", { requestId, orderId, transactionId: response.id })
+END FUNCTION
 ```
 
 **Now you can search all logs for one request:**
@@ -359,67 +343,51 @@ POST /checkout [5000ms]
 
 ### **Implementing Tracing (OpenTelemetry)**
 
-```javascript
-const { trace } = require('@opentelemetry/api');
-const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
-const { JaegerExporter } = require('@opentelemetry/exporter-jaeger');
-const { registerInstrumentations } = require('@opentelemetry/instrumentation');
-const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
-const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
+```text
+# Distributed tracing setup (pseudocode)
 
-// Initialize tracer
-const provider = new NodeTracerProvider();
-provider.addSpanProcessor(
-  new BatchSpanProcessor(
-    new JaegerExporter({
-      endpoint: 'http://jaeger:14268/api/traces'
-    })
-  )
-);
-provider.register();
+# Initialize tracer: batch spans and export them to the trace backend
+tracerProvider = CREATE_TRACER_PROVIDER()
+tracerProvider.addExporter(BATCH_EXPORTER(endpoint = "http://trace-backend:14268/api/traces"))
+tracerProvider.register()
 
-// Auto-instrument HTTP and Express
-registerInstrumentations({
-  instrumentations: [
-    new HttpInstrumentation(),
-    new ExpressInstrumentation()
-  ]
-});
+# Auto-instrument inbound/outbound HTTP so spans are created automatically
+ENABLE_AUTO_INSTRUMENTATION(["http", "web-framework"])
 
-const tracer = trace.getTracer('order-service');
+tracer = GET_TRACER("order-service")
 
-// Manual instrumentation for custom operations
-async function createOrder(orderData) {
-  const span = tracer.startSpan('createOrder');
-  span.setAttribute('user.id', orderData.userId);
-  span.setAttribute('order.total', orderData.total);
-  
-  try {
-    // Database operation
-    const dbSpan = tracer.startSpan('db.insertOrder', { parent: span });
-    const order = await db.orders.insert(orderData);
-    dbSpan.end();
-    
-    // Call payment service
-    const paymentSpan = tracer.startSpan('chargePayment', { parent: span });
-    await paymentService.charge({ orderId: order.id, amount: order.total });
-    paymentSpan.end();
-    
-    // Send email
-    const emailSpan = tracer.startSpan('sendEmail', { parent: span });
-    await emailService.send({ to: orderData.email, template: 'order_confirmation' });
-    emailSpan.end();
-    
-    span.setStatus({ code: SpanStatusCode.OK });
-    return order;
-  } catch (error) {
-    span.recordException(error);
-    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-    throw error;
-  } finally {
-    span.end();
-  }
-}
+# Manual instrumentation for custom operations
+FUNCTION createOrder(orderData)
+    span = tracer.startSpan("createOrder")
+    SET_SPAN_ATTRIBUTE(span, "user.id", orderData.userId)
+    SET_SPAN_ATTRIBUTE(span, "order.total", orderData.total)
+
+    TRY
+        # Database operation
+        dbSpan = tracer.startSpan("db.insertOrder", parent = span)
+        order = DB_INSERT("orders", orderData)
+        END_SPAN(dbSpan)
+
+        # Call payment service
+        paymentSpan = tracer.startSpan("chargePayment", parent = span)
+        paymentService.charge({ orderId: order.id, amount: order.total })
+        END_SPAN(paymentSpan)
+
+        # Send email
+        emailSpan = tracer.startSpan("sendEmail", parent = span)
+        emailService.send({ to: orderData.email, template: "order_confirmation" })
+        END_SPAN(emailSpan)
+
+        SET_SPAN_STATUS(span, OK)
+        RETURN order
+    CATCH error
+        RECORD_EXCEPTION(span, error)
+        SET_SPAN_STATUS(span, ERROR, error.message)
+        THROW error
+    FINALLY
+        END_SPAN(span)
+    END TRY
+END FUNCTION
 ```
 
 ---
@@ -428,20 +396,18 @@ async function createOrder(orderData) {
 
 Trace context must be passed between services via HTTP headers:
 
-```javascript
-// Outgoing request (automatically handled by OpenTelemetry HTTP instrumentation)
-const axios = require('axios');
+```text
+# Outgoing request (trace context injected automatically by HTTP instrumentation)
+FUNCTION chargePayment(orderData, parentSpan)
+    # The tracing layer injects trace context into headers:
+    # traceparent: 00-{trace-id}-{span-id}-01
 
-async function chargePayment(orderData, parentSpan) {
-  // OpenTelemetry automatically injects trace context into headers:
-  // traceparent: 00-{trace-id}-{span-id}-01
-  
-  const response = await axios.post('http://payment-service/charge', orderData);
-  return response.data;
-}
+    response = HTTP_POST("http://payment-service/charge", orderData)
+    RETURN response
+END FUNCTION
 
-// Receiving service extracts trace context from headers
-// and continues the trace
+# Receiving service extracts trace context from headers
+# and continues the trace
 ```
 
 **Trace Headers (W3C Trace Context standard):**
@@ -564,13 +530,13 @@ receivers:
 
 Is the service alive? If not, restart it.
 
-```javascript
-// Simple liveness check
-app.get('/health/live', (req, res) => {
-  res.json({ status: 'ok' });
-});
+```text
+# Simple liveness check
+ON GET "/health/live" (request, response)
+    RETURN RESPONSE(200, { status: "ok" })
+END ON
 
-// Kubernetes will restart pod if this fails
+# The orchestrator will restart the instance if this fails
 ```
 
 ---
@@ -579,19 +545,19 @@ app.get('/health/live', (req, res) => {
 
 Is the service ready to receive traffic? If not, don't send requests.
 
-```javascript
-// Check database connection
-app.get('/health/ready', async (req, res) => {
-  try {
-    await db.query('SELECT 1');  // Test database
-    await redis.ping();          // Test Redis
-    res.json({ status: 'ready' });
-  } catch (error) {
-    res.status(503).json({ status: 'not ready', error: error.message });
-  }
-});
+```text
+# Check dependencies before accepting traffic
+ON GET "/health/ready" (request, response)
+    TRY
+        DB_QUERY("SELECT 1")   # Test database
+        CACHE_PING()           # Test cache
+        RETURN RESPONSE(200, { status: "ready" })
+    CATCH error
+        RETURN RESPONSE(503, { status: "not ready", error: error.message })
+    END TRY
+END ON
 
-// Kubernetes won't send traffic until this returns 200
+# The orchestrator won't send traffic until this returns 200
 ```
 
 ---
@@ -684,11 +650,11 @@ Backends:
 
 Link metrics, logs, and traces with same request ID.
 
-```javascript
-logger.info('Order created', { 
-  traceId: span.spanContext().traceId,
-  orderId: order.id 
-});
+```text
+logger.info("Order created", {
+    traceId: SPAN_CONTEXT(span).traceId,
+    orderId: order.id
+})
 ```
 
 Now you can:
@@ -705,13 +671,13 @@ Don't trace 100% of requests (too expensive). Sample based on:
 - Errors (always trace failed requests)
 - Slow requests (always trace if latency > threshold)
 
-```javascript
-const sampler = new TraceIdRatioBasedSampler(0.01);  // 1% sampling
+```text
+sampler = RATIO_BASED_SAMPLER(0.01)   # 1% sampling
 
-// Or: Sample all errors
-if (error || duration > 1000) {
-  sampler.shouldSample();  // Always sample
-}
+# Or: Sample all errors / slow requests
+IF error OR duration > 1000 THEN
+    FORCE_SAMPLE()   # Always sample
+END IF
 ```
 
 ---

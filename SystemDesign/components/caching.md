@@ -32,22 +32,22 @@ Database (100-500ms)
 
 ### 1. **Cache-Aside (Lazy Loading)** ⭐ Most Common
 
-```javascript
-async function getUser(userId) {
-  // 1. Check cache first
-  const cached = await redis.get(`user:${userId}`);
-  if (cached) {
-    return JSON.parse(cached);
-  }
-  
-  // 2. Cache miss - fetch from database
-  const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
-  
-  // 3. Update cache for next time
-  await redis.set(`user:${userId}`, JSON.stringify(user), 'EX', 3600); // 1 hour TTL
-  
-  return user;
-}
+```text
+FUNCTION getUser(userId)
+    # 1. Check cache first
+    cached = CACHE_GET("user:" + userId)
+    IF cached EXISTS THEN
+        RETURN deserialize(cached)
+    END IF
+
+    # 2. Cache miss - fetch from database
+    user = DB_QUERY("SELECT * FROM users WHERE id = ?", userId)
+
+    # 3. Update cache for next time (TTL = 1 hour)
+    CACHE_SET("user:" + userId, serialize(user), TTL = 3600)
+
+    RETURN user
+END FUNCTION
 ```
 
 **Pros:**
@@ -69,16 +69,16 @@ async function getUser(userId) {
 
 ### 2. **Write-Through Cache**
 
-```javascript
-async function updateUser(userId, data) {
-  // 1. Write to database
-  await db.query('UPDATE users SET name = ? WHERE id = ?', [data.name, userId]);
-  
-  // 2. Immediately update cache
-  await redis.set(`user:${userId}`, JSON.stringify(data), 'EX', 3600);
-  
-  return data;
-}
+```text
+FUNCTION updateUser(userId, data)
+    # 1. Write to database
+    DB_QUERY("UPDATE users SET name = ? WHERE id = ?", data.name, userId)
+
+    # 2. Immediately update cache
+    CACHE_SET("user:" + userId, serialize(data), TTL = 3600)
+
+    RETURN data
+END FUNCTION
 ```
 
 **Pros:**
@@ -100,22 +100,23 @@ async function updateUser(userId, data) {
 
 ### 3. **Write-Behind (Write-Back) Cache**
 
-```javascript
-async function updateUser(userId, data) {
-  // 1. Write to cache immediately (fast)
-  await redis.set(`user:${userId}`, JSON.stringify(data), 'EX', 3600);
-  
-  // 2. Asynchronously write to database (background job)
-  await queue.enqueue('writeUserToDB', { userId, data });
-  
-  return data;
-}
+```text
+FUNCTION updateUser(userId, data)
+    # 1. Write to cache immediately (fast)
+    CACHE_SET("user:" + userId, serialize(data), TTL = 3600)
 
-// Background worker
-async function writeUserToDB(job) {
-  const { userId, data } = job;
-  await db.query('UPDATE users SET name = ? WHERE id = ?', [data.name, userId]);
-}
+    # 2. Asynchronously write to database (background job)
+    QUEUE_ENQUEUE("writeUserToDB", { userId, data })
+
+    RETURN data
+END FUNCTION
+
+# Background worker
+FUNCTION writeUserToDB(job)
+    userId = job.userId
+    data = job.data
+    DB_QUERY("UPDATE users SET name = ? WHERE id = ?", data.name, userId)
+END FUNCTION
 ```
 
 **Pros:**
@@ -137,19 +138,19 @@ async function writeUserToDB(job) {
 
 ### 4. **Refresh-Ahead (Proactive)**
 
-```javascript
-// Set cache with TTL
-await redis.set(`user:${userId}`, JSON.stringify(user), 'EX', 3600);
+```text
+# Set cache with TTL
+CACHE_SET("user:" + userId, serialize(user), TTL = 3600)
 
-// Before expiration, refresh cache
-setInterval(async () => {
-  const ttl = await redis.ttl(`user:${userId}`);
-  
-  if (ttl < 300) { // Refresh if <5 minutes remaining
-    const freshUser = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
-    await redis.set(`user:${userId}`, JSON.stringify(freshUser), 'EX', 3600);
-  }
-}, 60000); // Check every minute
+# Before expiration, refresh cache (runs periodically every minute)
+EVERY 60 seconds DO
+    ttl = CACHE_GET_TTL("user:" + userId)
+
+    IF ttl < 300 THEN   # Refresh if < 5 minutes remaining
+        freshUser = DB_QUERY("SELECT * FROM users WHERE id = ?", userId)
+        CACHE_SET("user:" + userId, serialize(freshUser), TTL = 3600)
+    END IF
+END EVERY
 ```
 
 **Pros:**
@@ -173,39 +174,43 @@ setInterval(async () => {
 
 ### 1. **LRU (Least Recently Used)** ⭐ Most Common
 
-```javascript
-class LRUCache {
-  constructor(capacity) {
-    this.capacity = capacity;
-    this.cache = new Map(); // Maintains insertion order
-  }
-  
-  get(key) {
-    if (!this.cache.has(key)) return null;
-    
-    // Move to end (mark as recently used)
-    const value = this.cache.get(key);
-    this.cache.delete(key);
-    this.cache.set(key, value);
-    
-    return value;
-  }
-  
-  put(key, value) {
-    // Remove if exists (to re-insert at end)
-    if (this.cache.has(key)) {
-      this.cache.delete(key);
-    }
-    
-    // Evict oldest if at capacity
-    if (this.cache.size >= this.capacity) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
-    }
-    
-    this.cache.set(key, value);
-  }
-}
+```text
+CLASS LRUCache
+    # cache is an ordered map that maintains insertion order
+
+    FUNCTION init(capacity)
+        this.capacity = capacity
+        this.cache = new OrderedMap()
+    END FUNCTION
+
+    FUNCTION get(key)
+        IF NOT this.cache.contains(key) THEN
+            RETURN null
+        END IF
+
+        # Move to end (mark as recently used)
+        value = this.cache.get(key)
+        this.cache.remove(key)
+        this.cache.put(key, value)
+
+        RETURN value
+    END FUNCTION
+
+    FUNCTION put(key, value)
+        # Remove if exists (to re-insert at end)
+        IF this.cache.contains(key) THEN
+            this.cache.remove(key)
+        END IF
+
+        # Evict oldest if at capacity
+        IF this.cache.size >= this.capacity THEN
+            firstKey = this.cache.firstKey()
+            this.cache.remove(firstKey)
+        END IF
+
+        this.cache.put(key, value)
+    END FUNCTION
+END CLASS
 ```
 
 **Pros:** Evicts truly unused data  
@@ -216,37 +221,42 @@ class LRUCache {
 
 ### 2. **LFU (Least Frequently Used)**
 
-```javascript
-class LFUCache {
-  constructor(capacity) {
-    this.capacity = capacity;
-    this.cache = new Map(); // key → {value, frequency}
-  }
-  
-  get(key) {
-    if (!this.cache.has(key)) return null;
-    
-    const item = this.cache.get(key);
-    item.frequency++;
-    return item.value;
-  }
-  
-  put(key, value) {
-    if (this.cache.size >= this.capacity) {
-      // Find and evict least frequently used
-      let minFreq = Infinity, evictKey;
-      for (const [k, v] of this.cache) {
-        if (v.frequency < minFreq) {
-          minFreq = v.frequency;
-          evictKey = k;
-        }
-      }
-      this.cache.delete(evictKey);
-    }
-    
-    this.cache.set(key, { value, frequency: 1 });
-  }
-}
+```text
+CLASS LFUCache
+    # cache maps key -> { value, frequency }
+
+    FUNCTION init(capacity)
+        this.capacity = capacity
+        this.cache = empty map      # key -> node
+    END FUNCTION
+
+    FUNCTION get(key)
+        IF NOT this.cache.contains(key) THEN
+            RETURN null
+        END IF
+
+        item = this.cache.get(key)
+        item.frequency = item.frequency + 1
+        RETURN item.value
+    END FUNCTION
+
+    FUNCTION put(key, value)
+        IF this.cache.size >= this.capacity THEN
+            # Find and evict least frequently used
+            minFreq = INFINITY
+            evictKey = null
+            FOR EACH (k, v) IN this.cache
+                IF v.frequency < minFreq THEN
+                    minFreq = v.frequency
+                    evictKey = k
+                END IF
+            END FOR
+            this.cache.remove(evictKey)
+        END IF
+
+        this.cache.put(key, { value: value, frequency: 1 })
+    END FUNCTION
+END CLASS
 ```
 
 **Pros:** Keeps "hot" data in cache  
@@ -265,13 +275,13 @@ class LFUCache {
 
 ### 4. **TTL (Time To Live)**
 
-```javascript
-await redis.set('session:abc123', sessionData, 'EX', 900); // 15 minutes
+```text
+CACHE_SET("session:abc123", sessionData, TTL = 900)   # 15 minutes
 
-// Auto-expires after TTL
-setTimeout(() => {
-  redis.del('session:abc123');
-}, 900000);
+# Auto-expires after TTL (the cache removes the key when TTL elapses)
+AFTER 900 seconds DO
+    CACHE_DELETE("session:abc123")
+END AFTER
 ```
 
 **Pros:** Automatic expiration, prevents stale data  
@@ -282,22 +292,22 @@ setTimeout(() => {
 
 ## ⏱️ TTL Best Practices
 
-```javascript
-// Different TTLs for different data types
-const TTLs = {
-  userProfile: 3600,        // 1 hour
-  productCatalog: 600,      // 10 minutes
-  homePageData: 60,         // 1 minute
-  sessionData: 1800,        // 30 minutes
-  apiResponse: 300          // 5 minutes
-};
-
-// Dynamic TTL based on data freshness
-function calculateTTL(data) {
-  if (data.changesOften) return 60;        // 1 minute
-  if (data.changesDaily) return 86400;     // 24 hours
-  return 3600;                              // Default 1 hour
+```text
+# Different TTLs for different data types
+TTLs = {
+    userProfile:    3600,    # 1 hour
+    productCatalog: 600,     # 10 minutes
+    homePageData:   60,      # 1 minute
+    sessionData:    1800,    # 30 minutes
+    apiResponse:    300      # 5 minutes
 }
+
+# Dynamic TTL based on data freshness
+FUNCTION calculateTTL(data)
+    IF data.changesOften THEN RETURN 60      # 1 minute
+    IF data.changesDaily THEN RETURN 86400   # 24 hours
+    RETURN 3600                              # Default 1 hour
+END FUNCTION
 ```
 
 ---
@@ -307,37 +317,37 @@ function calculateTTL(data) {
 > "There are only two hard things in Computer Science: cache invalidation and naming things." — Phil Karlton
 
 ### 1. **TTL-Based (Passive)**
-```javascript
-// Automatically expires
-redis.set('key', value, 'EX', 3600);
+```text
+# Automatically expires
+CACHE_SET("key", value, TTL = 3600)
 ```
 
 ### 2. **Event-Based (Active)**
-```javascript
-// On data update
-async function updateUser(userId, data) {
-  await db.update('users', userId, data);
-  
-  // Invalidate cache
-  await redis.del(`user:${userId}`);
-  
-  // Or update cache immediately (write-through)
-  await redis.set(`user:${userId}`, JSON.stringify(data), 'EX', 3600);
-}
+```text
+# On data update
+FUNCTION updateUser(userId, data)
+    DB_UPDATE("users", userId, data)
+
+    # Invalidate cache
+    CACHE_DELETE("user:" + userId)
+
+    # Or update cache immediately (write-through)
+    CACHE_SET("user:" + userId, serialize(data), TTL = 3600)
+END FUNCTION
 ```
 
 ### 3. **Tag-Based Invalidation**
-```javascript
-// Tag cache entries
-await redis.set('user:123', userData);
-await redis.sadd('tags:user:123', 'user:123');
-await redis.sadd('tags:team:5', 'user:123'); // User belongs to team 5
+```text
+# Tag cache entries
+CACHE_SET("user:123", userData)
+SET_ADD("tags:user:123", "user:123")
+SET_ADD("tags:team:5", "user:123")   # User belongs to team 5
 
-// Invalidate all cache entries for team 5
-async function invalidateTeam(teamId) {
-  const keys = await redis.smembers(`tags:team:${teamId}`);
-  await redis.del(...keys);
-}
+# Invalidate all cache entries for team 5
+FUNCTION invalidateTeam(teamId)
+    keys = SET_MEMBERS("tags:team:" + teamId)
+    CACHE_DELETE(keys)   # delete all matching keys
+END FUNCTION
 ```
 
 ---
@@ -350,48 +360,48 @@ Cache expires → 1000 concurrent requests → All miss cache → All query DB �
 ```
 
 ### **Solution 1: Lock-Based**
-```javascript
-const locked = new Set();
+```text
+locked = new Set()
 
-async function getUser(userId) {
-  const cached = await redis.get(`user:${userId}`);
-  if (cached) return JSON.parse(cached);
-  
-  // Only first request fetches from DB
-  if (locked.has(userId)) {
-    await sleep(100); // Wait for first request to populate cache
-    return getUser(userId); // Retry
-  }
-  
-  locked.add(userId);
-  try {
-    const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
-    await redis.set(`user:${userId}`, JSON.stringify(user), 'EX', 3600);
-    return user;
-  } finally {
-    locked.delete(userId);
-  }
-}
+FUNCTION getUser(userId)
+    cached = CACHE_GET("user:" + userId)
+    IF cached EXISTS THEN RETURN deserialize(cached)
+
+    # Only first request fetches from DB
+    IF locked.contains(userId) THEN
+        SLEEP(100 ms)          # Wait for first request to populate cache
+        RETURN getUser(userId) # Retry
+    END IF
+
+    locked.add(userId)
+    TRY
+        user = DB_QUERY("SELECT * FROM users WHERE id = ?", userId)
+        CACHE_SET("user:" + userId, serialize(user), TTL = 3600)
+        RETURN user
+    FINALLY
+        locked.remove(userId)
+    END TRY
+END FUNCTION
 ```
 
 ### **Solution 2: Probabilistic Early Expiration**
-```javascript
-async function getUser(userId) {
-  const cached = await redis.get(`user:${userId}`);
-  const ttl = await redis.ttl(`user:${userId}`);
-  
-  // Randomly refresh before expiration
-  const shouldRefresh = ttl < 300 && Math.random() < 0.1;
-  
-  if (cached && !shouldRefresh) {
-    return JSON.parse(cached);
-  }
-  
-  // Refresh cache
-  const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
-  await redis.set(`user:${userId}`, JSON.stringify(user), 'EX', 3600);
-  return user;
-}
+```text
+FUNCTION getUser(userId)
+    cached = CACHE_GET("user:" + userId)
+    ttl = CACHE_GET_TTL("user:" + userId)
+
+    # Randomly refresh before expiration
+    shouldRefresh = (ttl < 300) AND (RANDOM() < 0.1)
+
+    IF cached EXISTS AND NOT shouldRefresh THEN
+        RETURN deserialize(cached)
+    END IF
+
+    # Refresh cache
+    user = DB_QUERY("SELECT * FROM users WHERE id = ?", userId)
+    CACHE_SET("user:" + userId, serialize(user), TTL = 3600)
+    RETURN user
+END FUNCTION
 ```
 
 ---
@@ -404,30 +414,30 @@ One key (e.g., celebrity user profile) gets 1M req/sec → Single cache server o
 ### **Solutions:**
 
 #### 1. **Local Caching**
-```javascript
-// Cache hot data in application memory
-const localCache = new Map();
+```text
+# Cache hot data in application memory
+local_cache = empty map
 
-async function getUser(userId) {
-  // Check local cache first (fastest)
-  if (localCache.has(userId)) {
-    return localCache.get(userId);
-  }
-  
-  // Check Redis
-  const cached = await redis.get(`user:${userId}`);
-  if (cached) {
-    const user = JSON.parse(cached);
-    localCache.set(userId, user); // Store locally
-    return user;
-  }
-  
-  // Fetch from DB
-  const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
-  await redis.set(`user:${userId}`, JSON.stringify(user), 'EX', 3600);
-  localCache.set(userId, user);
-  return user;
-}
+FUNCTION getUser(userId)
+    # Check local cache first (fastest)
+    IF localCache.contains(userId) THEN
+        RETURN localCache.get(userId)
+    END IF
+
+    # Check distributed cache
+    cached = CACHE_GET("user:" + userId)
+    IF cached EXISTS THEN
+        user = deserialize(cached)
+        localCache.put(userId, user)   # Store locally
+        RETURN user
+    END IF
+
+    # Fetch from DB
+    user = DB_QUERY("SELECT * FROM users WHERE id = ?", userId)
+    CACHE_SET("user:" + userId, serialize(user), TTL = 3600)
+    localCache.put(userId, user)
+    RETURN user
+END FUNCTION
 ```
 
 #### 2. **Replication**
@@ -436,48 +446,48 @@ Hot key replicated across multiple cache servers:
 user:celebrity → user:celebrity:1, user:celebrity:2, user:celebrity:3
 
 Randomly select replica:
-const replica = Math.floor(Math.random() * 3) + 1;
-const key = `user:celebrity:${replica}`;
+replica = random integer in [1, 3]
+key = "user:celebrity:" + replica
 ```
 
 ---
 
 ## 📊 Cache Efficiency Metrics
 
-```javascript
-// Track cache performance
-class CacheMetrics {
-  constructor() {
-    this.hits = 0;
-    this.misses = 0;
-  }
-  
-  recordHit() { this.hits++; }
-  recordMiss() { this.misses++; }
-  
-  getHitRate() {
-    const total = this.hits + this.misses;
-    return (this.hits / total * 100).toFixed(2);
-  }
-}
+```text
+# Track cache performance
+CLASS CacheMetrics
+    FUNCTION init()
+        this.hits = 0
+        this.misses = 0
+    END FUNCTION
 
-const metrics = new CacheMetrics();
+    FUNCTION recordHit()  this.hits = this.hits + 1   END FUNCTION
+    FUNCTION recordMiss() this.misses = this.misses + 1 END FUNCTION
 
-async function getWithMetrics(key) {
-  const cached = await redis.get(key);
-  
-  if (cached) {
-    metrics.recordHit();
-    return cached;
-  }
-  
-  metrics.recordMiss();
-  // Fetch from DB...
-}
+    FUNCTION getHitRate()
+        total = this.hits + this.misses
+        RETURN (this.hits / total) * 100
+    END FUNCTION
+END CLASS
 
-// Monitor hit rate
-console.log(`Cache hit rate: ${metrics.getHitRate()}%`);
-// Target: >80% for good cache performance
+metrics = new CacheMetrics()
+
+FUNCTION getWithMetrics(key)
+    cached = CACHE_GET(key)
+
+    IF cached EXISTS THEN
+        metrics.recordHit()
+        RETURN cached
+    END IF
+
+    metrics.recordMiss()
+    # Fetch from DB...
+END FUNCTION
+
+# Monitor hit rate
+PRINT "Cache hit rate: " + metrics.getHitRate() + "%"
+# Target: >80% for good cache performance
 ```
 
 **Key Metrics:**
@@ -508,45 +518,47 @@ App Servers ──→ Hash(key) % num_servers
 ```
 
 ### **Consistent Hashing** ⭐ (Handles server addition/removal)
-```javascript
-class ConsistentHash {
-  constructor(nodes = [], virtualNodes = 150) {
-    this.ring = new Map();
-    this.virtualNodes = virtualNodes;
-    nodes.forEach(node => this.addNode(node));
-  }
-  
-  addNode(node) {
-    for (let i = 0; i < this.virtualNodes; i++) {
-      const hash = this.hash(`${node}:${i}`);
-      this.ring.set(hash, node);
-    }
-  }
-  
-  getNode(key) {
-    const hash = this.hash(key);
-    
-    // Find first node clockwise
-    const sortedHashes = [...this.ring.keys()].sort((a, b) => a - b);
-    for (const nodeHash of sortedHashes) {
-      if (nodeHash >= hash) {
-        return this.ring.get(nodeHash);
-      }
-    }
-    
-    // Wrap around
-    return this.ring.get(sortedHashes[0]);
-  }
-  
-  hash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  }
-}
+```text
+CLASS ConsistentHash
+    FUNCTION init(nodes = [], virtualNodes = 150)
+        this.ring = empty map          # hash -> node
+        this.virtualNodes = virtualNodes
+        FOR EACH node IN nodes
+            this.addNode(node)
+        END FOR
+    END FUNCTION
+
+    FUNCTION addNode(node)
+        FOR i FROM 0 TO this.virtualNodes - 1
+            hash = this.hash(node + ":" + i)
+            this.ring.put(hash, node)
+        END FOR
+    END FUNCTION
+
+    FUNCTION getNode(key)
+        hash = this.hash(key)
+
+        # Find first node clockwise
+        sortedHashes = SORT_ASCENDING(this.ring.keys())
+        FOR EACH nodeHash IN sortedHashes
+            IF nodeHash >= hash THEN
+                RETURN this.ring.get(nodeHash)
+            END IF
+        END FOR
+
+        # Wrap around
+        RETURN this.ring.get(sortedHashes[0])
+    END FUNCTION
+
+    FUNCTION hash(str)
+        h = 0
+        FOR EACH char IN str
+            h = (h << 5) - h + charCode(char)
+            h = h AS 32-bit integer
+        END FOR
+        RETURN ABS(h)
+    END FUNCTION
+END CLASS
 ```
 
 ---
@@ -566,15 +578,15 @@ Benefits:
 ```
 
 **CDN Best Practices:**
-```javascript
-// Set cache headers for static assets
-res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+```text
+# Set cache headers for static assets
+SET_RESPONSE_HEADER("Cache-Control", "public, max-age=31536000, immutable")
 
-// Versioned URLs for cache busting
-<script src="/js/app.v123.js"></script>
+# Versioned URLs for cache busting
+# reference the asset as: /js/app.v123.js
 
-// When app.js changes, deploy as app.v124.js
-// Browser fetches new version, old version cached forever
+# When app.js changes, deploy as app.v124.js
+# Browser fetches new version, old version cached forever
 ```
 
 ---
@@ -611,30 +623,30 @@ Request Flow:
 ```
 
 **Example Implementation:**
-```javascript
-async function getProduct(productId) {
-  // L1: In-memory cache (fastest, small)
-  if (memoryCache.has(productId)) {
-    return memoryCache.get(productId);
-  }
-  
-  // L2: Redis (fast, larger)
-  const cached = await redis.get(`product:${productId}`);
-  if (cached) {
-    const product = JSON.parse(cached);
-    memoryCache.set(productId, product); // Populate L1
-    return product;
-  }
-  
-  // L3: Database (slow, largest)
-  const product = await db.query('SELECT * FROM products WHERE id = ?', [productId]);
-  
-  // Populate all cache levels
-  await redis.set(`product:${productId}`, JSON.stringify(product), 'EX', 3600);
-  memoryCache.set(productId, product);
-  
-  return product;
-}
+```text
+FUNCTION getProduct(productId)
+    # L1: In-memory cache (fastest, small)
+    IF memoryCache.contains(productId) THEN
+        RETURN memoryCache.get(productId)
+    END IF
+
+    # L2: Distributed cache (fast, larger)
+    cached = CACHE_GET("product:" + productId)
+    IF cached EXISTS THEN
+        product = deserialize(cached)
+        memoryCache.put(productId, product)   # Populate L1
+        RETURN product
+    END IF
+
+    # L3: Database (slow, largest)
+    product = DB_QUERY("SELECT * FROM products WHERE id = ?", productId)
+
+    # Populate all cache levels
+    CACHE_SET("product:" + productId, serialize(product), TTL = 3600)
+    memoryCache.put(productId, product)
+
+    RETURN product
+END FUNCTION
 ```
 
 ---

@@ -10,7 +10,7 @@ Thanks for wanting to contribute! This repo is community-driven and we welcome i
 - Update salary data or company-specific info
 
 ### 2. Add New Content
-- New DSA pattern files (follow `skeleton.md` template)
+- New DSA pattern files (follow `skeleton.md` template, `snake_case.py` naming)
 - New algorithm implementations (follow existing code style)
 - New system design documents (follow existing format)
 - New company-specific behavioral guides
@@ -20,11 +20,12 @@ Thanks for wanting to contribute! This repo is community-driven and we welcome i
 
 ## Guidelines
 
-### Code Style (JS files)
-- `camelCase` for variables and functions
+### Code Style (Python files)
+- Follow [PEP 8](https://peps.python.org/pep-0008/): `snake_case` for variables and functions
 - `PascalCase` for classes
-- Use `const`/`let`, not `var`
-- Add `console.log` examples at the bottom for manual testing
+- Add type hints where practical (e.g. `def dijkstra(graph: dict, src: int) -> list[float]:`)
+- Add an `if __name__ == "__main__":` block at the bottom with worked examples for manual testing
+- Prefer the standard library (`heapq`, `collections`, `functools`) over custom implementations, except where the data structure itself is the teaching point
 - Follow the `skeleton.md` template for pattern files
 
 ### Markdown Style
@@ -36,7 +37,7 @@ Thanks for wanting to contribute! This repo is community-driven and we welcome i
 1. Fork the repo
 2. Create a branch (`git checkout -b add-fenwick-tree`)
 3. Make your changes
-4. Test any JS files with `node <filename>`
+4. Test any Python files with `python <filename>`
 5. Submit a PR with a clear description of what you changed and why
 
 ### What We're Looking For

@@ -86,8 +86,8 @@ Offline Downloads:
 
 ## 3️⃣ API Design
 
-```javascript
-// 1. Get Home Page (Personalized)
+```text
+# 1. Get Home Page (Personalized)
 GET /v1/browse/home
   ?user_id=user_123&profile_id=profile_456
 
@@ -101,7 +101,7 @@ Response: {
           title: "Stranger Things S4",
           thumbnail: "https://cdn.netflix.com/thumbnails/123.jpg",
           duration: 3600,
-          match_score: 95  // Personalized match percentage
+          match_score: 95  # Personalized match percentage
         }
       ]
     },
@@ -116,14 +116,14 @@ Response: {
   ]
 }
 
-// 2. Stream Video (HLS)
+# 2. Stream Video (HLS)
 GET /v1/videos/{video_id}/stream
   ?quality=1080p&profile_id=profile_456
 
 Response: (302 Redirect to CDN)
 Location: https://cdn.netflix.com/videos/123/1080p/master.m3u8
 
-// 3. Get Recommendations
+# 3. Get Recommendations
 GET /v1/recommendations
   ?user_id=user_123&profile_id=profile_456&limit=20
 
@@ -138,7 +138,7 @@ Response: {
   ]
 }
 
-// 4. Download for Offline
+# 4. Download for Offline
 POST /v1/downloads
 Body: {
   video_id: "video_123",
@@ -150,14 +150,14 @@ Response: {
   download_id: "dl_abc123",
   download_url: "https://cdn.netflix.com/downloads/123.encrypted",
   license_url: "https://api.netflix.com/licenses/xyz",
-  expires_at: "2024-02-15T12:00:00Z"  // 30 days
+  expires_at: "2024-02-15T12:00:00Z"  # 30 days
 }
 
-// 5. Update Watch Progress
+# 5. Update Watch Progress
 POST /v1/videos/{video_id}/progress
 Body: {
   profile_id: "profile_456",
-  position: 1800,  // seconds
+  position: 1800,  # seconds
   duration: 3600
 }
 
@@ -235,18 +235,18 @@ CREATE INDEX idx_videos_genres ON videos USING GIN (genres);
 
 ### Redis (Caching, Session)
 
-```javascript
-// Video metadata cache
+```text
+# Video metadata cache
 Key: video:{video_id}:metadata
 Value: JSON { title, genres, duration, ... }
 TTL: 24 hours
 
-// Continue watching position
+# Continue watching position
 Key: profile:{profile_id}:video:{video_id}:position
-Value: 1800  // seconds
+Value: 1800  # seconds
 TTL: 30 days
 
-// Recommendation cache
+# Recommendation cache
 Key: profile:{profile_id}:recommendations
 Value: JSON [{ video_id, score, reason }, ...]
 TTL: 6 hours
@@ -339,85 +339,76 @@ TTL: 6 hours
 
 **Solution: Hybrid Recommendation System**
 
-```javascript
-class RecommendationEngine {
-  async getRecommendations(profileId, limit = 20) {
-    // 1. Check cache
-    const cached = await redis.get(`profile:${profileId}:recommendations`);
-    if (cached) return JSON.parse(cached);
-    
-    // 2. Collaborative filtering (users who watched similar videos)
-    const collaborativeRecos = await this.collaborativeFiltering(profileId);
-    
-    // 3. Content-based filtering (similar genres, actors, directors)
-    const contentRecos = await this.contentBasedFiltering(profileId);
-    
-    // 4. Trending/Popular (for cold start problem)
-    const trendingRecos = await this.getTrending();
-    
-    // 5. Merge with weights
-    const mergedRecos = this.mergeRecommendations([
-      { recs: collaborativeRecos, weight: 0.5 },
-      { recs: contentRecos, weight: 0.3 },
-      { recs: trendingRecos, weight: 0.2 }
-    ]);
-    
-    // 6. Diversity filter (avoid recommending all similar content)
-    const diverseRecos = this.diversityFilter(mergedRecos);
-    
-    // 7. Cache for 6 hours
-    await redis.setex(
-      `profile:${profileId}:recommendations`,
-      21600,
-      JSON.stringify(diverseRecos)
-    );
-    
-    return diverseRecos.slice(0, limit);
-  }
-  
-  async collaborativeFiltering(profileId) {
-    // Find users with similar watch history
-    const watchHistory = await getWatchHistory(profileId);
-    
-    // Use Matrix Factorization (SVD) or ALS
-    // Pre-trained model stored in Redis/ML model server
-    const similarUsers = await mlModel.findSimilarUsers(profileId);
-    
-    // Get videos watched by similar users but not by this user
-    const recommendations = [];
-    for (const user of similarUsers) {
-      const theirVideos = await getWatchHistory(user.id);
-      
-      for (const video of theirVideos) {
-        if (!watchHistory.includes(video.id)) {
-          recommendations.push({
-            video_id: video.id,
-            score: user.similarity * video.rating,
-            reason: `Because users like you enjoyed this`
-          });
-        }
-      }
-    }
-    
-    return recommendations.sort((a, b) => b.score - a.score);
-  }
-  
-  mergeRecommendations(sources) {
-    const merged = new Map();
-    
-    for (const { recs, weight } of sources) {
-      for (const rec of recs) {
-        const existing = merged.get(rec.video_id) || { score: 0 };
-        merged.set(rec.video_id, {
-          ...rec,
-          score: existing.score + (rec.score * weight)
-        });
-      }
-    }
-    
-    return Array.from(merged.values()).sort((a, b) => b.score - a.score);
-  }
-}
+```text
+FUNCTION getRecommendations(profileId, limit = 20):
+    # 1. Check cache
+    cached = get "profile:{profileId}:recommendations" from Redis
+    IF cached exists:
+        RETURN parsed cached value
+
+    # 2. Collaborative filtering (users who watched similar videos)
+    collaborativeRecos = collaborativeFiltering(profileId)
+
+    # 3. Content-based filtering (similar genres, actors, directors)
+    contentRecos = contentBasedFiltering(profileId)
+
+    # 4. Trending/Popular (for cold start problem)
+    trendingRecos = getTrending()
+
+    # 5. Merge with weights
+    mergedRecos = mergeRecommendations([
+        { recs: collaborativeRecos, weight: 0.5 },
+        { recs: contentRecos,       weight: 0.3 },
+        { recs: trendingRecos,      weight: 0.2 }
+    ])
+
+    # 6. Diversity filter (avoid recommending all similar content)
+    diverseRecos = diversityFilter(mergedRecos)
+
+    # 7. Cache for 6 hours
+    set "profile:{profileId}:recommendations" = serialized diverseRecos
+        in Redis with TTL 21600 seconds
+
+    RETURN first `limit` items of diverseRecos
+END FUNCTION
+
+FUNCTION collaborativeFiltering(profileId):
+    # Find users with similar watch history
+    watchHistory = getWatchHistory(profileId)
+
+    # Use Matrix Factorization (SVD) or ALS
+    # Pre-trained model stored in Redis/ML model server
+    similarUsers = mlModel.findSimilarUsers(profileId)
+
+    # Get videos watched by similar users but not by this user
+    recommendations = empty list
+    FOR EACH user IN similarUsers:
+        theirVideos = getWatchHistory(user.id)
+
+        FOR EACH video IN theirVideos:
+            IF watchHistory does NOT contain video.id:
+                append to recommendations:
+                    video_id: video.id,
+                    score:    user.similarity * video.rating,
+                    reason:   "Because users like you enjoyed this"
+
+    SORT recommendations by score descending
+    RETURN recommendations
+END FUNCTION
+
+FUNCTION mergeRecommendations(sources):
+    merged = empty map keyed by video_id
+
+    FOR EACH { recs, weight } IN sources:
+        FOR EACH rec IN recs:
+            existing = merged[rec.video_id] OR { score: 0 }
+            merged[rec.video_id] = rec with
+                score = existing.score + (rec.score * weight)
+
+    result = all values of merged
+    SORT result by score descending
+    RETURN result
+END FUNCTION
 ```
 
 **Trade-offs:**
@@ -434,44 +425,37 @@ class RecommendationEngine {
 
 **Solution: Encrypted Downloads with DRM**
 
-```javascript
-class DownloadService {
-  async initiateDownload(videoId, profileId, quality) {
-    // 1. Check subscription plan (Premium only for downloads)
-    const user = await getUserForProfile(profileId);
-    
-    if (!['standard', 'premium'].includes(user.subscription_plan)) {
-      throw new Error('Downloads require Standard or Premium plan');
+```text
+FUNCTION initiateDownload(videoId, profileId, quality):
+    # 1. Check subscription plan (Premium only for downloads)
+    user = getUserForProfile(profileId)
+
+    IF user.subscription_plan is NOT one of ["standard", "premium"]:
+        RAISE error "Downloads require Standard or Premium plan"
+
+    # 2. Generate encrypted download URL
+    encryptedFile = "{videoId}_{quality}_encrypted.mp4"
+    downloadUrl = generate S3 presigned URL (bucket = "netflix-downloads",
+                                             key    = encryptedFile,
+                                             expires in 3600 seconds)  # 1 hour to start download
+
+    # 3. Generate DRM license (Widevine/FairPlay)
+    license = drmService.generateLicense(
+        video_id:   videoId,
+        profile_id: profileId,
+        expires_at: current time + 30 days
+    )
+
+    # 4. Store download record
+    query database "INSERT INTO downloads (profile_id, video_id, license_id, expires_at)
+                    VALUES (profileId, videoId, license.id, license.expires_at)"
+
+    RETURN {
+        download_url: downloadUrl,
+        license_url:  "https://api.netflix.com/licenses/{license.id}",
+        expires_at:   license.expires_at
     }
-    
-    // 2. Generate encrypted download URL
-    const encryptedFile = `${videoId}_${quality}_encrypted.mp4`;
-    const downloadUrl = await s3.getPresignedUrl({
-      Bucket: 'netflix-downloads',
-      Key: encryptedFile,
-      Expires: 3600  // 1 hour to start download
-    });
-    
-    // 3. Generate DRM license (Widevine/FairPlay)
-    const license = await drmService.generateLicense({
-      video_id: videoId,
-      profile_id: profileId,
-      expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000)  // 30 days
-    });
-    
-    // 4. Store download record
-    await db.query(`
-      INSERT INTO downloads (profile_id, video_id, license_id, expires_at)
-      VALUES ($1, $2, $3, $4)
-    `, [profileId, videoId, license.id, license.expires_at]);
-    
-    return {
-      download_url: downloadUrl,
-      license_url: `https://api.netflix.com/licenses/${license.id}`,
-      expires_at: license.expires_at
-    };
-  }
-}
+END FUNCTION
 ```
 
 **DRM Technologies:**
@@ -517,24 +501,20 @@ If content not in OCA → Route to nearest Netflix CDN → S3 origin
 ```
 
 **Predictive Caching:**
-```javascript
-class CacheOptimizer {
-  async predictAndCache() {
-    // Predict what users will watch tonight (ML model)
-    const predictions = await mlModel.predictPopularContent({
-      region: 'India',
-      time: '19:00-23:00',  // Prime time
-      day: 'Friday'
-    });
-    
-    // Pre-cache to Open Connect during off-peak hours (2 AM - 6 AM)
-    for (const video of predictions.top100) {
-      if (!await ocaHasVideo(video.id)) {
-        await cacheVideoToOCA(video.id, region='India');
-      }
-    }
-  }
-}
+```text
+FUNCTION predictAndCache():
+    # Predict what users will watch tonight (ML model)
+    predictions = mlModel.predictPopularContent(
+        region: "India",
+        time:   "19:00-23:00",   # Prime time
+        day:    "Friday"
+    )
+
+    # Pre-cache to Open Connect during off-peak hours (2 AM - 6 AM)
+    FOR EACH video IN predictions.top100:
+        IF NOT ocaHasVideo(video.id):
+            cacheVideoToOCA(video.id, region = "India")
+END FUNCTION
 ```
 
 **Trade-offs:**
