@@ -1,6 +1,9 @@
 # Documentation site (MkDocs + Material). Install: pip install -r requirements-docs.txt
 # Build: mkdocs build --strict   |   Preview: mkdocs serve   |   Deploy: mkdocs gh-deploy
-mkdocs-material>=9.6,<10
+# [imaging] adds Pillow/CairoSVG for the social-cards plugin. Cards only build when
+# CARDS=true (set in CI, which also installs the Cairo/Pango system libs). Locally,
+# cards are off by default so the extra is harmless if the system libs are absent.
+mkdocs-material[imaging]>=9.6,<10
 # same-dir lets docs_dir be the repo root (content stays in place, no docs/ move).
 # Note: it pulls in the `properdocs` transitive dep which prints a promotional build
 # nag; we silence it with DISABLE_MKDOCS_2_WARNING=true in the CI workflow.

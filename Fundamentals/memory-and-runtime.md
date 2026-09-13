@@ -1,13 +1,14 @@
 # 🧠 Memory & Runtime
 
-> **Explain in 2 min:** Programs use two main memory regions: the **stack** (fast, automatic, holds
-> call frames and locals) and the **heap** (dynamic, manually or automatically managed, holds
-> long-lived objects). How the heap gets cleaned up defines the runtime: manual (`free`), **reference
-> counting** (free when the count hits zero), or a **tracing garbage collector** (periodically find
-> and reclaim unreachable objects). A **memory leak** is memory you no longer need but the runtime
-> still considers reachable. Language semantics matter too — whether arguments are copied or shared
-> (pass-by-value vs reference) changes what a callee can affect. Python specifically uses reference
-> counting + a cycle collector, and its **GIL** shapes how you do concurrency.
+!!! tip "Explain in 2 min"
+    Programs use two main memory regions: the **stack** (fast, automatic, holds
+    call frames and locals) and the **heap** (dynamic, manually or automatically managed, holds
+    long-lived objects). How the heap gets cleaned up defines the runtime: manual (`free`), **reference
+    counting** (free when the count hits zero), or a **tracing garbage collector** (periodically find
+    and reclaim unreachable objects). A **memory leak** is memory you no longer need but the runtime
+    still considers reachable. Language semantics matter too — whether arguments are copied or shared
+    (pass-by-value vs reference) changes what a callee can affect. Python specifically uses reference
+    counting + a cycle collector, and its **GIL** shapes how you do concurrency.
 
 ---
 

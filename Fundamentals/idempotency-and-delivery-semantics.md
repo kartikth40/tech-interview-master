@@ -1,13 +1,14 @@
 # 🔁 Idempotency & Delivery Semantics
 
-> **Explain in 2 min:** In a distributed system, networks fail and clients retry — so the same
-> request or message can arrive more than once. **Idempotency** means processing it twice has the
-> same effect as processing it once (no double charge, no duplicate order). You get it with an
-> **idempotency key**: the client sends a unique token, the server records it, and a retry with the
-> same token is recognized and deduped. Message systems describe this as **delivery semantics**:
-> *at-most-once* (may drop), *at-least-once* (may duplicate — the common default), and *exactly-once*
-> (hard; usually faked with at-least-once + idempotent processing). The practical rule: assume
-> at-least-once and make your consumers idempotent.
+!!! tip "Explain in 2 min"
+    In a distributed system, networks fail and clients retry — so the same
+    request or message can arrive more than once. **Idempotency** means processing it twice has the
+    same effect as processing it once (no double charge, no duplicate order). You get it with an
+    **idempotency key**: the client sends a unique token, the server records it, and a retry with the
+    same token is recognized and deduped. Message systems describe this as **delivery semantics**:
+    *at-most-once* (may drop), *at-least-once* (may duplicate — the common default), and *exactly-once*
+    (hard; usually faked with at-least-once + idempotent processing). The practical rule: assume
+    at-least-once and make your consumers idempotent.
 
 ---
 

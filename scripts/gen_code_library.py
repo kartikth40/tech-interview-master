@@ -54,7 +54,7 @@ def render_page(out_path: str, heading: str, intro: str, rel_dir: str) -> None:
                 snippet_path = py.relative_to(ROOT).as_posix()
                 level = "###" if subgroup else "##"
                 f.write(f"{level} {title_from_filename(py)}\n\n")
-                f.write("```python\n")
+                f.write('```python linenums="1"\n')
                 f.write(f'--8<-- "{snippet_path}"\n')
                 f.write("```\n\n")
 

@@ -3,6 +3,8 @@
 > **How to use this guide:** this is the *intuition + when-to-use + decision* layer. Full, runnable
 > implementations live in the linked `.py` files - open those to study or run the code
 > (`python <file>`). For instant keyword → pattern lookup, see [DSAQuickLookup.md](DSAQuickLookup.md).
+> For the *visual* thinking layer (decision flowcharts, the mental web, constraints→complexity),
+> see [DSA Mental Models](mental-models.md).
 
 ## 📑 Table of Contents
 

@@ -1,12 +1,13 @@
 # 🌐 Networking
 
-> **Explain in 2 min:** Networking is how two machines exchange bytes reliably over an unreliable
-> medium. The **TCP/IP** model layers this: link → internet (**IP** routes packets) → transport
-> (**TCP** gives reliable ordered streams, **UDP** gives fast fire-and-forget) → application (HTTP,
-> DNS). **DNS** turns a name into an IP; **TCP's handshake** sets up a connection; **TLS** then
-> negotiates encryption on top. **HTTP** rides over that — evolving from HTTP/1.1's head-of-line
-> blocking to HTTP/2 multiplexing to HTTP/3 over QUIC/UDP. The classic interview question,
-> "what happens when you type a URL," walks this whole stack end to end.
+!!! tip "Explain in 2 min"
+    Networking is how two machines exchange bytes reliably over an unreliable
+    medium. The **TCP/IP** model layers this: link → internet (**IP** routes packets) → transport
+    (**TCP** gives reliable ordered streams, **UDP** gives fast fire-and-forget) → application (HTTP,
+    DNS). **DNS** turns a name into an IP; **TCP's handshake** sets up a connection; **TLS** then
+    negotiates encryption on top. **HTTP** rides over that — evolving from HTTP/1.1's head-of-line
+    blocking to HTTP/2 multiplexing to HTTP/3 over QUIC/UDP. The classic interview question,
+    "what happens when you type a URL," walks this whole stack end to end.
 
 ---
 

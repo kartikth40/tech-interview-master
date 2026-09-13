@@ -162,6 +162,21 @@ TTL: None
 
 ## 5️⃣ High-Level Design
 
+```mermaid
+flowchart TD
+    U[Users] --> LB[Load Balancer]
+    LB --> W1[Web Server 1]
+    LB --> W2[Web Server 2]
+    LB --> W3[Web Server 3]
+    W1 & W2 & W3 --> C{Redis cache?}
+    C -- hit --> R[Return long URL]
+    C -- miss --> DB[(Database)]
+    DB --> R
+```
+
+<details class="example" markdown>
+<summary>ASCII version (same diagram)</summary>
+
 ```
 ┌──────────────┐
 │    Users     │
@@ -193,6 +208,8 @@ TTL: None
         │  (Primary DB)│
         └──────────────┘
 ```
+
+</details>
 
 **Data Flow (Redirection):**
 1. User clicks short URL → Load Balancer → Web Server

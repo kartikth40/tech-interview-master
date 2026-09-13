@@ -1,16 +1,17 @@
 # 📐 Latency Numbers & Estimation
 
-> **Explain in 2 min:** Back-of-the-envelope estimation is turning a vague prompt ("design Twitter")
-> into rough numbers — QPS, storage, bandwidth — so your design decisions are grounded. The method:
-> state assumptions (users, actions/user/day), derive **QPS = actions/day ÷ ~86,400**, apply a
-> **peak factor** (×2-3), then size storage (bytes/item × items) and bandwidth (QPS × size). You
-> don't need precision — you need the right **order of magnitude** and to show the reasoning. A
-> handful of memorized latency numbers (memory ~100 ns, SSD ~100 µs, disk seek ~10 ms, cross-country
-> RTT ~150 ms) let you reason about where time goes.
->
-> This file is the **drilling companion**; the estimation *step* within the interview framework and
-> the full memorized table live in
-> [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
+!!! tip "Explain in 2 min"
+    Back-of-the-envelope estimation is turning a vague prompt ("design Twitter")
+    into rough numbers — QPS, storage, bandwidth — so your design decisions are grounded. The method:
+    state assumptions (users, actions/user/day), derive **QPS = actions/day ÷ ~86,400**, apply a
+    **peak factor** (×2-3), then size storage (bytes/item × items) and bandwidth (QPS × size). You
+    don't need precision — you need the right **order of magnitude** and to show the reasoning. A
+    handful of memorized latency numbers (memory ~100 ns, SSD ~100 µs, disk seek ~10 ms, cross-country
+    RTT ~150 ms) let you reason about where time goes.
+
+    This file is the **drilling companion**; the estimation *step* within the interview framework and
+    the full memorized table live in
+    [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
 
 ---
 

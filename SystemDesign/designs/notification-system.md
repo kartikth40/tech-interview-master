@@ -60,6 +60,23 @@ GET /v1/notifications/{id}   → delivery status per channel
 
 ## 4️⃣ High-Level Design
 
+```mermaid
+flowchart LR
+    SVC["Services / events"] --> API["Notification API<br/>(validate, dedup, prefs)"]
+    API --> Q["Message Queue<br/>(Kafka / SQS)"]
+    Q --> PW["Push worker"]
+    Q --> SW["SMS worker"]
+    Q --> EW["Email worker"]
+    PW --> APNS["APNs / FCM"]
+    SW --> TW["Twilio / SNS"]
+    EW --> SES["SES / SendGrid"]
+    APNS & TW & SES --> ST["Delivery status store"]
+    APNS & TW & SES -. "transient failure" .-> DLT["Retry → Dead-letter queue"]
+```
+
+<details class="example" markdown>
+<summary>ASCII version</summary>
+
 ```
 Services / events
       │  POST /notifications (or emit event)
@@ -83,6 +100,8 @@ Services / events
    │        │        │
    └────────┴────────┴──► delivery status → status store + retries (DLQ)
 ```
+
+</details>
 
 **Flow:** API validates + dedups + resolves channels from user prefs → enqueues per-channel messages
 → channel workers pull and call the provider → record status; failures retry, then go to a dead-letter

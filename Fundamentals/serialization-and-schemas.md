@@ -1,12 +1,13 @@
 # 📦 Serialization & Schemas
 
-> **Explain in 2 min:** Serialization turns in-memory objects into bytes for network or storage, and
-> back. **JSON** is human-readable, schemaless, and universal — great for public APIs, but verbose
-> and slow to parse. **Protobuf** and **Avro** are compact binary formats with a schema — much
-> smaller and faster, ideal for internal service-to-service traffic and event streams. The subtle,
-> interview-relevant part is **schema evolution**: services deploy independently, so old and new code
-> must read each other's data. Formats support this via rules — add optional fields, never reuse
-> field tags, provide defaults — so a change stays **backward and forward compatible**.
+!!! tip "Explain in 2 min"
+    Serialization turns in-memory objects into bytes for network or storage, and
+    back. **JSON** is human-readable, schemaless, and universal — great for public APIs, but verbose
+    and slow to parse. **Protobuf** and **Avro** are compact binary formats with a schema — much
+    smaller and faster, ideal for internal service-to-service traffic and event streams. The subtle,
+    interview-relevant part is **schema evolution**: services deploy independently, so old and new code
+    must read each other's data. Formats support this via rules — add optional fields, never reuse
+    field tags, provide defaults — so a change stays **backward and forward compatible**.
 
 ---
 

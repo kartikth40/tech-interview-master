@@ -1,13 +1,14 @@
 # 🖥️ Operating Systems
 
-> **Explain in 2 min:** An OS manages hardware and shares it safely among programs. Two abstractions
-> carry most interview weight. (1) **Process vs thread** — a process is an isolated program with its
-> own memory; threads live inside a process and share its memory, so they're cheaper to switch but
-> require synchronization. (2) **Virtual memory** — each process sees its own contiguous address
-> space, which the OS maps to physical RAM in pages, letting programs use more memory than exists
-> (paging to disk) and staying isolated from each other. The **scheduler** decides which thread runs
-> next; a **context switch** saves one thread's state and loads another's, which costs real time.
-> **Deadlock** is the classic hazard when processes wait on each other's resources forever.
+!!! tip "Explain in 2 min"
+    An OS manages hardware and shares it safely among programs. Two abstractions
+    carry most interview weight. (1) **Process vs thread** — a process is an isolated program with its
+    own memory; threads live inside a process and share its memory, so they're cheaper to switch but
+    require synchronization. (2) **Virtual memory** — each process sees its own contiguous address
+    space, which the OS maps to physical RAM in pages, letting programs use more memory than exists
+    (paging to disk) and staying isolated from each other. The **scheduler** decides which thread runs
+    next; a **context switch** saves one thread's state and loads another's, which costs real time.
+    **Deadlock** is the classic hazard when processes wait on each other's resources forever.
 
 ---
 

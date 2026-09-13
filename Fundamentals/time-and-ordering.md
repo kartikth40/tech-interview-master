@@ -1,13 +1,14 @@
 # ⏱️ Time & Ordering
 
-> **Explain in 2 min:** In a distributed system you can't trust wall clocks to order events — each
-> machine's clock drifts, and even with NTP they're only loosely synchronized, so "later timestamp =
-> happened later" is wrong. Instead we reason about **causality**: which events *could have*
-> influenced which. **Lamport clocks** (a single counter bumped on every event and message) give a
-> total order consistent with causality but can't tell whether two events are truly concurrent.
-> **Vector clocks** (a counter per node) can — they detect whether one event happened-before another
-> or they're concurrent (a conflict). This is why systems use vector clocks for conflict detection
-> and logical ordering rather than timestamps.
+!!! tip "Explain in 2 min"
+    In a distributed system you can't trust wall clocks to order events — each
+    machine's clock drifts, and even with NTP they're only loosely synchronized, so "later timestamp =
+    happened later" is wrong. Instead we reason about **causality**: which events *could have*
+    influenced which. **Lamport clocks** (a single counter bumped on every event and message) give a
+    total order consistent with causality but can't tell whether two events are truly concurrent.
+    **Vector clocks** (a counter per node) can — they detect whether one event happened-before another
+    or they're concurrent (a conflict). This is why systems use vector clocks for conflict detection
+    and logical ordering rather than timestamps.
 
 ---
 

@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DISABLE_MKDOCS_2_WARNING: "true"   # silence properdocs transitive-dep nag
+      CARDS: "true"                      # enable social-card generation in CI
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,6 +37,10 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements-docs.txt
+
+      # System libraries required by the social-cards plugin (Cairo/Pango + fonts).
+      - name: Install imaging system deps
+        run: sudo apt-get update && sudo apt-get install -y libcairo2-dev libpango1.0-dev libfreetype6-dev libjpeg-dev libpng-dev libffi-dev
 
       - name: Install dependencies
         run: pip install -r requirements-docs.txt

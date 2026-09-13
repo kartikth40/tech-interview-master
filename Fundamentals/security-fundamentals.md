@@ -1,13 +1,14 @@
 # 🔐 Security Fundamentals
 
-> **Explain in 2 min:** Application security starts with two questions: **who are you
-> (authentication)** and **what are you allowed to do (authorization)**. You prove identity with
-> sessions, tokens (JWT), or delegated flows (OAuth2/OIDC). You protect data in transit with **TLS**
-> and data at rest / passwords with the right **hashing** (slow, salted — bcrypt/Argon2, never plain
-> SHA). On top of that, most breaches come from a short list of well-known attacks — **XSS, CSRF,
-> SQL injection, SSRF** — each with a standard defense (escape output, anti-CSRF tokens,
-> parameterized queries, allowlist outbound requests). The mindset: never trust input, apply defense
-> in depth, and give the least privilege necessary.
+!!! tip "Explain in 2 min"
+    Application security starts with two questions: **who are you
+    (authentication)** and **what are you allowed to do (authorization)**. You prove identity with
+    sessions, tokens (JWT), or delegated flows (OAuth2/OIDC). You protect data in transit with **TLS**
+    and data at rest / passwords with the right **hashing** (slow, salted — bcrypt/Argon2, never plain
+    SHA). On top of that, most breaches come from a short list of well-known attacks — **XSS, CSRF,
+    SQL injection, SSRF** — each with a standard defense (escape output, anti-CSRF tokens,
+    parameterized queries, allowlist outbound requests). The mindset: never trust input, apply defense
+    in depth, and give the least privilege necessary.
 
 ---
 

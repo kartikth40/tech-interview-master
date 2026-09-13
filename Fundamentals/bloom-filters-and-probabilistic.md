@@ -1,12 +1,13 @@
 # 🌸 Bloom Filters & Probabilistic Structures
 
-> **Explain in 2 min:** Probabilistic data structures trade a little accuracy for a huge memory win.
-> A **bloom filter** answers set membership as "definitely not present" or "possibly present" — never
-> a false negative — in a tiny bit array, so you use it as a cheap pre-check before an expensive
-> lookup (disk, DB). A **count-min sketch** estimates *how many times* it's seen an item (frequency)
-> in fixed memory, overcounting a little. **HyperLogLog** estimates *how many distinct* items there
-> are (cardinality) in kilobytes even for billions of items. The theme: when exact answers cost too
-> much memory, an approximate answer with a known error bound is often good enough.
+!!! tip "Explain in 2 min"
+    Probabilistic data structures trade a little accuracy for a huge memory win.
+    A **bloom filter** answers set membership as "definitely not present" or "possibly present" — never
+    a false negative — in a tiny bit array, so you use it as a cheap pre-check before an expensive
+    lookup (disk, DB). A **count-min sketch** estimates *how many times* it's seen an item (frequency)
+    in fixed memory, overcounting a little. **HyperLogLog** estimates *how many distinct* items there
+    are (cardinality) in kilobytes even for billions of items. The theme: when exact answers cost too
+    much memory, an approximate answer with a known error bound is often good enough.
 
 ---
 

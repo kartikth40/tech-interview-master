@@ -1,13 +1,14 @@
 # 🧱 OOP & Language Concepts
 
-> **Explain in 2 min:** Object-oriented programming organizes code around **objects** that bundle
-> data with behavior. The four pillars — **encapsulation, abstraction, inheritance,
-> polymorphism** — are about hiding detail and letting one interface serve many types. On top of
-> that, **SOLID** gives five principles for keeping OO code changeable. The most repeated practical
-> lesson is **"favor composition over inheritance"**: deep inheritance trees are rigid, while
-> composing small pieces stays flexible. Language-level, know the difference between **value and
-> reference** semantics (what gets copied vs shared), why **immutability** simplifies concurrency,
-> and how you handle errors.
+!!! tip "Explain in 2 min"
+    Object-oriented programming organizes code around **objects** that bundle
+    data with behavior. The four pillars — **encapsulation, abstraction, inheritance,
+    polymorphism** — are about hiding detail and letting one interface serve many types. On top of
+    that, **SOLID** gives five principles for keeping OO code changeable. The most repeated practical
+    lesson is **"favor composition over inheritance"**: deep inheritance trees are rigid, while
+    composing small pieces stays flexible. Language-level, know the difference between **value and
+    reference** semantics (what gets copied vs shared), why **immutability** simplifies concurrency,
+    and how you handle errors.
 
 ---
 

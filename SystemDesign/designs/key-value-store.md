@@ -68,6 +68,27 @@ The classic Dynamo building blocks — this question is really "do you know thes
 
 ## 5️⃣ High-Level Design
 
+Write path with a quorum (N=3, W=2): the coordinator writes to all replicas and succeeds once **W**
+acknowledge. Reads wait for **R** replicas; with **W + R > N** a read always overlaps the latest write.
+
+```mermaid
+flowchart LR
+    C["Client"] --> CO["Coordinator<br/>(any node)"]
+    CO --> R1["Replica 1"]
+    CO --> R2["Replica 2"]
+    CO --> R3["Replica 3"]
+    R1 -- ack --> CO
+    R2 -- ack --> CO
+    CO -- "W=2 acks → success" --> C
+    R3 -. "hinted handoff if down" .-> CO
+```
+
+The key is hashed onto a ring; its replicas are the next N nodes clockwise (consistent hashing, so a
+node change remaps only ~K/N keys). ASCII ring + node view below.
+
+<details class="example" markdown>
+<summary>ASCII version</summary>
+
 ```
                  Coordinator (any node can coordinate)
                           │
@@ -79,6 +100,8 @@ The classic Dynamo building blocks — this question is really "do you know thes
    └─────────┘       └─────────┘       └─────────┘
    key hashed to a ring position → first N nodes clockwise are its replicas
 ```
+
+</details>
 
 **Write path:** client → coordinator → send to N replicas → wait for W acks → success.
 **Read path:** coordinator → read from N replicas → wait for R responses → reconcile versions → return.

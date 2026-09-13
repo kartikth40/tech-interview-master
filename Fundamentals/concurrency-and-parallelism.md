@@ -1,14 +1,15 @@
 # 🧵 Concurrency & Parallelism
 
-> **Explain in 2 min:** **Concurrency** is *dealing with* many things at once — structuring a
-> program so tasks make progress independently (interleaved on one core is fine). **Parallelism**
-> is *doing* many things at once — literally running on multiple cores. Concurrency is about
-> structure; parallelism is about execution. A single-core machine can be concurrent (an event loop
-> juggling I/O) but not parallel. The hard part isn't starting tasks — it's **shared mutable
-> state**: two tasks touching the same data race, so we coordinate with locks, or avoid sharing
-> altogether (message passing, immutability). In Python specifically, the **GIL** means threads
-> don't run Python bytecode in parallel, so you use threads/async for I/O-bound work and processes
-> for CPU-bound work.
+!!! tip "Explain in 2 min"
+    **Concurrency** is *dealing with* many things at once — structuring a
+    program so tasks make progress independently (interleaved on one core is fine). **Parallelism**
+    is *doing* many things at once — literally running on multiple cores. Concurrency is about
+    structure; parallelism is about execution. A single-core machine can be concurrent (an event loop
+    juggling I/O) but not parallel. The hard part isn't starting tasks — it's **shared mutable
+    state**: two tasks touching the same data race, so we coordinate with locks, or avoid sharing
+    altogether (message passing, immutability). In Python specifically, the **GIL** means threads
+    don't run Python bytecode in parallel, so you use threads/async for I/O-bound work and processes
+    for CPU-bound work.
 
 ---
 

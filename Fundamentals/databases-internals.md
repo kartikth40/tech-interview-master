@@ -1,14 +1,15 @@
 # 🗄️ Database Internals
 
-> **Explain in 2 min:** A database's job is to store data durably and let many clients read/write it
-> correctly at once. **ACID** captures the correctness guarantees; **isolation levels** are the dial
-> that trades strictness for concurrency. Under the hood, **indexes** (usually B-trees) turn O(n)
-> scans into O(log n) lookups at the cost of slower writes and more space. To scale, we **replicate**
-> (copies for availability and read throughput) and **partition/shard** (split data across nodes for
-> write throughput and size). The moment data lives on multiple nodes, **CAP/PACELC** forces a
-> choice between consistency and availability/latency. **SQL vs NoSQL** is mostly a question of
-> whether you need strong relational guarantees and ad-hoc queries, or horizontal scale and a
-> flexible schema.
+!!! tip "Explain in 2 min"
+    A database's job is to store data durably and let many clients read/write it
+    correctly at once. **ACID** captures the correctness guarantees; **isolation levels** are the dial
+    that trades strictness for concurrency. Under the hood, **indexes** (usually B-trees) turn O(n)
+    scans into O(log n) lookups at the cost of slower writes and more space. To scale, we **replicate**
+    (copies for availability and read throughput) and **partition/shard** (split data across nodes for
+    write throughput and size). The moment data lives on multiple nodes, **CAP/PACELC** forces a
+    choice between consistency and availability/latency. **SQL vs NoSQL** is mostly a question of
+    whether you need strong relational guarantees and ad-hoc queries, or horizontal scale and a
+    flexible schema.
 
 ---
 

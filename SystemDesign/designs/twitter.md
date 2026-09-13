@@ -341,6 +341,21 @@ User  TweetService  Cassandra  Kafka  FanoutService  Redis
 
 **Solution: Hybrid Fanout (Push + Pull)**
 
+```mermaid
+flowchart TD
+    POST["User posts a tweet"] --> Q{"Follower count?"}
+    Q -- "normal user (< ~10K)" --> PUSH["Push (fan-out on write):<br/>write into each follower's<br/>precomputed timeline"]
+    Q -- "celebrity (millions)" --> STORE["Store tweet only<br/>(no fan-out)"]
+    PUSH --> FASTREAD["Follower reads:<br/>timeline already built → fast"]
+    STORE --> MERGE["Follower reads:<br/>merge precomputed timeline<br/>+ pull recent celebrity tweets"]
+    MERGE --> RESULT["Final timeline"]
+    FASTREAD --> RESULT
+```
+
+Why hybrid: pure push is too expensive for celebrities (50M writes per tweet); pure pull is too slow
+for every read. Push for the many, pull for the few, merge at read time.
+
+
 **Push Model (Write Fanout):**
 ```text
 # When user posts tweet, push to all followers' timelines

@@ -1,5 +1,6 @@
 site_name: Tech Interview Master
-site_description: SDE-1/SDE-2 interview prep — DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases
+site_description: SDE-1/SDE-2 interview prep — DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases. Runnable Python, 21 real system designs, ~194 conceptual Q&A.
+site_author: kartikth40
 site_url: https://kartikth40.github.io/tech-interview-master/
 repo_url: https://github.com/kartikth40/tech-interview-master
 repo_name: kartikth40/tech-interview-master
@@ -30,6 +31,9 @@ exclude_docs: |
   CONTRIBUTING.md
   CODE_OF_CONDUCT.md
   requirements-docs.txt
+  # README is the GitHub landing page; the site uses the richer index.md as Home.
+  # Anchor to the ROOT readme only — pillar READMEs (Fundamentals/, QA-Bank/, ...) must stay.
+  /README.md
   site/
   leetcode-companywise-interview-questions/
   .github/
@@ -60,6 +64,8 @@ theme:
   features:
     - navigation.instant
     - navigation.instant.progress
+    - navigation.instant.prefetch
+    - navigation.path
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
@@ -91,7 +97,12 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.superfences
+  - pymdownx.keys
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.details
   - pymdownx.snippets:
       base_path: [.]
@@ -108,11 +119,26 @@ plugins:
       scripts:
         - scripts/gen_code_library.py
   - search
+  # Social cards = auto-generated preview image per page for link shares.
+  # Requires the imaging extras (Cairo/Pango system libs), which are fragile on
+  # Windows and need apt packages in CI. Gated behind CARDS env (default false) so
+  # local/dev builds never break; the deploy workflow sets CARDS=true after
+  # installing the system deps. See requirements-docs.txt + docs.yml.
+  #
+  # `enabled` (not just `cards`) is gated on CARDS so the plugin is FULLY inert
+  # locally. When only `cards: false` was set, the plugin still wrote to
+  # `.cache/plugin/social/` on every build — and because docs_dir is the repo
+  # root, `mkdocs serve` watched `.cache`, saw the write, and rebuilt in an
+  # infinite loop. Disabling the whole plugin locally stops the cache write.
+  - social:
+      enabled: !ENV [CARDS, false]
+      cards: !ENV [CARDS, false]
 
 nav:
-  - Home: README.md
+  - Home: index.md
   - DSA:
       - Overview: DSA/DSACompleteGuide.md
+      - Mental Models: DSA/mental-models.md
       - Quick Lookup: DSA/DSAQuickLookup.md
       - Code Library:
           - Patterns: DSA/code-library/patterns.md
@@ -120,7 +146,9 @@ nav:
           - Data Structures: DSA/code-library/data-structures.md
   - System Design:
       - Guide: SystemDesign/SystemDesignGuide.md
+      - Mental Models: SystemDesign/mental-models.md
       - Low-Level Design: SystemDesign/LowLevelDesign.md
+      - LLD Mental Models: SystemDesign/lld-mental-models.md
       - API Design Patterns: SystemDesign/APIDesignPatterns.md
       - Distributed Systems: SystemDesign/DistributedSystemsConcepts.md
       - Designs:

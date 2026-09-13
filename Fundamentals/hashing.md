@@ -1,13 +1,14 @@
 # 🔑 Hashing
 
-> **Explain in 2 min:** A hash function maps arbitrary input to a fixed-size value. We use it for
-> two very different jobs. (1) **Hash tables** — turn a key into an array index for average O(1)
-> lookup; the main problem is *collisions*, handled by chaining or open addressing, and we resize
-> when the table gets too full. (2) **Distribution / integrity** — consistent hashing spreads keys
-> across servers with minimal reshuffling when nodes change; cryptographic hashes (SHA-256) give
-> tamper-evidence and are one-way. The interview trap is conflating the two: a fast non-crypto hash
-> (like the one behind a `dict`) is *wrong* for passwords, and a slow crypto hash is *wrong* for a
-> hot inner-loop hash table.
+!!! tip "Explain in 2 min"
+    A hash function maps arbitrary input to a fixed-size value. We use it for
+    two very different jobs. (1) **Hash tables** — turn a key into an array index for average O(1)
+    lookup; the main problem is *collisions*, handled by chaining or open addressing, and we resize
+    when the table gets too full. (2) **Distribution / integrity** — consistent hashing spreads keys
+    across servers with minimal reshuffling when nodes change; cryptographic hashes (SHA-256) give
+    tamper-evidence and are one-way. The interview trap is conflating the two: a fast non-crypto hash
+    (like the one behind a `dict`) is *wrong* for passwords, and a slow crypto hash is *wrong* for a
+    hot inner-loop hash table.
 
 ---
 
