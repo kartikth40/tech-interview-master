@@ -4,7 +4,7 @@
 ## Problem Statement
 
 Design a service that shows a user which of their friends are nearby, updating in near real time as
-people move — like Snap Map or "Nearby Friends" on Facebook.
+people move - like Snap Map or "Nearby Friends" on Facebook.
 
 **Example:** open the app and see friends within 5 km, refreshing every few seconds.
 
@@ -37,7 +37,7 @@ people move — like Snap Map or "Nearby Friends" on Facebook.
 100M users, active 10M, each sends location every 5s
 Writes = 10M / 5 = 2M location updates/sec → very write-heavy
 Each user has ~200 friends → proximity check is bounded to the friend set, not all users
-Store current location in memory (Redis) — ephemeral, TTL'd; history optional
+Store current location in memory (Redis) - ephemeral, TTL'd; history optional
 ```
 
 ---
@@ -54,7 +54,7 @@ GET  /v1/nearby?radius_km=5                 # friends within radius
 
 ## 4️⃣ Key Insight: Proximity is bounded by the friend graph
 
-Unlike Uber (match any nearby driver), "nearby friends" only cares about a user's **friends** —
+Unlike Uber (match any nearby driver), "nearby friends" only cares about a user's **friends** -
 a bounded set (~hundreds). So we don't need a global geo query per request; we compute distance
 against the user's friends' cached locations. Geospatial indexing still helps when the friend set is
 large or for "friends in this area" queries.
@@ -92,11 +92,11 @@ the map. On demand, `GET /nearby` reads friends' cached locations and filters by
 To answer "who/what is near this point," encode locations with a **geohash** (a string prefix where
 nearby points share prefixes) or a **quadtree** (recursively subdivided cells). Both let you query a
 cell + neighbors instead of scanning everything. Redis `GEO` commands (backed by geohash) give
-`GEOSEARCH ... BYRADIUS` out of the box. Uber uses similar grid indexing — see [uber.md](uber.md).
+`GEOSEARCH ... BYRADIUS` out of the box. Uber uses similar grid indexing - see [uber.md](uber.md).
 
 ### Deep Dive 2: Handling the write storm
 2M updates/sec is the hard part. Mitigations: **adaptive update frequency** (send less often when
-stationary), store only the **latest** location (overwrite, TTL — no history), shard the location
+stationary), store only the **latest** location (overwrite, TTL - no history), shard the location
 store by user ID, and treat updates as fire-and-forget. Losing one update is fine; the next arrives
 in seconds.
 
@@ -108,7 +108,7 @@ friends, batch updates over a short window to cut message volume.
 ### Deep Dive 4: Privacy
 Location is sensitive: sharing is **opt-in and granular** (per friend / ghost mode / precise vs
 approximate). If a user goes invisible, stop publishing and drop their cached location. Never expose
-location to non-friends. This is a first-class requirement, not an afterthought — see
+location to non-friends. This is a first-class requirement, not an afterthought - see
 [security-fundamentals.md](../../Fundamentals/security-fundamentals.md).
 
 ### Deep Dive 5: Staleness & TTL
@@ -129,7 +129,7 @@ expires) rather than showing a stale position. Freshness beats history here.
 ## 8️⃣ Interview Tips
 
 1. Call out the key difference from Uber: **bounded by the friend set**, not a global match.
-2. The write storm is the real challenge — adaptive frequency + latest-only + TTL.
+2. The write storm is the real challenge - adaptive frequency + latest-only + TTL.
 3. Use **geohash/quadtree** (or Redis GEO) for area queries.
 4. Treat **privacy** as a core requirement.
 

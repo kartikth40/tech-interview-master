@@ -18,7 +18,7 @@ services from abuse, brute-force, scraping, and overload.
 3. Support different rules per endpoint (e.g. 5 logins/min, 1000 reads/min).
 
 ### Non-Functional Requirements:
-- **Low latency:** the limiter is on the hot path — must add minimal overhead (<1-2ms).
+- **Low latency:** the limiter is on the hot path - must add minimal overhead (<1-2ms).
 - **Accuracy:** don't allow significantly more than the limit.
 - **Distributed:** many app servers must share one limit per client.
 - **Availability:** a limiter outage shouldn't take down the service (fail-open vs fail-closed decision).
@@ -94,7 +94,7 @@ FUNCTION allow(clientId, capacity, refillPerSec):
 ```
 
 **Fixed-window boundary problem:** with a per-minute window, a client can send the full limit at
-`00:59` and again at `01:00` — 2× the intended rate across a few seconds. The sliding-window counter
+`00:59` and again at `01:00` - 2× the intended rate across a few seconds. The sliding-window counter
 fixes this by weighting the previous window:
 
 ```text
@@ -126,8 +126,8 @@ IF weighted < limit: allow ELSE reject
 ```
 
 **Where to enforce:**
-- **API gateway / LB** — coarse, cheap, protects everything (per IP/API key).
-- **Per service** — fine-grained, per-endpoint rules and per-user limits.
+- **API gateway / LB** - coarse, cheap, protects everything (per IP/API key).
+- **Per service** - fine-grained, per-endpoint rules and per-user limits.
 Often both: broad protection at the edge, precise rules in the service.
 
 ---
@@ -150,7 +150,7 @@ FUNCTION allowDistributed(clientId, limit, windowSec):
 ```
 
 - Use **atomic INCR** (or a Lua script for token bucket) so concurrent servers don't race.
-- **Per-key TTL** auto-expires windows — no cleanup job.
+- **Per-key TTL** auto-expires windows - no cleanup job.
 - For token bucket, run the read-modify-write as a **Lua script** so it's atomic on the Redis side.
 
 **Trade-offs:**
@@ -172,8 +172,8 @@ whole token-bucket update server-side. See
 underlying race.
 
 ### Deep Dive 2: Fail-open vs fail-closed
-If the counter store is down, do you allow all traffic (fail-open — favors availability, risks
-overload) or block it (fail-closed — favors protection, risks an outage)? Most user-facing systems
+If the counter store is down, do you allow all traffic (fail-open - favors availability, risks
+overload) or block it (fail-closed - favors protection, risks an outage)? Most user-facing systems
 fail-open with local fallback limits; security-critical endpoints (login) fail-closed.
 
 ### Deep Dive 3: Where limits live and rule config
@@ -197,7 +197,7 @@ applies coarse per-IP limits; services apply per-user/per-endpoint limits. Retur
 
 1. Clarify: limit by what key (user/IP/API key)? per endpoint? distributed?
 2. Name the algorithms; default to **token bucket**, mention sliding-window counter for accuracy.
-3. Make it **distributed** with a shared Redis counter + atomic ops — this is the point of the question.
+3. Make it **distributed** with a shared Redis counter + atomic ops - this is the point of the question.
 4. Discuss fail-open vs fail-closed and where to enforce (gateway vs service).
 5. Return 429 + `Retry-After`.
 

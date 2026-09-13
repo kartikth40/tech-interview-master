@@ -1,4 +1,4 @@
-# ❓ Networking — Q&A
+# ❓ Networking - Q&A
 
 > Pairs with [Fundamentals/networking.md](../Fundamentals/networking.md). Format and tag legend:
 > [QA-Bank/README.md](README.md).
@@ -28,7 +28,7 @@
 > `Med` · `MAANG`
 
 > **Q4. How does DNS resolution work?**
-> A resolver walks the hierarchy — root → TLD (.com) → authoritative server — to get the IP, with
+> A resolver walks the hierarchy - root → TLD (.com) → authoritative server - to get the IP, with
 > caching (TTL) at each level (browser, OS, resolver) to avoid repeating it. It usually rides UDP
 > and falls back to TCP for large responses.
 > *Follow-ups:* What's the difference between an A record and a CNAME?
@@ -42,11 +42,11 @@
 > *Follow-ups:* Why not use asymmetric crypto for all the data? (too slow.)
 > `Hard` · `MAANG`
 
-> **Q6. HTTP/1.1 vs HTTP/2 vs HTTP/3 — what changed?**
+> **Q6. HTTP/1.1 vs HTTP/2 vs HTTP/3 - what changed?**
 > Each attacks head-of-line blocking and connection overhead. HTTP/2 multiplexes many streams over
 > one TCP connection and compresses headers. HTTP/3 moves to QUIC over UDP, eliminating TCP-level
 > head-of-line blocking by making reliability per-stream.
-> *Follow-ups:* Does HTTP/2 fully fix head-of-line blocking? (no — TCP layer remains; HTTP/3 does.)
+> *Follow-ups:* Does HTTP/2 fully fix head-of-line blocking? (no - TCP layer remains; HTTP/3 does.)
 > `Hard` · `Google`
 
 > **Q7. What is head-of-line blocking?**
@@ -57,7 +57,7 @@
 > `Hard` · `Google`
 
 > **Q8. What are idempotent HTTP methods and why care?**
-> An idempotent method produces the same result whether called once or many times — GET, PUT,
+> An idempotent method produces the same result whether called once or many times - GET, PUT,
 > DELETE are idempotent; POST is not. It matters for safe retries: clients/proxies can retry
 > idempotent requests without side effects.
 > *Follow-ups:* How do you make a POST safely retryable? (idempotency key.)
@@ -70,9 +70,9 @@
 > *Follow-ups:* How does a server handle thousands of connections on port 443?
 > `Med` · `MAANG`
 
-> **Q10. WebSockets vs HTTP polling — when and why?**
+> **Q10. WebSockets vs HTTP polling - when and why?**
 > WebSockets upgrade an HTTP connection into a persistent, bidirectional channel so the server can
-> push without the client polling — ideal for chat, live dashboards, collaborative editing. Polling
+> push without the client polling - ideal for chat, live dashboards, collaborative editing. Polling
 > repeatedly asks and wastes requests; SSE is a server→client-only alternative.
 > *Follow-ups:* When is long-polling or SSE good enough?
 > `Med` · `Meta`
@@ -107,7 +107,7 @@
 
 > **Q15. What is the difference between latency and throughput?**
 > Latency is the time for one operation (how long a single request takes); throughput is how many
-> operations complete per unit time. You can have low throughput with low latency and vice versa —
+> operations complete per unit time. You can have low throughput with low latency and vice versa -
 > optimizing one can hurt the other (e.g. batching raises throughput but adds latency).
 > *Follow-ups:* How does batching trade one for the other?
 > `Med` · `MAANG`
@@ -128,7 +128,7 @@
 
 > **Q18. Why is UDP used for DNS despite being unreliable?**
 > DNS queries are small and frequent, so avoiding TCP's handshake overhead matters more than
-> guaranteed delivery — a lost query is just retried. Large responses (or zone transfers) fall back
+> guaranteed delivery - a lost query is just retried. Large responses (or zone transfers) fall back
 > to TCP.
 > *Follow-ups:* What changed with DNS-over-HTTPS/TLS? (privacy, at some latency cost.)
 > `Med` · `Google`

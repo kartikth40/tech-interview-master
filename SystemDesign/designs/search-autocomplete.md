@@ -7,7 +7,7 @@ Design a search autocomplete (typeahead) that, as a user types a prefix, returns
 relevant completions in real time.
 
 **Example:** typing "sys" instantly suggests "system design", "system design interview", "systemctl"
-— ranked by popularity.
+- ranked by popularity.
 
 ---
 
@@ -65,7 +65,7 @@ node "sys" -> ["system design", "system design interview", "systemctl", ...]
 FUNCTION autocomplete(prefix):
     node = trie.walk(prefix)        # O(len(prefix))
     IF node is null: RETURN []
-    RETURN node.topK               # O(1) — precomputed
+    RETURN node.topK               # O(1) - precomputed
 ```
 
 See the trie implementation: [DSA/data-structures/tree/trie.py](../../DSA/data-structures/tree/trie.py).
@@ -74,7 +74,7 @@ See the trie implementation: [DSA/data-structures/tree/trie.py](../../DSA/data-s
 
 ## 5️⃣ High-Level Design
 
-Two planes — a fast read path and an offline build path:
+Two planes - a fast read path and an offline build path:
 
 ```
 READ PATH (per keystroke, latency-critical)
@@ -106,7 +106,7 @@ reads.
 ### Deep Dive 2: The data-gathering / ranking pipeline
 Query logs stream into Kafka; a batch/stream job aggregates counts over a rolling window and ranks
 terms (raw frequency, or time-decayed to favor trending). It then rebuilds the trie's per-node top-k
-and publishes a new snapshot. Runs hourly — freshness vs cost trade-off.
+and publishes a new snapshot. Runs hourly - freshness vs cost trade-off.
 
 ### Deep Dive 3: Scaling the trie (sharding)
 The full trie is large. Shard it by **first character(s)** of the prefix across servers (e.g. a-f,
@@ -136,10 +136,10 @@ sooner.
 
 ## 8️⃣ Interview Tips
 
-1. Lead with **trie + precomputed top-k per node** — that's the core insight.
+1. Lead with **trie + precomputed top-k per node** - that's the core insight.
 2. Separate the **fast read path** from the **offline build/ranking pipeline**.
 3. Stress **caching/CDN + debounce** for the per-keystroke load.
-4. Freshness is hourly, not real-time — say so.
+4. Freshness is hourly, not real-time - say so.
 
 ### Common Follow-ups:
 **Q: Why not compute top-k per request?** Too slow; precompute per node offline.

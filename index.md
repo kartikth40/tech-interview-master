@@ -1,16 +1,16 @@
 ---
 title: Tech Interview Master
-description: SDE-1/SDE-2 interview prep — DSA, System Design, Behavioral, CS Fundamentals, Q&A, and Databases, in one searchable place.
+description: SDE-1/SDE-2 interview prep - DSA, System Design, Behavioral, CS Fundamentals, Q&A, and Databases, in one searchable place.
 hide:
   - navigation
   - toc
 ---
 
-# 🎓 Tech Interview Master
+# Tech Interview Master
 
-**Everything to crack SDE-1 / SDE-2 interviews at top tech — MAANG and Indian unicorns.**
+**Everything to crack SDE-1 / SDE-2 interviews at top tech - MAANG and Indian unicorns.**
 Runnable DSA in Python, 21 real system designs, CS fundamentals, ~194 conceptual Q&A, a databases
-deep-dive, and behavioral prep — all cross-linked and searchable.
+deep-dive, and behavioral prep - all cross-linked and searchable.
 
 [Start with the 8-Week Plan :material-arrow-right:](InterviewPrep/StudyPlan-8weeks.md){ .md-button .md-button--primary }
 [Browse the DSA Guide](DSA/DSACompleteGuide.md){ .md-button }
@@ -25,7 +25,7 @@ deep-dive, and behavioral prep — all cross-linked and searchable.
 
     ---
 
-    19 core patterns, 50+ algorithms, and 10 data structures — with intuition,
+    19 core patterns, 50+ algorithms, and 10 data structures - with intuition,
     complexity, and **runnable Python** in the Code Library.
 
     [:octicons-arrow-right-24: DSA Guide](DSA/DSACompleteGuide.md) ·
@@ -47,8 +47,8 @@ deep-dive, and behavioral prep — all cross-linked and searchable.
 
     ---
 
-    The concepts interviewers probe — OS, concurrency, networking, DB internals,
-    hashing, security — each with a **2-minute answer** and `[core]`/`[advanced]` tags.
+    The concepts interviewers probe - OS, concurrency, networking, DB internals,
+    hashing, security - each with a **2-minute answer** and `[core]`/`[advanced]` tags.
 
     [:octicons-arrow-right-24: Fundamentals](Fundamentals/README.md)
 

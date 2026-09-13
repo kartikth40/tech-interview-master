@@ -1,4 +1,4 @@
-# ❓ System Design Concepts — Q&A
+# ❓ System Design Concepts - Q&A
 
 > Pairs with [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md),
 > [components/](../SystemDesign/components/), and
@@ -36,8 +36,8 @@
 > `Hard` · `MAANG`
 
 > **Q5. L4 vs L7 load balancing?**
-> L4 balances on TCP/UDP (IP + port) — fast, protocol-agnostic. L7 balances on application data (HTTP
-> path, headers, cookies) — enables routing, TLS termination, and content-based rules at higher cost.
+> L4 balances on TCP/UDP (IP + port) - fast, protocol-agnostic. L7 balances on application data (HTTP
+> path, headers, cookies) - enables routing, TLS termination, and content-based rules at higher cost.
 > See [load-balancer.md](../SystemDesign/components/load-balancer.md).
 > *Follow-ups:* When do you need L7? (path-based routing, sticky sessions, header rules.)
 > `Med` · `MAANG`
@@ -76,7 +76,7 @@
 > *Follow-ups:* What problem does it solve vs `hash mod N`?
 > `Med` · `Amazon`
 
-> **Q11. Sharding vs replication — when do you need each?**
+> **Q11. Sharding vs replication - when do you need each?**
 > Shard when data or write volume exceeds one node (splits different data). Replicate for
 > availability and read scaling (copies the same data). They combine: shard for scale, replicate each
 > shard for resilience. See [database-sharding.md](../SystemDesign/components/database-sharding.md).
@@ -93,7 +93,7 @@
 > **Q13. Fan-out on write vs fan-out on read (news feed)?**
 > Fan-out on write pushes each post into followers' feeds at write time (fast reads, expensive for
 > celebrities). Fan-out on read builds the feed at read time (cheap writes, slower reads). Real
-> systems use a hybrid — precompute for most, read-time merge for high-follower accounts.
+> systems use a hybrid - precompute for most, read-time merge for high-follower accounts.
 > *Follow-ups:* Why is a celebrity with 100M followers a problem for fan-out on write?
 > `Hard` · `Meta`
 
@@ -126,7 +126,7 @@
 > *Follow-ups:* How does it differ from a retry? (retry hammers; breaker stops hammering.)
 > `Hard` · `Amazon`
 
-> **Q18. Strong vs eventual consistency — when each?**
+> **Q18. Strong vs eventual consistency - when each?**
 > Strong: every read sees the latest write (needed for balances, inventory, uniqueness). Eventual:
 > replicas converge over time (fine for feeds, counts, catalogs) and buys availability + low latency.
 > Choose per data type, not globally.
@@ -142,14 +142,14 @@
 
 > **Q20. How do you approach a system design interview?**
 > Clarify functional + non-functional requirements, estimate scale, sketch a high-level design, then
-> deep-dive the bottlenecks and trade-offs — talking aloud and starting simple before scaling. See
+> deep-dive the bottlenecks and trade-offs - talking aloud and starting simple before scaling. See
 > the framework in [SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
 > *Follow-ups:* What's the most common mistake? (jumping to a solution before clarifying scope.)
 > `Med` · `MAANG`
 
 > **Q21. How would you scale a read-heavy system?**
 > Add caching (CDN + Redis), read replicas, and denormalized/precomputed views; push static content
-> to a CDN. Identify the read/write ratio first — read-heavy points to caching + replicas, write-heavy
+> to a CDN. Identify the read/write ratio first - read-heavy points to caching + replicas, write-heavy
 > to sharding + queues.
 > *Follow-ups:* What consistency cost do read replicas introduce? (replication lag.)
 > `Med` · `MAANG`
@@ -157,7 +157,7 @@
 > **Q22. What is a single point of failure and how do you find one?**
 > Any component whose failure takes down the system (one DB, one LB, one region). Find them by
 > tracing the request path and asking "what if this dies?" Remove via redundancy and failover.
-> *Follow-ups:* Is a single load balancer a SPOF, and how do you fix it? (yes — redundant LBs + DNS/anycast.)
+> *Follow-ups:* Is a single load balancer a SPOF, and how do you fix it? (yes - redundant LBs + DNS/anycast.)
 > `Med` · `Amazon`
 
 ---

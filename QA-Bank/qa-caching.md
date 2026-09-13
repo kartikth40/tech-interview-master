@@ -1,4 +1,4 @@
-# ❓ Caching — Q&A
+# ❓ Caching - Q&A
 
 > Pairs with [SystemDesign/components/caching.md](../SystemDesign/components/caching.md). Format and
 > tag legend: [QA-Bank/README.md](README.md).
@@ -14,7 +14,7 @@
 
 > **Q2. Explain cache-aside (lazy loading).**
 > The app checks the cache first; on a miss it reads the DB, populates the cache, and returns. Most
-> common pattern — the cache only holds requested data, and a cache failure just means a DB read.
+> common pattern - the cache only holds requested data, and a cache failure just means a DB read.
 > Downside: first request per key is always a miss (cold cache).
 > *Follow-ups:* How do you warm a cold cache? (pre-load hot keys.)
 > `Med` · `MAANG`
@@ -23,18 +23,18 @@
 > Write-through writes cache + DB synchronously (consistent, slower writes). Write-back writes cache
 > first and DB later (fast, risk of loss on crash). Write-around writes only the DB (avoids caching
 > write-once data, but first read misses). See [caching.md](../SystemDesign/components/caching.md).
-> *Follow-ups:* Which risks data loss and why? (write-back — unflushed data lost on crash.)
+> *Follow-ups:* Which risks data loss and why? (write-back - unflushed data lost on crash.)
 > `Hard` · `Amazon`
 
 > **Q4. What eviction policies do you know?**
-> LRU (evict least recently used — good general default), LFU (least frequently used — good for
+> LRU (evict least recently used - good general default), LFU (least frequently used - good for
 > stable hot sets), FIFO, and random. TTL expiry is orthogonal (time-based). LRU is the common
 > interview answer; implement with a hash map + doubly linked list for O(1).
 > *Follow-ups:* When does LFU beat LRU? (stable popularity; LRU evicts a hot item after a scan.)
 > `Med` · `MAANG`
 
 > **Q5. What's the hardest problem in caching?**
-> Invalidation — keeping the cache consistent with the source of truth. Options: TTL (simple, allows
+> Invalidation - keeping the cache consistent with the source of truth. Options: TTL (simple, allows
 > staleness), explicit invalidation on write (fresh, more complex), or write-through. There's no free
 > lunch; you trade freshness vs complexity.
 > *Follow-ups:* TTL vs event-based invalidation trade-off?
@@ -76,13 +76,13 @@
 > **Q11. How do you decide what and how long to cache?**
 > Cache hot, read-heavy, expensive-to-compute, tolerant-of-staleness data. TTL depends on how stale
 > the data can be: seconds for volatile counters, minutes/hours for catalogs, long for immutable
-> assets. Apply the 80/20 rule — cache the hot ~20%.
+> assets. Apply the 80/20 rule - cache the hot ~20%.
 > *Follow-ups:* What data should you NOT cache? (highly volatile, per-user-unique, sensitive.)
 > `Med` · `MAANG`
 
 > **Q12. What consistency issues arise with caching, and how do you reason about them?**
 > The cache can serve stale data after the DB changes. You accept a bounded staleness window (TTL),
-> invalidate on write, or use write-through — choosing based on how wrong a stale read can be. This
+> invalidate on write, or use write-through - choosing based on how wrong a stale read can be. This
 > is fundamentally the same freshness-vs-cost trade-off as replication lag.
 > *Follow-ups:* How does this connect to eventual consistency?
 > `Med` · `MAANG`

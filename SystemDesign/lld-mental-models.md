@@ -1,9 +1,9 @@
 ---
 title: Low-Level Design Mental Models
-description: How to approach any LLD / OOD interview — a step-by-step flowchart, a design-pattern decision tree, a SOLID-violation→fix map, and a UML class-diagram worked example.
+description: How to approach any LLD / OOD interview - a step-by-step flowchart, a design-pattern decision tree, a SOLID-violation→fix map, and a UML class-diagram worked example.
 ---
 
-# 🧭 Low-Level Design Mental Models — How to *Model*
+# 🧭 Low-Level Design Mental Models - How to *Model*
 
 LLD (a.k.a. object-oriented design) rounds ask you to turn a fuzzy problem ("design a parking lot")
 into clean classes with the right responsibilities and relationships. The skill is a **repeatable
@@ -15,11 +15,11 @@ concepts in [Fundamentals](../Fundamentals/oop-and-language-concepts.md).
 !!! tip "The core move"
     **Nouns become classes, verbs become methods, and "has-a" beats "is-a".** Find the entities,
     give each one responsibility, connect them by composition, and apply a pattern only where it
-    removes real pain — not for its own sake.
+    removes real pain - not for its own sake.
 
 ---
 
-## 1. The LLD approach — run this every time
+## 1. The LLD approach - run this every time
 
 ```mermaid
 flowchart TD
@@ -33,7 +33,7 @@ flowchart TD
     CHECK -- "clean" --> DONE["Done"]
 ```
 
-Loop back on a smell — a fat class or a rigid hierarchy means step 3 or 4 needs rework.
+Loop back on a smell - a fat class or a rigid hierarchy means step 3 or 4 needs rework.
 
 ---
 
@@ -54,7 +54,7 @@ Example ("parking lot"): nouns → `ParkingLot`, `ParkingFloor`, `ParkingSpot`, 
 
 ---
 
-## 3. Relationships — composition over inheritance
+## 3. Relationships - composition over inheritance
 
 ```mermaid
 flowchart TD
@@ -67,7 +67,7 @@ flowchart TD
 ```
 
 Default to **composition**; reach for inheritance only for a genuine, substitutable "is-a". The
-classic trap (Square extends Rectangle breaking Liskov) is why — see the LSP example in the
+classic trap (Square extends Rectangle breaking Liskov) is why - see the LSP example in the
 [LLD guide](LowLevelDesign.md).
 
 ---
@@ -100,7 +100,7 @@ Full runnable examples of each: [Low-Level Design guide](LowLevelDesign.md).
 
 ---
 
-## 5. SOLID — spot the smell, name the fix
+## 5. SOLID - spot the smell, name the fix
 
 Interviewers love "what's wrong with this class?" Map the smell to the principle and the fix:
 
@@ -118,12 +118,12 @@ flowchart LR
     WHICH --> FIX["Name the principle<br/>+ the concrete refactor"]
 ```
 
-Being able to *name the principle and the refactor* is what scores — see the SOLID examples in the
+Being able to *name the principle and the refactor* is what scores - see the SOLID examples in the
 [guide](LowLevelDesign.md).
 
 ---
 
-## 6. Worked example — parking lot class diagram
+## 6. Worked example - parking lot class diagram
 
 Applying steps 1-5: entities become classes, the lot **composes** floors and spots, and a `Ticket`
 links a vehicle to a spot.
@@ -170,7 +170,7 @@ Full implementation (with the fee calculation and dispatch): [LLD guide → Park
 
 ## How to practice with this
 
-1. For any LLD prompt, **list nouns and verbs first** — resist jumping to code.
+1. For any LLD prompt, **list nouns and verbs first** - resist jumping to code.
 2. Run the [approach flowchart](#1-the-lld-approach-run-this-every-time); assign each class *one*
    responsibility.
 3. Default to **composition**; justify any inheritance with Liskov.

@@ -1,12 +1,12 @@
 # ⏱️ Time & Ordering
 
 !!! tip "Explain in 2 min"
-    In a distributed system you can't trust wall clocks to order events — each
+    In a distributed system you can't trust wall clocks to order events - each
     machine's clock drifts, and even with NTP they're only loosely synchronized, so "later timestamp =
     happened later" is wrong. Instead we reason about **causality**: which events *could have*
     influenced which. **Lamport clocks** (a single counter bumped on every event and message) give a
     total order consistent with causality but can't tell whether two events are truly concurrent.
-    **Vector clocks** (a counter per node) can — they detect whether one event happened-before another
+    **Vector clocks** (a counter per node) can - they detect whether one event happened-before another
     or they're concurrent (a conflict). This is why systems use vector clocks for conflict detection
     and logical ordering rather than timestamps.
 
@@ -16,7 +16,7 @@
 
 Each machine has its own clock, and they **drift** apart. **NTP** synchronizes them but only to
 within milliseconds-to-tens-of-ms, and it can jump the clock forward or **backward**. Consequences:
-- Ordering events by timestamp across machines is unreliable — a "later" timestamp may be an earlier
+- Ordering events by timestamp across machines is unreliable - a "later" timestamp may be an earlier
   event on a faster-drifting clock.
 - Last-write-wins by timestamp can **silently lose data** when clocks disagree.
 - IDs/tokens that assume a monotonic clock can break when the clock goes backward (see the Snowflake
@@ -33,7 +33,7 @@ Event A **happens-before** B (A → B) if:
 2. A is a message send and B is its receive, or
 3. Transitively (A → C and C → B).
 
-If neither A → B nor B → A, the events are **concurrent** — no causal relationship. This partial
+If neither A → B nor B → A, the events are **concurrent** - no causal relationship. This partial
 order is what we actually care about; wall-clock time is just an unreliable proxy for it.
 
 ---
@@ -45,7 +45,7 @@ A single integer counter per node:
 - On send, attach the counter; on receive, set `counter = max(local, received) + 1`.
 
 This gives timestamps where **A → B implies L(A) < L(B)** (a total order consistent with causality).
-But the converse fails: `L(A) < L(B)` does **not** mean A → B — they might be concurrent. So Lamport
+But the converse fails: `L(A) < L(B)` does **not** mean A → B - they might be concurrent. So Lamport
 clocks order events but **can't detect concurrency/conflicts**.
 
 ---
@@ -61,7 +61,7 @@ Compare two vectors:
 - Neither dominates → **concurrent** (a genuine conflict).
 
 This is why Dynamo-style stores use vector clocks to tell "this write supersedes that one" from "two
-writes conflict, ask the app to merge" — see [key-value-store.md](../SystemDesign/designs/key-value-store.md).
+writes conflict, ask the app to merge" - see [key-value-store.md](../SystemDesign/designs/key-value-store.md).
 Cost: the vector grows with the number of nodes (truncate stale entries).
 
 ---
@@ -73,11 +73,11 @@ Cost: the vector grows with the number of nodes (truncate stale entries).
 | Roughly-synced human-facing timestamps | NTP wall clock (accept skew) |
 | A total order consistent with causality | Lamport clock |
 | Detect concurrent writes / conflicts | Vector clock |
-| Strong global ordering across nodes | consensus (Raft/Paxos) — see below |
+| Strong global ordering across nodes | consensus (Raft/Paxos) - see below |
 
 For a strict, agreed-upon order (a replicated log, leader election), you need **consensus**
 (Raft/Paxos), covered in [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
-Some systems (Google Spanner) use tightly-bounded physical clocks (TrueTime) to order globally — the
+Some systems (Google Spanner) use tightly-bounded physical clocks (TrueTime) to order globally - the
 exception that proves how hard clock-based ordering is.
 
 ---
@@ -86,7 +86,7 @@ exception that proves how hard clock-based ordering is.
 
 - Ordering distributed events by wall-clock timestamp (clocks drift; NTP isn't exact).
 - Using last-write-wins by timestamp and not realizing it can lose concurrent updates.
-- Saying Lamport clocks detect conflicts — they give a total order but can't identify concurrency;
+- Saying Lamport clocks detect conflicts - they give a total order but can't identify concurrency;
   vector clocks can.
 - Forgetting vector clocks grow with node count (need truncation/pruning).
 

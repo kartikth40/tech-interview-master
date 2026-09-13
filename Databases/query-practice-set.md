@@ -110,7 +110,7 @@ FROM numbered
 GROUP BY user_id, grp
 HAVING COUNT(*) >= 2;
 ```
-*Tests:* the "gaps and islands" trick — a date minus its row number is constant within a consecutive
+*Tests:* the "gaps and islands" trick - a date minus its row number is constant within a consecutive
 run, so grouping by it finds streaks.
 
 ### 12. Month-over-month sales growth `Hard` · `Amazon`

@@ -1,4 +1,4 @@
-# ❓ Security — Q&A
+# ❓ Security - Q&A
 
 > Pairs with [Fundamentals/security-fundamentals.md](../Fundamentals/security-fundamentals.md).
 > Format and tag legend: [QA-Bank/README.md](README.md).
@@ -12,22 +12,22 @@
 > *Follow-ups:* Give an example of each in an API request.
 > `Easy` · `MAANG`
 
-> **Q2. Sessions vs JWT — trade-offs?**
+> **Q2. Sessions vs JWT - trade-offs?**
 > Server sessions are stateful: easy to revoke, but need a session store and complicate scaling.
 > JWTs are stateless: the server verifies a signature and stores nothing (scales well), but are hard
-> to revoke before expiry — mitigate with short TTLs plus refresh tokens.
+> to revoke before expiry - mitigate with short TTLs plus refresh tokens.
 > *Follow-ups:* How do you revoke a JWT early? (short TTL + refresh, or a blocklist.)
 > `Med` · `MAANG`
 
 > **Q3. Is OAuth2 authentication or authorization?**
-> Authorization — it lets an app access a user's data on another service without sharing the
+> Authorization - it lets an app access a user's data on another service without sharing the
 > password. OIDC is the identity layer built on top of OAuth2 that adds authentication (the "Sign in
 > with Google" ID token). Calling OAuth2 "authentication" is a classic mistake.
 > *Follow-ups:* What does the ID token in OIDC add?
 > `Hard` · `Google`
 
 > **Q4. How should passwords be stored?**
-> Hashed with a slow, salted algorithm — bcrypt, scrypt, or Argon2 — never plaintext or a fast hash.
+> Hashed with a slow, salted algorithm - bcrypt, scrypt, or Argon2 - never plaintext or a fast hash.
 > A per-user salt defeats rainbow tables; a work factor keeps brute force expensive over time.
 > *Follow-ups:* What's a pepper vs a salt?
 > `Med` · `MAANG`
@@ -53,7 +53,7 @@
 > `Med` · `MAANG`
 
 > **Q8. What is SSRF?**
-> Server-side request forgery: an attacker makes the server fetch an attacker-chosen URL — often to
+> Server-side request forgery: an attacker makes the server fetch an attacker-chosen URL - often to
 > reach internal services or cloud metadata endpoints. Defend by allowlisting outbound hosts and
 > blocking internal IP ranges.
 > *Follow-ups:* Why are cloud metadata endpoints a common SSRF target? (credentials.)
@@ -63,7 +63,7 @@
 > Symmetric uses one shared key (fast, but key distribution is the hard part). Asymmetric uses a
 > public/private key pair (solves key exchange and enables signatures, but slow). TLS combines them:
 > asymmetric to exchange a key, symmetric for the bulk data.
-> *Follow-ups:* Where does hashing fit? (integrity — one-way, not encryption.)
+> *Follow-ups:* Where does hashing fit? (integrity - one-way, not encryption.)
 > `Med` · `MAANG`
 
 > **Q10. Where should you store a JWT on the client?**

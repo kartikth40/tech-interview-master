@@ -2,10 +2,10 @@
 
 !!! tip "Explain in 2 min"
     Back-of-the-envelope estimation is turning a vague prompt ("design Twitter")
-    into rough numbers — QPS, storage, bandwidth — so your design decisions are grounded. The method:
+    into rough numbers - QPS, storage, bandwidth - so your design decisions are grounded. The method:
     state assumptions (users, actions/user/day), derive **QPS = actions/day ÷ ~86,400**, apply a
     **peak factor** (×2-3), then size storage (bytes/item × items) and bandwidth (QPS × size). You
-    don't need precision — you need the right **order of magnitude** and to show the reasoning. A
+    don't need precision - you need the right **order of magnitude** and to show the reasoning. A
     handful of memorized latency numbers (memory ~100 ns, SSD ~100 µs, disk seek ~10 ms, cross-country
     RTT ~150 ms) let you reason about where time goes.
 
@@ -34,7 +34,7 @@ factor). This single conversion drives most QPS math.
 
 ## Latency numbers to know `[core]`
 
-A compact recall set (approximate, orders of magnitude — that's the point):
+A compact recall set (approximate, orders of magnitude - that's the point):
 
 | Operation | Approx latency |
 |-----------|----------------|
@@ -99,7 +99,7 @@ storage + sharding, not a single DB.
 
 ## Useful reference points `[advanced]`
 
-Rough single-node ceilings (vary widely with workload — use as sanity anchors, not guarantees):
+Rough single-node ceilings (vary widely with workload - use as sanity anchors, not guarantees):
 - Commodity server: **~1K QPS** for real work.
 - Single SQL DB: a few K reads/sec, fewer writes.
 - Redis / in-memory: **~100K+ ops/sec** per node.
@@ -112,12 +112,12 @@ prompt states an SLA.
 
 ## Common interview traps
 
-- Skipping estimation and jumping to boxes-and-arrows — the numbers justify the design.
+- Skipping estimation and jumping to boxes-and-arrows - the numbers justify the design.
 - Forgetting the **peak factor** (traffic isn't spread evenly over 24 h).
 - Ignoring **replication** in storage math (3× is common).
-- Not noticing a system is read-heavy vs write-heavy — it changes everything (cache/replicas vs
+- Not noticing a system is read-heavy vs write-heavy - it changes everything (cache/replicas vs
   sharding/queues).
-- False precision — round to orders of magnitude and move on.
+- False precision - round to orders of magnitude and move on.
 
 ## Related
 

@@ -57,7 +57,7 @@ POST /v1/files/{id}/share      # share with user/link
 
 The two design keys:
 1. **Chunk files** into fixed-size blocks (e.g. 4 MB). Sync and dedup operate on chunks, so a small
-   edit only moves the changed chunk(s) — **delta sync**.
+   edit only moves the changed chunk(s) - **delta sync**.
 2. **Separate metadata service from block storage.** Metadata (file tree, versions, chunk lists,
    permissions) lives in a database; the actual bytes live in object storage (S3-like), often
    accessed directly by clients via signed URLs.
@@ -99,12 +99,12 @@ to the user's other devices, which pull the delta and download only new chunks.
 ### Deep Dive 1: Delta sync via chunking + content hashing
 Hash each chunk (content hash). On edit, only chunks whose hash changed are uploaded. On another
 device, only those chunks are downloaded. This makes syncing a 1 GB file after a tiny edit cheap.
-Content hashing also enables **dedup** — identical chunks (even across users) are stored once. See
+Content hashing also enables **dedup** - identical chunks (even across users) are stored once. See
 [hashing.md](../../Fundamentals/hashing.md).
 
 ### Deep Dive 2: Metadata vs block storage split
 Metadata is small, transactional, and queried constantly (sync); block data is huge and
-write-once-read-many. Keeping them separate lets each scale independently — a sharded DB for
+write-once-read-many. Keeping them separate lets each scale independently - a sharded DB for
 metadata, cheap object storage (+ CDN) for blocks. Clients hit S3 directly via signed URLs so bytes
 don't flow through app servers.
 

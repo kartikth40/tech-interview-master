@@ -5,7 +5,7 @@
 Each top tech company has unique interview styles, focus areas, and cultures. This guide helps you tailor your preparation to specific companies.
 
 > ⚠️ **On the percentages below:** the DSA focus %, system-design/behavioral weights, and process
-> durations are **approximate, directional signals** based on commonly-reported candidate experience —
+> durations are **approximate, directional signals** based on commonly-reported candidate experience -
 > not official published data. Use them to bias your prep (e.g. "Meta leans trees/graphs"), not as exact truth.
 
 ---

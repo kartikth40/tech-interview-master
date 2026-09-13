@@ -4,7 +4,7 @@
 ## Problem Statement
 
 Design a web crawler that systematically downloads web pages starting from seed URLs, extracts
-links, and keeps crawling — at scale, politely, and without getting stuck.
+links, and keeps crawling - at scale, politely, and without getting stuck.
 
 **Example:** a search engine's crawler fetching billions of pages, respecting `robots.txt`, avoiding
 duplicates and traps.
@@ -122,7 +122,7 @@ blocked" follow-up.
 - **Freshness:** re-crawl based on how often a page changes (news hourly, archives rarely).
 
 ### Deep Dive 5: Distributed coordination
-Shard the frontier (e.g. by host hash) across nodes so each host is owned by one node — this keeps
+Shard the frontier (e.g. by host hash) across nodes so each host is owned by one node - this keeps
 politeness correct without cross-node coordination and scales horizontally.
 
 ---

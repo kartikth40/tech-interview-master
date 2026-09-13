@@ -286,7 +286,7 @@ tech-interview-master/
 │   ├── India-Specific.md            # 🇮🇳 Salaries, companies, cities, referrals
 │   └── MockInterviewQuestions.md    # Practice questions
 │
-├── 🧠 Fundamentals/                 # CS concept notes (10) + index
+├── 🧠Fundamentals/                 # CS concept notes (10) + index
 │   ├── README.md                    # Index + concept→Q&A map + depth tags
 │   ├── operating-systems.md         # process/thread, scheduling, virtual memory
 │   ├── concurrency-and-parallelism.md # locks, races, deadlock, GIL, Amdahl

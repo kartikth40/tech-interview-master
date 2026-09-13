@@ -3,7 +3,7 @@
 
 ## Problem Statement
 
-Design a service that generates globally unique IDs across a distributed system — no central
+Design a service that generates globally unique IDs across a distributed system - no central
 sequence bottleneck, and ideally IDs that sort roughly by creation time.
 
 **Example:** every tweet, order, or message needs a unique 64-bit ID generated on any of thousands
@@ -73,7 +73,7 @@ FUNCTION nextId():
          | sequence
 ```
 
-Because the timestamp is in the **high bits**, IDs are **time-sortable (k-sorted)** — sequential
+Because the timestamp is in the **high bits**, IDs are **time-sortable (k-sorted)** - sequential
 inserts give good B-tree index locality, unlike random UUIDv4 which scatters writes across the index.
 See indexing in [databases-internals.md](../../Fundamentals/databases-internals.md).
 
@@ -107,7 +107,7 @@ Snowflake trusts the wall clock. If NTP moves the clock **backwards**, a worker 
 timestamp it already used → potential duplicate. Handle it: if `currentMillis() < lastTs`, either
 wait until the clock catches up, or reject/alert. Never emit an ID with a timestamp earlier than the
 last one issued.
-*Follow-up hook:* logical clocks vs wall clocks — see
+*Follow-up hook:* logical clocks vs wall clocks - see
 [DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
 
 ### Deep Dive 2: Worker-ID assignment
@@ -123,7 +123,7 @@ millisecond. If one worker needs more, add workers (parallelism) rather than wid
 - **UUIDv4:** zero coordination, but 128-bit and unsortable → bad index locality.
 - **DB ticket server:** a table/sequence hands out ID ranges (e.g. 1000 at a time) to each node,
   cutting central contention; roughly sortable, but still a central dependency.
-- **Snowflake:** best balance — local, compact, time-sortable.
+- **Snowflake:** best balance - local, compact, time-sortable.
 
 ---
 
@@ -132,7 +132,7 @@ millisecond. If one worker needs more, add workers (parallelism) rather than wid
 - **Custom epoch:** start the 41-bit timestamp at your service's launch date to maximize lifespan.
 - **Bit allocation is tunable:** trade worker bits for sequence bits based on fleet size vs per-node
   rate.
-- **Availability:** since generation is in-process, there's no runtime SPOF — only the startup
+- **Availability:** since generation is in-process, there's no runtime SPOF - only the startup
   worker-ID assignment depends on the coordinator.
 
 ---
@@ -141,7 +141,7 @@ millisecond. If one worker needs more, add workers (parallelism) rather than wid
 
 1. Reject DB auto-increment early (bottleneck, doesn't shard).
 2. Lead with **Snowflake**; explain the bit layout and why high-bit timestamp = sortable.
-3. Raise **clock skew** yourself — it's the favorite follow-up.
+3. Raise **clock skew** yourself - it's the favorite follow-up.
 4. Mention worker-ID assignment via ZooKeeper/etcd.
 
 ### Common Follow-ups:

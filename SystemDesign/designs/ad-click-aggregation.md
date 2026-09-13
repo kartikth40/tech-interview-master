@@ -66,7 +66,7 @@ aggregation store. Queries over a range sum the relevant per-minute buckets.
 ### Deep Dive 2: Late & out-of-order events (watermarks)
 Events arrive late (network, mobile offline). Using **event time** (when the click happened) not
 **processing time**, the processor holds a window open a little longer via a **watermark** before
-finalizing it, so late events still count. There's a lag-vs-completeness trade-off — how long do you
+finalizing it, so late events still count. There's a lag-vs-completeness trade-off - how long do you
 wait? See time/ordering discussion in
 [DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
 
@@ -76,7 +76,7 @@ Advertisers are billed, so double-counting = overcharging. Achieve effective exa
   counted twice.
 - **Checkpointed offsets + transactional output:** the processor commits its input offset and its
   aggregate output atomically, so a crash-and-replay doesn't recount.
-This is the at-least-once + idempotency pattern applied to aggregation — see
+This is the at-least-once + idempotency pattern applied to aggregation - see
 [qa-concurrency.md](../../QA-Bank/qa-concurrency.md).
 
 ### Deep Dive 4: Lambda vs Kappa architecture
@@ -113,7 +113,7 @@ overwhelm a single aggregator.
 **Q: How do you avoid double-counting for billing?** Idempotent dedup by event ID + checkpointed exactly-once.
 **Q: How do you handle late clicks?** Event-time windows with watermarks.
 **Q: How do you recompute after a bug?** Replay the raw event log (Kappa) or batch path (Lambda).
-**Q: A viral ad overloads one aggregator — fix?** Sub-shard the hot key, sum at query time.
+**Q: A viral ad overloads one aggregator - fix?** Sub-shard the hot key, sum at query time.
 
 ---
 

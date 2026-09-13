@@ -1,6 +1,6 @@
-# ❓ Q&A Bank
+# Q&A Bank
 
-Short, defensible interview answers — the kind an interviewer would accept in a conceptual round or
+Short, defensible interview answers - the kind an interviewer would accept in a conceptual round or
 as a follow-up. This is **not** a LeetCode problem list (that's
 [InterviewPrep/MockInterviewQuestions.md](../InterviewPrep/MockInterviewQuestions.md)); it's the
 "explain X / why X vs Y" bank that pairs with the [Fundamentals](../Fundamentals/) concept notes.
@@ -12,7 +12,7 @@ as a follow-up. This is **not** a LeetCode problem list (that's
 - Each answer is **interview-length** on purpose. For the deeper "why," follow the link to the
   matching Fundamentals note at the top of each file.
 - Use the **Follow-ups** under each answer to simulate how a real interviewer pushes deeper.
-- **Rapid-fire** ([qa-rapid-fire.md](qa-rapid-fire.md)) is for one-line definitions — warm-up or
+- **Rapid-fire** ([qa-rapid-fire.md](qa-rapid-fire.md)) is for one-line definitions - warm-up or
   last-minute review.
 
 ## Answer format
@@ -20,7 +20,7 @@ as a follow-up. This is **not** a LeetCode problem list (that's
 Every question follows the same shape:
 
 > **Q. The question.**
-> Answer first — 2-5 sentences, trade-off framed.
+> Answer first - 2-5 sentences, trade-off framed.
 > *Follow-ups:* the natural next probes.
 > `Difficulty` · `Companies`
 
@@ -28,9 +28,9 @@ Every question follows the same shape:
 
 **Difficulty:** `Easy` (any SDE-1) · `Med` (standard SDE-1/2) · `Hard` (SDE-2 / senior depth).
 
-**Companies:** directional tags for where a question commonly appears — `MAANG` (broadly across big
+**Companies:** directional tags for where a question commonly appears - `MAANG` (broadly across big
 tech), or a specific culture cue like `Amazon`, `Meta`, `Google`, `Startups` (Indian unicorns /
-fintech). These are *indicative, not guarantees* — no invented frequencies.
+fintech). These are *indicative, not guarantees* - no invented frequencies.
 
 ## Files
 

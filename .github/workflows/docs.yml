@@ -3,7 +3,7 @@
 #
 # ONE-TIME SETUP (manual, in GitHub repo settings):
 #   Settings → Pages → Source → "GitHub Actions"
-#   (NOT "Deploy from a branch" — use the Actions source so this workflow controls it)
+#   (NOT "Deploy from a branch" - use the Actions source so this workflow controls it)
 
 name: Deploy docs to GitHub Pages
 

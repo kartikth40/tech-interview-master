@@ -15,7 +15,7 @@ consumers read them, with durability, ordering, and horizontal scale.
 
 ### Functional Requirements:
 1. Producers publish messages to a **topic**; consumers subscribe and read.
-2. Durable storage — messages survive broker restarts and aren't lost.
+2. Durable storage - messages survive broker restarts and aren't lost.
 3. Support many consumers (consumer groups) reading independently.
 4. Preserve ordering (at least within a partition).
 
@@ -86,12 +86,12 @@ Kafka hits high throughput.
 Partitions are the unit of parallelism: more partitions = more concurrent producers/consumers.
 Ordering is guaranteed **only within a partition**, so messages that must stay ordered (e.g. events
 for one user) are given the same key → same partition. Cross-partition order is not guaranteed.
-*Follow-up hook:* what limits consumer parallelism? (partition count — a group can't have more active
+*Follow-up hook:* what limits consumer parallelism? (partition count - a group can't have more active
 consumers than partitions.)
 
 ### Deep Dive 3: Replication & durability
 Each partition has a **leader** and N-1 **followers**. Producers can require acks from a quorum
-(in-sync replicas) before a write is considered committed — trading latency for durability. If a
+(in-sync replicas) before a write is considered committed - trading latency for durability. If a
 leader dies, a follower is promoted. This is leader-follower replication applied per partition. See
 [DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
 
@@ -105,7 +105,7 @@ leader dies, a follower is promoted. This is leader-follower replication applied
 ### Deep Dive 5: Consumer groups & rebalancing
 Within a group, partitions are distributed across consumers; if a consumer joins/leaves, the group
 **rebalances** partition assignments. Different groups read the same topic independently (each has
-its own offsets) — that's how one stream feeds many services.
+its own offsets) - that's how one stream feeds many services.
 
 ---
 
@@ -121,7 +121,7 @@ its own offsets) — that's how one stream feeds many services.
 
 ## 7️⃣ Interview Tips
 
-1. Anchor on the **partitioned append-only log** — that's the whole idea.
+1. Anchor on the **partitioned append-only log** - that's the whole idea.
 2. Ordering is **per partition**; key messages that must stay ordered.
 3. Discuss **replication** (leader/follower, in-sync replicas) for durability.
 4. Be honest about **exactly-once** (approximation, not magic).

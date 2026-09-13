@@ -4,7 +4,7 @@
 
 System design interviews test your ability to design large-scale distributed systems. This guide provides frameworks, methodologies, and templates to tackle any system design question.
 
-> 🧭 Prefer the *visual* thinking layer — the framework as a flowchart plus decision diagrams for
+> 🧭 Prefer the *visual* thinking layer - the framework as a flowchart plus decision diagrams for
 > SQL-vs-NoSQL, caching, scaling, and consistency? See **[System Design Mental Models](mental-models.md)**.
 
 ---

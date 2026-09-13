@@ -1,11 +1,11 @@
 # 🧵 Concurrency & Parallelism
 
 !!! tip "Explain in 2 min"
-    **Concurrency** is *dealing with* many things at once — structuring a
+    **Concurrency** is *dealing with* many things at once - structuring a
     program so tasks make progress independently (interleaved on one core is fine). **Parallelism**
-    is *doing* many things at once — literally running on multiple cores. Concurrency is about
+    is *doing* many things at once - literally running on multiple cores. Concurrency is about
     structure; parallelism is about execution. A single-core machine can be concurrent (an event loop
-    juggling I/O) but not parallel. The hard part isn't starting tasks — it's **shared mutable
+    juggling I/O) but not parallel. The hard part isn't starting tasks - it's **shared mutable
     state**: two tasks touching the same data race, so we coordinate with locks, or avoid sharing
     altogether (message passing, immutability). In Python specifically, the **GIL** means threads
     don't run Python bytecode in parallel, so you use threads/async for I/O-bound work and processes
@@ -55,14 +55,14 @@ common async bug.
 | **Atomic operation** | indivisible read-modify-write | counters, flags without a full lock |
 
 A **critical section** is code that must not be entered by more than one thread at a time. Keep it
-as small as possible — holding a lock longer than needed kills throughput.
+as small as possible - holding a lock longer than needed kills throughput.
 
 ---
 
 ## Race conditions & atomicity `[core]`
 
 A **race condition**: the result depends on the *timing* of interleaved operations. The canonical
-example is `count += 1`, which is really *read → add → write* — three steps that another thread can
+example is `count += 1`, which is really *read → add → write* - three steps that another thread can
 interleave, losing an update.
 
 ```text
@@ -73,19 +73,19 @@ Thread A: write 1
 Thread B: write 1        # A's increment is lost
 ```
 
-**Atomicity** means an operation is all-or-nothing and indivisible — no other thread can observe a
+**Atomicity** means an operation is all-or-nothing and indivisible - no other thread can observe a
 partial state. Fix the race with a lock, an atomic increment, or by not sharing the counter.
 
 ---
 
 ## Deadlock, livelock, starvation `[core]`
 
-- **Deadlock** — threads wait on each other forever. Needs all four **Coffman conditions**: mutual
-  exclusion, hold-and-wait, no preemption, circular wait. Break *any one* to prevent it — most
+- **Deadlock** - threads wait on each other forever. Needs all four **Coffman conditions**: mutual
+  exclusion, hold-and-wait, no preemption, circular wait. Break *any one* to prevent it - most
   practically, impose a **global lock ordering** so cycles can't form.
-- **Livelock** — threads keep changing state in response to each other but make no progress (two
+- **Livelock** - threads keep changing state in response to each other but make no progress (two
   people stepping side-to-side in a hallway).
-- **Starvation** — a thread never gets the resource because others keep winning (e.g. writers
+- **Starvation** - a thread never gets the resource because others keep winning (e.g. writers
   starved by a stream of readers). Fixed with fairness / aging.
 
 ```text
@@ -99,10 +99,10 @@ Thread B: lock(Y); ... lock(X)   # A holds X waits Y, B holds Y waits X → stuc
 
 ## Producer-consumer & thread pools `[core]`
 
-- **Producer-consumer** — producers push work onto a bounded queue, consumers pull. The queue
+- **Producer-consumer** - producers push work onto a bounded queue, consumers pull. The queue
   decouples rates and provides backpressure (producers block when it's full). A condition variable
   or blocking queue coordinates the handoff.
-- **Thread pool** — a fixed set of reusable worker threads pulling from a task queue. Avoids the
+- **Thread pool** - a fixed set of reusable worker threads pulling from a task queue. Avoids the
   cost of spawning a thread per task and bounds concurrency (which protects downstream resources).
   This is the model behind most web servers and executors.
 
@@ -113,7 +113,7 @@ Thread B: lock(Y); ... lock(X)   # A holds X waits Y, B holds Y waits X → stuc
 Speedup from parallelism is capped by the **serial fraction**. If fraction *s* of the work is
 inherently sequential, max speedup with infinite cores is **1/s**. So if 10% is serial, you can
 never go faster than 10×, no matter how many cores. The lesson: parallelize the *big* parallel
-portion, and don't expect linear scaling — coordination and the serial tail dominate at scale.
+portion, and don't expect linear scaling - coordination and the serial tail dominate at scale.
 
 ---
 
@@ -140,9 +140,9 @@ Quick decision guide:
 
 ## Optimistic vs pessimistic locking `[advanced]`
 
-- **Pessimistic** — lock first, assume conflict is likely. Blocks others (row locks, `SELECT … FOR
+- **Pessimistic** - lock first, assume conflict is likely. Blocks others (row locks, `SELECT … FOR
   UPDATE`). Safe but reduces concurrency; risks deadlock.
-- **Optimistic** — don't lock; proceed, then at commit check nothing changed (a **version number**
+- **Optimistic** - don't lock; proceed, then at commit check nothing changed (a **version number**
   or timestamp). If it did, retry. Great when conflicts are rare; wasteful when they're frequent.
 
 This maps directly to database concurrency control (MVCC is optimistic-flavored) →
@@ -152,10 +152,10 @@ This maps directly to database concurrency control (MVCC is optimistic-flavored)
 
 ## Common interview traps
 
-- Saying "concurrency = parallelism." Structure vs execution — keep them distinct.
+- Saying "concurrency = parallelism." Structure vs execution - keep them distinct.
 - Claiming Python threads speed up CPU-bound code (the GIL prevents it).
 - Forgetting `count += 1` is not atomic.
-- Proposing "add more locks" — over-locking causes deadlock and kills throughput; prefer smaller
+- Proposing "add more locks" - over-locking causes deadlock and kills throughput; prefer smaller
   critical sections, lock ordering, or no sharing.
 - Ignoring that an event loop is stalled by one blocking/CPU-heavy call.
 

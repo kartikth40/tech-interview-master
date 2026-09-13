@@ -70,13 +70,13 @@ Microservices architecture splits a monolithic application into small, independe
 
 ---
 
-## Service Boundaries — Where to Split
+## Service Boundaries - Where to Split
 
 The hardest part of microservices isn't the tech, it's deciding **where the seams go**.
 
 - **Split by business capability / DDD bounded context.** Each service should own one cohesive area of the domain (e.g., Payments, Inventory, Notifications) and its data. A good boundary changes for one business reason and rarely needs to be edited alongside another service.
 - **High cohesion, low coupling.** Things that change together belong together. If a "feature" constantly requires coordinated edits across three services, the boundary is wrong.
-- ⚠️ **Anti-pattern — the "distributed monolith":** services are split physically but remain tightly coupled (chatty synchronous calls, shared database, lock-step deploys). You pay all the operational cost of distribution with none of the independence. If services can't deploy independently, they aren't really separate.
+- ⚠️ **Anti-pattern - the "distributed monolith":** services are split physically but remain tightly coupled (chatty synchronous calls, shared database, lock-step deploys). You pay all the operational cost of distribution with none of the independence. If services can't deploy independently, they aren't really separate.
 
 ---
 
@@ -285,9 +285,9 @@ Order      → ON inventory.reserved → status = CONFIRMED
            → ON payment.refunded  → status = CANCELLED
 ```
 
-**Orchestration:** a central orchestrator drives the steps explicitly — call payment, then inventory, then shipping — and on any failure it invokes the compensations in reverse order. The flow lives in one place instead of being spread across event handlers.
+**Orchestration:** a central orchestrator drives the steps explicitly - call payment, then inventory, then shipping - and on any failure it invokes the compensations in reverse order. The flow lives in one place instead of being spread across event handlers.
 
-**Trade-off:** choreography is **decoupled** (services don't know about each other) but the end-to-end flow is **hard to trace and reason about** — no single place shows the whole saga. Orchestration gives **central visibility and control** but the coordinator is a **single point of failure** and a source of coupling.
+**Trade-off:** choreography is **decoupled** (services don't know about each other) but the end-to-end flow is **hard to trace and reason about** - no single place shows the whole saga. Orchestration gives **central visibility and control** but the coordinator is a **single point of failure** and a source of coupling.
 
 ---
 
@@ -327,9 +327,9 @@ Each microservice owns its database.
 
 Instead of storing current state, store the full sequence of immutable events that led to it (e.g., `AccountCreated`, `MoneyDeposited`, `MoneyWithdrawn`). Current state is derived by replaying events; snapshots avoid replaying from the beginning every time.
 
-> **Note:** gives a complete audit trail, time-travel, and the ability to replay with corrected logic — but querying "current state" now requires a projection.
+> **Note:** gives a complete audit trail, time-travel, and the ability to replay with corrected logic - but querying "current state" now requires a projection.
 
-> ⚠️ **Caution:** Event Sourcing is advanced and often over-engineering. Reach for it only when an immutable audit trail or event replay is a real requirement (finance, ledgers, compliance) — not by default.
+> ⚠️ **Caution:** Event Sourcing is advanced and often over-engineering. Reach for it only when an immutable audit trail or event replay is a real requirement (finance, ledgers, compliance) - not by default.
 
 ---
 
@@ -339,7 +339,7 @@ Separate the **write model** (commands that mutate state / emit events) from the
 
 > **Note:** frequently paired with Event Sourcing, but the two are independent choices.
 
-> ⚠️ **Caution:** CQRS adds eventual consistency and operational complexity. Use it only when read and write workloads are genuinely asymmetric (very high read volume, or complex query shapes the write model can't serve) — otherwise a single model is simpler and correct.
+> ⚠️ **Caution:** CQRS adds eventual consistency and operational complexity. Use it only when read and write workloads are genuinely asymmetric (very high read volume, or complex query shapes the write model can't serve) - otherwise a single model is simpler and correct.
 
 ---
 
@@ -347,7 +347,7 @@ Separate the **write model** (commands that mutate state / emit events) from the
 
 ### **Container Orchestration (Kubernetes)**
 
-Services are packaged as containers and deployed **declaratively** (desired state, not manual steps). The orchestrator runs N **replicas** behind a stable service address and uses **health checks** to restart or reschedule unhealthy instances. This gives auto-scaling (HPA), self-healing, service discovery, and rolling (zero-downtime) updates — the operational detail is out of scope for a design round.
+Services are packaged as containers and deployed **declaratively** (desired state, not manual steps). The orchestrator runs N **replicas** behind a stable service address and uses **health checks** to restart or reschedule unhealthy instances. This gives auto-scaling (HPA), self-healing, service discovery, and rolling (zero-downtime) updates - the operational detail is out of scope for a design round.
 
 ---
 

@@ -1,4 +1,4 @@
-# ❓ Python Language — Q&A
+# ❓ Python Language - Q&A
 
 > Pairs with [Fundamentals/memory-and-runtime.md](../Fundamentals/memory-and-runtime.md) and
 > [oop-and-language-concepts.md](../Fundamentals/oop-and-language-concepts.md). Format and tag
@@ -8,13 +8,13 @@
 
 > **Q1. What is the GIL and what are its implications?**
 > The Global Interpreter Lock lets only one thread execute Python bytecode at a time. So threads
-> don't speed up CPU-bound work — use `multiprocessing` or native libs for that — but they're fine
+> don't speed up CPU-bound work - use `multiprocessing` or native libs for that - but they're fine
 > for I/O-bound work since the GIL is released during blocking I/O.
 > *Follow-ups:* How does `asyncio` differ from threads for I/O?
 > `Med` · `MAANG`
 
 > **Q2. Is Python pass-by-value or pass-by-reference?**
-> Neither exactly — it's pass-by-object-reference ("call by sharing"). Rebinding a parameter doesn't
+> Neither exactly - it's pass-by-object-reference ("call by sharing"). Rebinding a parameter doesn't
 > affect the caller, but mutating a mutable argument (list, dict) does. Immutable args (int, str,
 > tuple) appear value-like because you can't mutate them in place.
 > *Follow-ups:* Show a bug this causes. (mutating a shared default list.)
@@ -29,7 +29,7 @@
 > **Q4. Which Python types are mutable vs immutable?**
 > Mutable: list, dict, set, most objects. Immutable: int, float, str, tuple, frozenset, bytes. Only
 > immutable (hashable) types can be dict keys or set members.
-> *Follow-ups:* Why can't a list be a dict key? (unhashable — mutable.)
+> *Follow-ups:* Why can't a list be a dict key? (unhashable - mutable.)
 > `Easy` · `MAANG`
 
 > **Q5. What is a generator and why use one?**
@@ -47,7 +47,7 @@
 
 > **Q7. What is a context manager?**
 > An object usable with `with` that guarantees setup and teardown (via `__enter__`/`__exit__`), even
-> on exceptions — closing files, releasing locks, committing/rolling back transactions. The Pythonic
+> on exceptions - closing files, releasing locks, committing/rolling back transactions. The Pythonic
 > answer to deterministic resource cleanup.
 > *Follow-ups:* How do you write one with `contextlib`?
 > `Med` · `MAANG`
@@ -61,7 +61,7 @@
 
 > **Q9. `is` vs `==`?**
 > `==` compares values (calls `__eq__`); `is` compares identity (same object in memory). Use `is`
-> only for singletons like `None`. Small-int and string interning can make `is` deceptively true —
+> only for singletons like `None`. Small-int and string interning can make `is` deceptively true -
 > don't rely on it for value equality.
 > *Follow-ups:* Why does `256 is 256` but `257 is 257` may vary? (small-int caching.)
 > `Med` · `MAANG`
@@ -86,7 +86,7 @@
 
 > **Q13. What is a shallow copy vs a deep copy?**
 > A shallow copy duplicates the container but shares the nested objects; a deep copy recursively
-> duplicates everything. Mutating a nested object through a shallow copy affects the original — a
+> duplicates everything. Mutating a nested object through a shallow copy affects the original - a
 > common bug with lists of lists.
 > *Follow-ups:* Which does `list(x)` or `x[:]` give? (shallow.)
 > `Med` · `Google`

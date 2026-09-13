@@ -2,9 +2,9 @@
 
 !!! tip "Explain in 2 min"
     An OS manages hardware and shares it safely among programs. Two abstractions
-    carry most interview weight. (1) **Process vs thread** — a process is an isolated program with its
+    carry most interview weight. (1) **Process vs thread** - a process is an isolated program with its
     own memory; threads live inside a process and share its memory, so they're cheaper to switch but
-    require synchronization. (2) **Virtual memory** — each process sees its own contiguous address
+    require synchronization. (2) **Virtual memory** - each process sees its own contiguous address
     space, which the OS maps to physical RAM in pages, letting programs use more memory than exists
     (paging to disk) and staying isolated from each other. The **scheduler** decides which thread runs
     next; a **context switch** saves one thread's state and loads another's, which costs real time.
@@ -24,15 +24,15 @@
 
 **Rule of thumb:** threads for shared-state, low-overhead concurrency within one program; processes
 for isolation and fault containment (a crash in one doesn't corrupt the others). In Python the GIL
-pushes CPU-bound work toward processes — see [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
+pushes CPU-bound work toward processes - see [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
 
 ---
 
 ## Context switch `[core]`
 
 Saving the CPU state (registers, program counter, stack pointer) of the current thread and loading
-another's so the CPU can switch execution. It's pure overhead — no useful work happens during the
-switch — and it also pollutes CPU caches and the TLB, so *too many* switches (thread thrashing) hurt
+another's so the CPU can switch execution. It's pure overhead - no useful work happens during the
+switch - and it also pollutes CPU caches and the TLB, so *too many* switches (thread thrashing) hurt
 throughput. Triggered by the scheduler's time slice expiring, a blocking I/O call, or a higher
 priority thread becoming runnable.
 
@@ -61,12 +61,12 @@ Modern OSes are preemptive; cooperative shows up in async event loops.
 Each process gets its own **virtual address space**; the OS + MMU translate virtual addresses to
 physical RAM via **page tables**, in fixed-size **pages** (commonly 4 KB).
 
-- **Isolation & security** — a process can't touch another's memory.
-- **Overcommit** — total virtual memory can exceed physical RAM; inactive pages are **paged out** to
+- **Isolation & security** - a process can't touch another's memory.
+- **Overcommit** - total virtual memory can exceed physical RAM; inactive pages are **paged out** to
   disk and brought back on a **page fault**.
-- **TLB** — a cache of recent virtual→physical translations; a TLB miss makes address translation
+- **TLB** - a cache of recent virtual→physical translations; a TLB miss makes address translation
   slower, so locality matters.
-- **Thrashing** — when working sets exceed RAM, the system spends most of its time paging in/out
+- **Thrashing** - when working sets exceed RAM, the system spends most of its time paging in/out
   instead of doing work. The fix is more RAM or a smaller working set, not more paging.
 
 Demand paging (load a page only when first accessed) keeps startup cheap.
@@ -78,16 +78,16 @@ Demand paging (load a page only when first accessed) keeps startup cheap.
 Processes/threads wait on resources held by each other, forever. Requires all four **Coffman
 conditions** simultaneously:
 
-1. **Mutual exclusion** — a resource is held exclusively.
-2. **Hold and wait** — hold one resource while requesting another.
-3. **No preemption** — resources can't be forcibly taken.
-4. **Circular wait** — a cycle of waiting processes.
+1. **Mutual exclusion** - a resource is held exclusively.
+2. **Hold and wait** - hold one resource while requesting another.
+3. **No preemption** - resources can't be forcibly taken.
+4. **Circular wait** - a cycle of waiting processes.
 
 Break *any one* to prevent deadlock. Practical strategies:
-- **Prevention** — impose a global **resource ordering** (kills circular wait) — the most common
+- **Prevention** - impose a global **resource ordering** (kills circular wait) - the most common
   real-world fix.
-- **Avoidance** — Banker's algorithm grants only if a safe state remains (rarely used in practice).
-- **Detection & recovery** — let it happen, detect cycles, kill/restart a victim.
+- **Avoidance** - Banker's algorithm grants only if a safe state remains (rarely used in practice).
+- **Detection & recovery** - let it happen, detect cycles, kill/restart a victim.
 
 Same conditions and fixes apply to lock deadlock in application code →
 [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
@@ -96,11 +96,11 @@ Same conditions and fixes apply to lock deadlock in application code →
 
 ## Memory management `[core]`
 
-- **Stack** — per-thread, LIFO, holds call frames and locals; fast, auto-freed on return; limited
+- **Stack** - per-thread, LIFO, holds call frames and locals; fast, auto-freed on return; limited
   size (stack overflow on deep recursion).
-- **Heap** — dynamically allocated, shared within a process; flexible but slower and prone to
+- **Heap** - dynamically allocated, shared within a process; flexible but slower and prone to
   fragmentation and leaks.
-- **Fragmentation** — external (free memory split into unusable gaps) vs internal (allocated block
+- **Fragmentation** - external (free memory split into unusable gaps) vs internal (allocated block
   larger than needed).
 
 Garbage collection, reference counting, and language-runtime specifics live in
@@ -110,7 +110,7 @@ memory-and-runtime.md *(planned)*.
 
 ## System calls `[core]`
 
-The controlled entry point from **user mode** into **kernel mode** — how a program asks the OS to do
+The controlled entry point from **user mode** into **kernel mode** - how a program asks the OS to do
 privileged things (open a file, send on a socket, spawn a process). It involves a mode switch, which
 is more expensive than a normal function call, so high-performance code batches syscalls (e.g. `epoll`
 over per-connection reads, buffered I/O over per-byte writes).
@@ -122,12 +122,12 @@ full hardware access. This boundary is what keeps a buggy program from crashing 
 
 ## Common interview traps
 
-- Saying threads are "always faster" — they're cheaper to switch, but shared state needs
+- Saying threads are "always faster" - they're cheaper to switch, but shared state needs
   synchronization and a thread crash can kill the whole process.
-- Confusing concurrency (OS scheduling interleaving threads) with parallelism (multiple cores) —
+- Confusing concurrency (OS scheduling interleaving threads) with parallelism (multiple cores) -
   see [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
 - Forgetting virtual memory is about *isolation + overcommit*, not just "more memory."
-- Listing only some Coffman conditions — all four are required, and breaking one is enough.
+- Listing only some Coffman conditions - all four are required, and breaking one is enough.
 - Ignoring that syscalls and context switches are real costs in latency-sensitive code.
 
 ## Related

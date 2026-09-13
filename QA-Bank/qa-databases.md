@@ -1,4 +1,4 @@
-# ❓ Databases — Q&A
+# ❓ Databases - Q&A
 
 > Pairs with [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md). Format
 > and tag legend: [QA-Bank/README.md](README.md).
@@ -28,14 +28,14 @@
 
 > **Q4. Why does an index speed up reads but slow writes?**
 > An index is a secondary sorted structure (usually a B-tree) that avoids full scans for lookups. But
-> every insert/update/delete must also update the indexes, adding write cost and storage — so you
+> every insert/update/delete must also update the indexes, adding write cost and storage - so you
 > index the columns you filter/join/sort on, not everything.
 > *Follow-ups:* When would you NOT add an index? (write-heavy, low-selectivity columns.)
 > `Med` · `MAANG`
 
 > **Q5. B-tree vs LSM-tree index?**
 > B-trees update in place and are read-optimized (balanced, good for range + point queries).
-> LSM-trees append to in-memory memtables and flush sorted files, compacting later — write-optimized
+> LSM-trees append to in-memory memtables and flush sorted files, compacting later - write-optimized
 > but reads may touch multiple levels. Pick LSM for write-heavy ingest (Cassandra, RocksDB), B-tree
 > for balanced/read-heavy.
 > *Follow-ups:* How do bloom filters help LSM reads? (skip SSTables that can't contain the key.)
@@ -45,22 +45,22 @@
 > A composite index on (a, b) is sorted by a then b. It can serve queries on `a` or `a, b`, but not
 > `b` alone, because the ordering only groups by the leading column(s). Column order in the index
 > matters.
-> *Follow-ups:* Does it help `WHERE b = ? ORDER BY a`? (partially — depends.)
+> *Follow-ups:* Does it help `WHERE b = ? ORDER BY a`? (partially - depends.)
 > `Hard` · `Google`
 
 > **Q7. Normalization vs denormalization?**
-> Normalization removes redundancy by splitting into related tables — fewer update anomalies, but
-> reads need joins. Denormalization duplicates data to avoid joins — faster reads, but writes must
+> Normalization removes redundancy by splitting into related tables - fewer update anomalies, but
+> reads need joins. Denormalization duplicates data to avoid joins - faster reads, but writes must
 > keep copies in sync. Normalize for write-heavy OLTP; denormalize for read-heavy/analytical paths
 > and NoSQL.
 > *Follow-ups:* Why is denormalization common in NoSQL? (joins are expensive/unavailable.)
 > `Med` · `MAANG`
 
-> **Q8. SQL vs NoSQL — how do you choose?**
-> SQL: fixed schema, strong ACID, rich ad-hoc joins, scales vertically + read replicas — good for
+> **Q8. SQL vs NoSQL - how do you choose?**
+> SQL: fixed schema, strong ACID, rich ad-hoc joins, scales vertically + read replicas - good for
 > transactions and relationships. NoSQL: flexible schema, horizontal scale, access-pattern-first,
-> often eventual consistency — good for huge scale and simple/known access patterns.
-> *Follow-ups:* "NoSQL scales better" — when is that misleading? (only if access patterns fit.)
+> often eventual consistency - good for huge scale and simple/known access patterns.
+> *Follow-ups:* "NoSQL scales better" - when is that misleading? (only if access patterns fit.)
 > `Med` · `MAANG`
 
 > **Q9. What are the NoSQL families?**
@@ -101,13 +101,13 @@
 > `Hard` · `Amazon`
 
 > **Q14. What does the CAP theorem say?**
-> During a network partition you must choose between consistency and availability — you can't have
+> During a network partition you must choose between consistency and availability - you can't have
 > both. It only forces a choice *during a partition*; PACELC adds that even without one you trade
 > latency vs consistency. See [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
 > *Follow-ups:* Is "CA" a real option? (not in a distributed system that can partition.)
 > `Hard` · `MAANG`
 
-> **Q15. ACID consistency vs CAP consistency — same thing?**
+> **Q15. ACID consistency vs CAP consistency - same thing?**
 > No. ACID consistency means a transaction leaves the DB in a valid state (constraints hold). CAP
 > consistency means every read sees the latest write across all nodes (linearizability). Conflating
 > them is a common slip.
@@ -129,7 +129,7 @@
 > `Med` · `MAANG`
 
 > **Q18. What is a transaction and when do you need one?**
-> A group of operations executed atomically — all commit or all roll back. You need one when
+> A group of operations executed atomically - all commit or all roll back. You need one when
 > multiple writes must be consistent together (transfer money: debit + credit) or when you rely on
 > isolation to prevent concurrent anomalies.
 > *Follow-ups:* How do you do transactions across shards/services? (avoid; use sagas.)
@@ -156,10 +156,10 @@
 > `Med` · `Startups`
 
 > **Q22. Optimistic vs pessimistic locking in a database?**
-> Pessimistic locks rows up front (`SELECT ... FOR UPDATE`) — safe under contention, but blocks and
+> Pessimistic locks rows up front (`SELECT ... FOR UPDATE`) - safe under contention, but blocks and
 > risks deadlock. Optimistic uses a version column and only commits if unchanged, retrying on
-> conflict — better when conflicts are rare.
-> *Follow-ups:* Which fits a high-contention counter? (neither scales — consider sharded counters.)
+> conflict - better when conflicts are rare.
+> *Follow-ups:* Which fits a high-contention counter? (neither scales - consider sharded counters.)
 > `Hard` · `Amazon`
 
 ---

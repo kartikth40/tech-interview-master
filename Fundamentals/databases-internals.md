@@ -31,16 +31,16 @@ logged before being applied, so a crash can be replayed or rolled back.
 
 Stricter isolation = fewer anomalies but less concurrency. The anomalies, weakest first:
 
-- **Dirty read** — read another transaction's uncommitted change.
-- **Non-repeatable read** — re-read a row and see a different value (someone updated it).
-- **Phantom read** — re-run a range query and see new/removed rows.
+- **Dirty read** - read another transaction's uncommitted change.
+- **Non-repeatable read** - re-read a row and see a different value (someone updated it).
+- **Phantom read** - re-run a range query and see new/removed rows.
 
 | Level | Prevents | Still allows |
 |-------|----------|--------------|
-| Read Uncommitted | — | dirty, non-repeatable, phantom |
+| Read Uncommitted | - | dirty, non-repeatable, phantom |
 | Read Committed | dirty | non-repeatable, phantom |
 | Repeatable Read | dirty, non-repeatable | phantom |
-| Serializable | all | (behaves as if serial) — lowest concurrency |
+| Serializable | all | (behaves as if serial) - lowest concurrency |
 
 Default is usually Read Committed (Postgres, Oracle) or Repeatable Read (MySQL InnoDB). Reach for
 Serializable only when correctness demands it.
@@ -58,7 +58,7 @@ An index is a secondary structure that makes lookups fast without scanning the w
 | **LSM-tree** | very fast writes (sequential) | reads may check multiple levels | Cassandra, RocksDB, LevelDB |
 
 **Trade-off:** every index speeds reads but slows writes (each write updates the indexes) and costs
-storage. Index the columns you filter/join/sort on — not everything. A **composite index** on
+storage. Index the columns you filter/join/sort on - not everything. A **composite index** on
 `(a, b)` helps queries on `a` or `a,b` but not `b` alone (leftmost-prefix rule).
 
 - **B-tree vs LSM-tree** is a classic follow-up: B-trees update in place (read-optimized); LSM-trees
@@ -93,7 +93,7 @@ read-heavy or analytical paths (OLAP), and for NoSQL where joins are expensive o
 
 NoSQL families: **key-value** (Redis, DynamoDB), **document** (MongoDB), **wide-column**
 (Cassandra), **graph** (Neo4j). "NoSQL scales better" is only true when your access patterns are
-known up front — model the queries first.
+known up front - model the queries first.
 
 ---
 
@@ -101,22 +101,22 @@ known up front — model the queries first.
 
 Keeping copies of data on multiple nodes for **availability** and **read throughput**.
 
-- **Single-leader** — one node takes writes, replicates to followers. Simple, no write conflicts;
+- **Single-leader** - one node takes writes, replicates to followers. Simple, no write conflicts;
   follower reads can be stale (replication lag).
-- **Multi-leader** — multiple write nodes (e.g. multi-region). Better write availability, but
+- **Multi-leader** - multiple write nodes (e.g. multi-region). Better write availability, but
   conflict resolution needed.
-- **Leaderless** (Dynamo-style) — write to several nodes, read from several, use quorums (`W + R >
+- **Leaderless** (Dynamo-style) - write to several nodes, read from several, use quorums (`W + R >
   N`) for consistency.
 
 **Sync vs async replication:** sync is durable but slow (wait for followers); async is fast but can
 lose the newest writes on leader failure. Replication lag is the source of "I wrote it but can't
-read it back" bugs — fix with read-your-writes routing.
+read it back" bugs - fix with read-your-writes routing.
 
 ---
 
 ## Partitioning / sharding `[core]`
 
-Splitting data *across* nodes so no single node holds it all — the key to write scaling. Strategies
+Splitting data *across* nodes so no single node holds it all - the key to write scaling. Strategies
 (range, hash, consistent hashing) and the rebalancing/hot-shard problems have a canonical home:
 👉 [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md).
 Consistent-hashing intuition is in [hashing.md](hashing.md).
@@ -129,7 +129,7 @@ each shard for availability/reads.
 ## CAP / PACELC `[advanced]`
 
 Once data is distributed, a network **partition (P)** forces a choice between **consistency (C)** and
-**availability (A)** — you can't have both during a partition. **PACELC** extends it: *else* (when
+**availability (A)** - you can't have both during a partition. **PACELC** extends it: *else* (when
 there's no partition) you still trade **latency (L)** vs **consistency (C)**.
 
 This is a system-design cornerstone with a full treatment (plus consensus, quorums, sagas) here:
@@ -141,10 +141,10 @@ This is a system-design cornerstone with a full treatment (plus consensus, quoru
 
 **Multi-Version Concurrency Control** lets readers and writers not block each other: each write
 creates a new *version* of a row, and each transaction reads a consistent snapshot. Used by Postgres
-and MySQL InnoDB. It's the optimistic-flavored counterpart to lock-based control —
+and MySQL InnoDB. It's the optimistic-flavored counterpart to lock-based control -
 see optimistic vs pessimistic locking in [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
 
-Old versions accumulate and must be cleaned up (Postgres `VACUUM`) — a real operational gotcha.
+Old versions accumulate and must be cleaned up (Postgres `VACUUM`) - a real operational gotcha.
 
 ---
 
@@ -160,10 +160,10 @@ resources.
 ## Common interview traps
 
 - Confusing **consistency** in ACID (constraints valid) with **consistency** in CAP (all nodes see
-  the same data) — different meanings.
-- Saying "just add indexes" — indexes slow writes and cost space; they're a trade-off.
+  the same data) - different meanings.
+- Saying "just add indexes" - indexes slow writes and cost space; they're a trade-off.
 - Assuming replicas are instantly consistent (replication lag is real).
-- Treating CAP as "pick 2 always" — the choice only bites *during a partition*; PACELC captures the
+- Treating CAP as "pick 2 always" - the choice only bites *during a partition*; PACELC captures the
   normal-operation latency trade-off.
 - Choosing NoSQL "because it scales" without knowing the access patterns.
 

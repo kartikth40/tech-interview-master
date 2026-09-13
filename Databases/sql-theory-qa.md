@@ -1,8 +1,8 @@
-# 🧠 SQL Theory — Q&A
+# 🧠 SQL Theory - Q&A
 
 > The conceptual SQL questions interviewers ask, answer-first. Deeper internals (ACID, isolation,
 > MVCC, index structures) live in [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
-> — this links there rather than repeating. Query practice: [sql-query-patterns.md](sql-query-patterns.md).
+> - this links there rather than repeating. Query practice: [sql-query-patterns.md](sql-query-patterns.md).
 
 ---
 
@@ -13,7 +13,7 @@
 > dependency). BCNF is a stricter 3NF.
 > *Follow-ups:* When do you denormalize? (read-heavy/analytical paths, avoid joins.)
 
-> **Q2. Normalization vs denormalization — the trade-off?**
+> **Q2. Normalization vs denormalization - the trade-off?**
 > Normalized: less redundancy, fewer update anomalies, but reads need joins. Denormalized: duplicate
 > data for join-free fast reads, but writes must keep copies in sync. Normalize for write-heavy OLTP;
 > denormalize for read-heavy/OLAP and NoSQL. See [databases-internals.md](../Fundamentals/databases-internals.md).
@@ -38,16 +38,16 @@
 > *Follow-ups:* How is this different from a normal index? (normal index still fetches the row.)
 
 > **Q6. Why does composite index column order matter?**
-> An index on `(a, b)` is sorted by `a` then `b`, so it serves queries on `a` or `a, b` — but not
+> An index on `(a, b)` is sorted by `a` then `b`, so it serves queries on `a` or `a, b` - but not
 > `b` alone (leftmost-prefix rule). Put the most selective / most-filtered column first, matching
 > your query patterns.
-> *Follow-ups:* Does `(a,b)` help `WHERE b = ?`? (no — b isn't a leading prefix.)
+> *Follow-ups:* Does `(a,b)` help `WHERE b = ?`? (no - b isn't a leading prefix.)
 
 > **Q7. What does EXPLAIN tell you?**
 > The query planner's execution plan: which indexes are used, join order/algorithm (nested loop,
 > hash, merge), and estimated rows/cost. You use it to spot full scans where an index should apply,
 > bad join orders, or missing indexes.
-> *Follow-ups:* You see a "seq scan" on a big table — what do you check? (missing/unused index,
+> *Follow-ups:* You see a "seq scan" on a big table - what do you check? (missing/unused index,
 > low selectivity, stale stats.)
 
 > **Q8. What is a transaction and the ACID properties?**
@@ -76,7 +76,7 @@
 > **Q12. WHERE vs HAVING?**
 > WHERE filters rows *before* grouping; HAVING filters groups *after* aggregation. Aggregates
 > (`COUNT`, `AVG`) can only appear in HAVING, not WHERE.
-> *Follow-ups:* Can you use a column alias in WHERE? (usually no — it's evaluated before SELECT.)
+> *Follow-ups:* Can you use a column alias in WHERE? (usually no - it's evaluated before SELECT.)
 
 > **Q13. DELETE vs TRUNCATE vs DROP?**
 > DELETE removes rows (logged, can have WHERE, fires triggers). TRUNCATE removes all rows fast
@@ -90,7 +90,7 @@
 > *Follow-ups:* Optimistic vs pessimistic locking? (version-check-and-retry vs lock up front.)
 
 > **Q15. When would you use a materialized view?**
-> When an expensive aggregation/join is read often but changes rarely — precompute and store it,
+> When an expensive aggregation/join is read often but changes rarely - precompute and store it,
 > refreshing periodically. Trades storage + staleness for fast reads. A regular view is just a saved
 > query (no storage).
 > *Follow-ups:* View vs materialized view? (view = query alias; materialized = stored result.)

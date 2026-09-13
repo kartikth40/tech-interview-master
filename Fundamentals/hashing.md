@@ -2,9 +2,9 @@
 
 !!! tip "Explain in 2 min"
     A hash function maps arbitrary input to a fixed-size value. We use it for
-    two very different jobs. (1) **Hash tables** — turn a key into an array index for average O(1)
+    two very different jobs. (1) **Hash tables** - turn a key into an array index for average O(1)
     lookup; the main problem is *collisions*, handled by chaining or open addressing, and we resize
-    when the table gets too full. (2) **Distribution / integrity** — consistent hashing spreads keys
+    when the table gets too full. (2) **Distribution / integrity** - consistent hashing spreads keys
     across servers with minimal reshuffling when nodes change; cryptographic hashes (SHA-256) give
     tamper-evidence and are one-way. The interview trap is conflating the two: a fast non-crypto hash
     (like the one behind a `dict`) is *wrong* for passwords, and a slow crypto hash is *wrong* for a
@@ -15,9 +15,9 @@
 ## What a hash function is `[core]`
 
 A function `h(key) → integer` that is:
-- **Deterministic** — same input always gives the same output.
-- **Uniform** — spreads inputs evenly across the output range (few clusters).
-- **Fast** — for hash-table use, cheap to compute.
+- **Deterministic** - same input always gives the same output.
+- **Uniform** - spreads inputs evenly across the output range (few clusters).
+- **Fast** - for hash-table use, cheap to compute.
 
 Different goals demand different properties, summarized here:
 
@@ -76,7 +76,7 @@ addressing when memory locality matters and you can keep the table under ~70% fu
 
 **Resizing** allocates a bigger table (usually 2×) and **rehashes every entry**, because the bucket
 index depends on table size. That single resize is O(n), but amortized over many inserts it's O(1)
-per insert — the same amortization argument as a dynamic array doubling.
+per insert - the same amortization argument as a dynamic array doubling.
 
 > This "O(1) amortized but O(n) worst-case single op" point is a common interview follow-up. The
 > fix for latency-sensitive systems is *incremental resizing* (Redis rehashes gradually across
@@ -87,10 +87,10 @@ per insert — the same amortization argument as a dynamic array doubling.
 ## Consistent hashing `[advanced]`
 
 Naive sharding does `server = hash(key) MOD N`. Add or remove one server and **almost every key
-remaps** — catastrophic for a cache (mass misses) or a stateful store (mass data movement).
+remaps** - catastrophic for a cache (mass misses) or a stateful store (mass data movement).
 
 Consistent hashing places servers *and* keys on a hash ring; a key belongs to the next server
-clockwise. Adding/removing a node only remaps the keys in that node's arc — on average **K/N keys**
+clockwise. Adding/removing a node only remaps the keys in that node's arc - on average **K/N keys**
 move instead of nearly all of them. **Virtual nodes** (many ring positions per physical server)
 smooth out uneven distribution and let you weight bigger servers.
 
@@ -102,7 +102,7 @@ with diagrams lives in the sharding deep-dive:
 
 ## Bloom filters `[advanced]`
 
-A probabilistic set: "**definitely not present**" or "**possibly present**" — never a false
+A probabilistic set: "**definitely not present**" or "**possibly present**" - never a false
 negative, but tunable false positives. Uses *k* hash functions setting bits in a bit array; you
 can't delete (a counting Bloom filter can). Tiny memory footprint.
 
@@ -128,18 +128,18 @@ attacks; a **pepper** (secret added server-side) adds another layer. (More in
 security-fundamentals.md *(planned)*.)
 
 **HMAC** = hash-based Message Authentication Code. It combines a message with a secret key
-(`HMAC(key, msg)`) to prove both **integrity** and **authenticity** — the receiver, knowing the
+(`HMAC(key, msg)`) to prove both **integrity** and **authenticity** - the receiver, knowing the
 key, can verify the sender computed it. Used for signing API requests, webhooks, and JWTs (HS256).
 
 ---
 
 ## Where hashing shows up
 
-- **Sharding / partitioning** — route key → node (consistent hashing). → [sharding doc](../SystemDesign/components/database-sharding.md)
-- **Caching** — cache keys, cache-key hashing. → [caching doc](../SystemDesign/components/caching.md)
-- **Deduplication** — content hash as identity (git commits, S3 ETags, dedup storage).
-- **Checksums / integrity** — detect corruption in transit or at rest (CRC, SHA).
-- **Data structures** — hash sets/maps, `k`-sum lookups, string search (Rabin-Karp rolling hash →
+- **Sharding / partitioning** - route key → node (consistent hashing). → [sharding doc](../SystemDesign/components/database-sharding.md)
+- **Caching** - cache keys, cache-key hashing. → [caching doc](../SystemDesign/components/caching.md)
+- **Deduplication** - content hash as identity (git commits, S3 ETags, dedup storage).
+- **Checksums / integrity** - detect corruption in transit or at rest (CRC, SHA).
+- **Data structures** - hash sets/maps, `k`-sum lookups, string search (Rabin-Karp rolling hash →
   [DSA/algorithms/string/rabin_karp.py](../DSA/algorithms/string/rabin_karp.py)).
 
 ---
@@ -148,11 +148,11 @@ key, can verify the sender computed it. Used for signing API requests, webhooks,
 
 - Claiming hash tables are "O(1)" without the *average-case, assuming good hash + bounded load
   factor* caveat. Worst case is O(n) (all keys collide).
-- Using `MOD N` sharding then being surprised by mass cache misses on scale-out — reach for
+- Using `MOD N` sharding then being surprised by mass cache misses on scale-out - reach for
   consistent hashing.
 - Hashing passwords with SHA-256 (fast = brute-forceable). Use bcrypt/Argon2 + salt.
 - Forgetting that resizing rehashes everything, so a single insert can spike to O(n).
-- Thinking a Bloom filter can give false negatives — it can't; only false positives.
+- Thinking a Bloom filter can give false negatives - it can't; only false positives.
 
 ## Related
 

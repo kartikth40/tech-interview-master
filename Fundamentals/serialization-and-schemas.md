@@ -2,12 +2,12 @@
 
 !!! tip "Explain in 2 min"
     Serialization turns in-memory objects into bytes for network or storage, and
-    back. **JSON** is human-readable, schemaless, and universal — great for public APIs, but verbose
-    and slow to parse. **Protobuf** and **Avro** are compact binary formats with a schema — much
+    back. **JSON** is human-readable, schemaless, and universal - great for public APIs, but verbose
+    and slow to parse. **Protobuf** and **Avro** are compact binary formats with a schema - much
     smaller and faster, ideal for internal service-to-service traffic and event streams. The subtle,
     interview-relevant part is **schema evolution**: services deploy independently, so old and new code
-    must read each other's data. Formats support this via rules — add optional fields, never reuse
-    field tags, provide defaults — so a change stays **backward and forward compatible**.
+    must read each other's data. Formats support this via rules - add optional fields, never reuse
+    field tags, provide defaults - so a change stays **backward and forward compatible**.
 
 ---
 
@@ -24,7 +24,7 @@
 
 **Rule of thumb:** JSON at the edge (public APIs, debuggability), binary + schema internally where
 volume and speed matter. gRPC's use of Protobuf is covered in
-[APIDesignPatterns.md](../SystemDesign/APIDesignPatterns.md) — this note is about the
+[APIDesignPatterns.md](../SystemDesign/APIDesignPatterns.md) - this note is about the
 *schema-evolution* angle, not re-explaining gRPC.
 
 ---
@@ -37,11 +37,11 @@ must be readable by another. Two directions:
 - **Forward compatible:** old code can read **new** data.
 
 Rules that keep both working:
-- **Add fields as optional / with defaults** — old readers skip unknown fields; new readers fill
+- **Add fields as optional / with defaults** - old readers skip unknown fields; new readers fill
   missing ones with the default.
-- **Never change or reuse a field's tag/ID** (Protobuf field numbers, Avro names) — reusing a tag
+- **Never change or reuse a field's tag/ID** (Protobuf field numbers, Avro names) - reusing a tag
   makes old data deserialize into the wrong field.
-- **Don't remove required fields** — deprecate instead (mark optional, stop writing).
+- **Don't remove required fields** - deprecate instead (mark optional, stop writing).
 - **Rename via aliases**, not by changing the wire identity.
 
 ```text
@@ -49,13 +49,13 @@ Rules that keep both working:
 message User {
   string id    = 1;
   string name  = 2;
-  string email = 3;   # NEW — optional in proto3, old readers skip it
+  string email = 3;   # NEW - optional in proto3, old readers skip it
 }
 # Breaking: changing field 2 from string to int, or reusing tag 2 for something else
 ```
 
 **Avro** matters specifically because it separates the **writer's schema** (used to write) from the
-**reader's schema** (used to read) and resolves differences using defaults/aliases — which is why
+**reader's schema** (used to read) and resolves differences using defaults/aliases - which is why
 it's the common choice for long-lived Kafka event logs backed by a **schema registry**.
 
 ---
@@ -80,8 +80,8 @@ push a breaking change), which is how large event-driven systems avoid breaking 
 
 ## Common interview traps
 
-- Treating "just use JSON everywhere" as free — verbosity and parse cost add up at scale.
-- Reusing or renumbering field tags — the classic schema-evolution bug.
+- Treating "just use JSON everywhere" as free - verbosity and parse cost add up at scale.
+- Reusing or renumbering field tags - the classic schema-evolution bug.
 - Assuming a schema change is safe without checking **both** backward and forward compatibility.
 - Forgetting that binary formats need the schema out-of-band (registry or shared `.proto`).
 

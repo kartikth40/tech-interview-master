@@ -1,4 +1,4 @@
-/* Tech Interview Master — front-end enhancements.
+/* Tech Interview Master - front-end enhancements.
    Wrapped in Material's document$ so everything re-runs on instant navigation. */
 
 (function () {
@@ -25,7 +25,7 @@
   function tagPills() {
     if (!/\/QA-Bank\//.test(location.pathname)) return;
     document.querySelectorAll(".md-content .md-typeset code").forEach(function (code) {
-      // Skip anything inside a real code block (pre) — only inline tags.
+      // Skip anything inside a real code block (pre) - only inline tags.
       if (code.closest("pre")) return;
       if (code.classList.contains("tim-tag")) return;
       var t = code.textContent.trim();

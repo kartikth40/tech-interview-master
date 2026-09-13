@@ -17,8 +17,8 @@
 
 ## Amazon's 16 Leadership Principles (LPs)
 
-The **full LP reference** — each principle's definition, the questions it maps to, and what
-interviewers look for — lives in one canonical place so it stays consistent:
+The **full LP reference** - each principle's definition, the questions it maps to, and what
+interviewers look for - lives in one canonical place so it stays consistent:
 
 ➡️ **[Leadership Principles guide](../leadership-principles.md)** (all 16, with definitions + question
 examples + a story hook each).
@@ -29,9 +29,9 @@ and the do's/don'ts. Study the LP reference first, then map your own stories usi
 ### How to tag a story to an LP (3 worked examples)
 
 The technique Amazon rewards: name the LP, then tell a quantified STAR that demonstrates it. A few
-exemplars (you don't need one per LP — see the coverage matrix):
+exemplars (you don't need one per LP - see the coverage matrix):
 
-**Ownership** — *"This shows Ownership."*
+**Ownership** - *"This shows Ownership."*
 ```
 S: Payment service (another team's) was down, ~$50K/hr revenue loss, owners asleep.
 T: Fix it now rather than wait / escalate and stall.
@@ -40,7 +40,7 @@ A: Debugged it myself; found a third-party API timeout; shipped retry-with-backo
 R: Stopped the bleed; owning team adopted the alert.  Learning: ownership = solve it, not assign blame.
 ```
 
-**Are Right, A Lot** — *"This shows Are Right, A Lot — including admitting when I was wrong."*
+**Are Right, A Lot** - *"This shows Are Right, A Lot - including admitting when I was wrong."*
 ```
 S: Picking a DB; my instinct was MongoDB (familiar).
 T: Make the right call, not the comfortable one.
@@ -48,12 +48,12 @@ A: Sought 3 senior perspectives; one flagged our data is relational; I researche
 R: Complex queries ~10x faster than the Mongo path would've been.  Learning: ego is the enemy of the right decision.
 ```
 
-**Have Backbone; Disagree and Commit** — *"This shows Have Backbone; Disagree and Commit."*
+**Have Backbone; Disagree and Commit** - *"This shows Have Backbone; Disagree and Commit."*
 ```
 S: Manager wanted a full rewrite; I favored incremental refactor.
 T: Push back honestly, then align.
 A: Presented data on rewrite-failure rates + an incremental alternative; manager still chose rewrite; I committed 100% and led it.
-R: Rewrite shipped (a bit late) and enabled new features — I was partly wrong, and the trust grew.
+R: Rewrite shipped (a bit late) and enabled new features - I was partly wrong, and the trust grew.
 ```
 
 > For stories covering the other principles (Customer Obsession, Dive Deep, Frugality, etc.), reuse

@@ -3,7 +3,7 @@
 
 # A compact array-based structure for prefix-sum queries WITH point updates in O(log n).
 # The simpler cousin of a Segment Tree: less code and memory, but sum-style (invertible)
-# operations only. Each index i is responsible for a range of size (i & -i) — the lowest set bit.
+# operations only. Each index i is responsible for a range of size (i & -i) - the lowest set bit.
 
 # Time Complexity:
 # - Build: O(n log n) (or O(n) with the linear build below)
@@ -12,13 +12,13 @@
 # Space: O(n)
 
 # When to use:
-# - Prefix sums / range sums that change (point updates) — cumulative frequency, inversions.
-# - Prefer over a Segment Tree when the op is a sum (or any invertible group op) — simpler, less memory.
+# - Prefix sums / range sums that change (point updates) - cumulative frequency, inversions.
+# - Prefer over a Segment Tree when the op is a sum (or any invertible group op) - simpler, less memory.
 # - Reach for a Segment Tree instead if you need min/max/gcd (non-invertible) or range updates.
 
 # COMMON MISTAKES:
 # - Off-by-one: the tree is 1-indexed internally; convert 0-indexed inputs.
-# - Using it for min/max (not invertible) — range query by subtraction only works for sums.
+# - Using it for min/max (not invertible) - range query by subtraction only works for sums.
 # - Forgetting update() adds a DELTA, not sets a value (track current values if you need "set").
 
 # RELATED PROBLEMS:

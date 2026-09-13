@@ -1,4 +1,4 @@
-# ❓ Concurrency & Parallelism — Q&A
+# ❓ Concurrency & Parallelism - Q&A
 
 > Pairs with [Fundamentals/concurrency-and-parallelism.md](../Fundamentals/concurrency-and-parallelism.md).
 > Format and tag legend: [QA-Bank/README.md](README.md).
@@ -8,15 +8,15 @@
 > **Q1. Concurrency vs parallelism?**
 > Concurrency is *structuring* a program so tasks make progress independently (can be interleaved on
 > one core); parallelism is *executing* tasks at the same instant on multiple cores. Concurrency is
-> about structure, parallelism about execution — you can have one without the other.
+> about structure, parallelism about execution - you can have one without the other.
 > *Follow-ups:* Give an example of concurrent-but-not-parallel. (async event loop on one core.)
 > `Easy` · `MAANG`
 
 > **Q2. When would you use threads vs async?**
-> Async (an event loop) shines for I/O-bound work with many idle waits — thousands of connections,
+> Async (an event loop) shines for I/O-bound work with many idle waits - thousands of connections,
 > minimal per-task memory. Threads suit shared-state concurrency and can use preemption; processes
 > suit CPU-bound work. The classic bug is a blocking/CPU-heavy call stalling an event loop.
-> *Follow-ups:* Why does one blocking call hurt an event loop? (cooperative — no preemption.)
+> *Follow-ups:* Why does one blocking call hurt an event loop? (cooperative - no preemption.)
 > `Med` · `MAANG`
 
 > **Q3. What's a race condition?**
@@ -27,7 +27,7 @@
 > `Easy` · `MAANG`
 
 > **Q4. Why isn't `count += 1` atomic?**
-> It compiles to three steps — read, add, write. Another thread can interleave between them, so both
+> It compiles to three steps - read, add, write. Another thread can interleave between them, so both
 > read the same old value and one increment is lost. Atomicity means the whole operation is
 > indivisible; you get it with a lock or a hardware atomic instruction.
 > *Follow-ups:* What's a compare-and-swap (CAS)?
@@ -35,7 +35,7 @@
 
 > **Q5. Mutex vs semaphore?**
 > A mutex allows exactly one holder and has ownership (only the locker unlocks). A semaphore is a
-> counter permitting up to N concurrent holders — useful to cap access to a pool (e.g. ≤10 DB
+> counter permitting up to N concurrent holders - useful to cap access to a pool (e.g. ≤10 DB
 > connections). A binary semaphore looks like a mutex but lacks ownership.
 > *Follow-ups:* When would a semaphore be the right tool? (connection/resource pools.)
 > `Med` · `MAANG`
@@ -50,13 +50,13 @@
 > **Q7. Deadlock vs livelock vs starvation?**
 > Deadlock: threads are stuck waiting forever (no progress, no CPU). Livelock: threads keep changing
 > state reacting to each other but still make no progress. Starvation: a thread never gets a
-> resource because others keep winning — fixed with fairness/aging.
+> resource because others keep winning - fixed with fairness/aging.
 > *Follow-ups:* Give a real livelock example. (two threads both backing off and retrying in sync.)
 > `Hard` · `Google`
 
 > **Q8. What is a critical section?**
 > Code that must not be executed by more than one thread at once because it touches shared state.
-> Keep it as small as possible — holding a lock longer than necessary serializes threads and kills
+> Keep it as small as possible - holding a lock longer than necessary serializes threads and kills
 > throughput.
 > *Follow-ups:* Why is a coarse lock bad for scalability?
 > `Easy` · `MAANG`
@@ -91,21 +91,21 @@
 
 > **Q13. Explain the producer-consumer pattern.**
 > Producers push work onto a bounded queue; consumers pull and process it. The queue decouples their
-> rates and provides backpressure — producers block when it's full, so a fast producer can't
+> rates and provides backpressure - producers block when it's full, so a fast producer can't
 > overwhelm slow consumers.
 > *Follow-ups:* What coordinates the handoff? (condition variable / blocking queue.)
 > `Med` · `Amazon`
 
 > **Q14. What's the difference between a lock and an atomic operation?**
 > A lock guards an arbitrary critical section but has acquire/release overhead and deadlock risk. An
-> atomic operation is a single indivisible hardware instruction (increment, CAS) — faster and
+> atomic operation is a single indivisible hardware instruction (increment, CAS) - faster and
 > lock-free, but only for simple operations.
 > *Follow-ups:* When would you prefer atomics? (counters, flags, lock-free structures.)
 > `Hard` · `Google`
 
 > **Q15. What is a read-write lock?**
 > It allows many concurrent readers OR one exclusive writer. Good for read-heavy shared data where
-> reads vastly outnumber writes. The risk is writer starvation if readers keep arriving — needs a
+> reads vastly outnumber writes. The risk is writer starvation if readers keep arriving - needs a
 > fairness policy.
 > *Follow-ups:* When is a plain mutex better? (write-heavy or very short critical sections.)
 > `Med` · `MAANG`
@@ -126,13 +126,13 @@
 
 > **Q18. What causes false sharing?**
 > Two threads modify independent variables that happen to sit on the same cache line, so the cache
-> coherence protocol keeps invalidating each other's cache — killing performance despite no logical
+> coherence protocol keeps invalidating each other's cache - killing performance despite no logical
 > contention. Fix with padding/alignment.
 > *Follow-ups:* How would you diagnose it? (profiler showing cache-line contention.)
 > `Hard` · `Google`
 
 > **Q19. At-least-once vs at-most-once vs exactly-once delivery?**
-> At-least-once may deliver duplicates (retry on uncertainty) — needs idempotent consumers.
+> At-least-once may deliver duplicates (retry on uncertainty) - needs idempotent consumers.
 > At-most-once may drop messages (no retry). Exactly-once is hard in distributed systems; usually
 > approximated by at-least-once + idempotency/dedup.
 > *Follow-ups:* How do you make a consumer idempotent? (dedup key, upsert.)

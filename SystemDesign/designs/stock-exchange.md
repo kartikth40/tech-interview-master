@@ -4,7 +4,7 @@
 ## Problem Statement
 
 Design the core of a stock exchange: accept buy/sell orders, match them fairly, and publish trades
-and market data — with correctness and very low latency.
+and market data - with correctness and very low latency.
 
 **Example:** a buy order at $100 matches a resting sell order at $100; both parties get a fill, and
 the trade is broadcast.
@@ -61,7 +61,7 @@ FUNCTION match(order):        # per symbol, single-threaded for determinism
         book.add(order)       # rest remainder
 ```
 
-**Price-time priority:** best price wins; ties broken by earliest arrival. Determinism matters — the
+**Price-time priority:** best price wins; ties broken by earliest arrival. Determinism matters - the
 same input sequence must always produce the same trades.
 
 ---
@@ -86,7 +86,7 @@ book updates are published to a market-data feed and persisted.
 
 ### Deep Dive 1: Why single-threaded per symbol
 Concurrency in matching would make trade outcomes non-deterministic and hard to audit. So each symbol
-is matched by a **single thread** processing a strictly ordered input stream — extremely fast because
+is matched by a **single thread** processing a strictly ordered input stream - extremely fast because
 it's all in memory and lock-free. Scale across symbols by sharding symbols to different
 engines/cores, not by parallelizing one book.
 
@@ -94,7 +94,7 @@ engines/cores, not by parallelizing one book.
 A **sequencer** assigns every incoming order a monotonic sequence number and appends it to a durable,
 replayable log **before** matching. This gives: a single source of truth for order arrival (fairness),
 crash recovery (replay the log to rebuild the book), and audit. It's the same append-only-log idea as
-a message queue — see [distributed-message-queue.md](distributed-message-queue.md).
+a message queue - see [distributed-message-queue.md](distributed-message-queue.md).
 
 ### Deep Dive 3: Fault tolerance via replay
 The matching engine is deterministic, so recovery = replay the ordered log into a fresh engine to

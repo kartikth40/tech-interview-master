@@ -1,6 +1,6 @@
 # DSA Pattern Recognition Cheat Sheet
 
-> 🧭 Want the *visual* thinking layer — decision flowcharts, the mental web, and
+> 🧭 Want the *visual* thinking layer - decision flowcharts, the mental web, and
 > constraints→complexity reasoning? See **[DSA Mental Models](mental-models.md)**.
 
 ## Problem → Pattern Quick Guide

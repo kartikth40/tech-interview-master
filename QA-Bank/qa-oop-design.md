@@ -1,4 +1,4 @@
-# ❓ OOP & Design — Q&A
+# ❓ OOP & Design - Q&A
 
 > Pairs with [Fundamentals/oop-and-language-concepts.md](../Fundamentals/oop-and-language-concepts.md)
 > and [SystemDesign/LowLevelDesign.md](../SystemDesign/LowLevelDesign.md). Format and tag legend:
@@ -20,7 +20,7 @@
 > *Follow-ups:* Give an example of a Liskov violation.
 > `Med` · `MAANG`
 
-> **Q3. Composition vs inheritance — which do you favor and why?**
+> **Q3. Composition vs inheritance - which do you favor and why?**
 > Favor composition ("has-a") over inheritance ("is-a"). Deep inheritance hierarchies are rigid and
 > hit the fragile-base-class problem; composition builds behavior from swappable pieces, which is
 > more flexible and testable. Use inheritance only for a true, stable "is-a" with substitutability.
@@ -65,12 +65,12 @@
 
 > **Q9. What is the Strategy pattern and when do you use it?**
 > Encapsulate interchangeable algorithms behind a common interface and inject the one you want at
-> runtime. Use it to swap behavior (sort order, pricing rule, payment method) without conditionals —
+> runtime. Use it to swap behavior (sort order, pricing rule, payment method) without conditionals -
 > a composition-based alternative to subclassing.
 > *Follow-ups:* How does it support Open/Closed?
 > `Med` · `Amazon`
 
-> **Q10. Factory pattern — what problem does it solve?**
+> **Q10. Factory pattern - what problem does it solve?**
 > It centralizes object creation so callers depend on an interface rather than concrete classes,
 > making it easy to change what gets instantiated. Useful when construction is complex or the concrete
 > type depends on config/input.
@@ -78,14 +78,14 @@
 > `Med` · `MAANG`
 
 > **Q11. What is the Observer pattern?**
-> Subjects maintain a list of observers and notify them on state change — decoupling the source from
+> Subjects maintain a list of observers and notify them on state change - decoupling the source from
 > its listeners. It underlies event systems, pub/sub, and UI data binding.
 > *Follow-ups:* How does this relate to pub/sub in distributed systems?
 > `Med` · `Meta`
 
 > **Q12. What is the Singleton pattern and why is it controversial?**
 > Ensures a class has one instance with a global access point (config, connection pool). It's
-> criticized for hidden global state, tight coupling, and testability problems — dependency injection
+> criticized for hidden global state, tight coupling, and testability problems - dependency injection
 > is often preferred.
 > *Follow-ups:* How do you make a singleton thread-safe?
 > `Med` · `MAANG`
@@ -99,7 +99,7 @@
 
 > **Q14. Coupling vs cohesion?**
 > Coupling is how dependent modules are on each other (want it low); cohesion is how focused a module
-> is on a single purpose (want it high). Good design is high cohesion + low coupling — easier to
+> is on a single purpose (want it high). Good design is high cohesion + low coupling - easier to
 > change and test.
 > *Follow-ups:* How does dependency inversion reduce coupling?
 > `Med` · `Google`
@@ -111,7 +111,7 @@
 > *Follow-ups:* Constructor vs setter injection?
 > `Med` · `MAANG`
 
-> **Q16. How do you handle errors — exceptions vs error values?**
+> **Q16. How do you handle errors - exceptions vs error values?**
 > Exceptions separate the happy path from error handling (catch specific ones, don't swallow, clean
 > up with finally/context managers). Error values (Go/Rust) are explicit with no hidden control flow
 > but more verbose. Principles: fail fast, handle at the right level, distinguish bugs from

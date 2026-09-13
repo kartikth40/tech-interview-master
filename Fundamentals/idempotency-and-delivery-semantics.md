@@ -1,12 +1,12 @@
 # 🔁 Idempotency & Delivery Semantics
 
 !!! tip "Explain in 2 min"
-    In a distributed system, networks fail and clients retry — so the same
+    In a distributed system, networks fail and clients retry - so the same
     request or message can arrive more than once. **Idempotency** means processing it twice has the
     same effect as processing it once (no double charge, no duplicate order). You get it with an
     **idempotency key**: the client sends a unique token, the server records it, and a retry with the
     same token is recognized and deduped. Message systems describe this as **delivery semantics**:
-    *at-most-once* (may drop), *at-least-once* (may duplicate — the common default), and *exactly-once*
+    *at-most-once* (may drop), *at-least-once* (may duplicate - the common default), and *exactly-once*
     (hard; usually faked with at-least-once + idempotent processing). The practical rule: assume
     at-least-once and make your consumers idempotent.
 
@@ -31,7 +31,7 @@ FUNCTION handle(request):
 ```
 
 The client generates the key (e.g. a UUID per logical operation) and reuses it on retries. Stripe's
-payment API is the canonical example — retrying a charge with the same key never double-charges.
+payment API is the canonical example - retrying a charge with the same key never double-charges.
 
 ---
 
@@ -44,7 +44,7 @@ payment API is the canonical example — retrying a charge with the same key nev
 | **Exactly-once** | once, no loss/dup | hard/expensive | idempotency + transactional commit |
 
 **At-least-once is the practical default** for queues (Kafka, SQS): the producer/consumer retries on
-uncertainty, so a message can arrive twice — which is fine *if the consumer is idempotent*.
+uncertainty, so a message can arrive twice - which is fine *if the consumer is idempotent*.
 
 The ordering trap that causes each:
 ```text
@@ -54,7 +54,7 @@ At-least-once: process        →  then commit     (crash after process = reproc
 
 ---
 
-## "Exactly-once" — what it really means `[advanced]`
+## "Exactly-once" - what it really means `[advanced]`
 
 True end-to-end exactly-once across arbitrary systems is generally impossible; what people call
 exactly-once is **at-least-once delivery + idempotent (or transactional) processing** so duplicates
@@ -68,19 +68,19 @@ Be honest in interviews: "exactly-once *effects*, achieved via at-least-once + i
 
 ## Making consumers idempotent `[core]`
 
-- **Dedup table / set** of processed IDs (with TTL) — skip if seen.
-- **Upsert instead of insert** — writing the same row twice is a no-op.
-- **Conditional writes** — apply only if a version/state matches (optimistic concurrency, see
+- **Dedup table / set** of processed IDs (with TTL) - skip if seen.
+- **Upsert instead of insert** - writing the same row twice is a no-op.
+- **Conditional writes** - apply only if a version/state matches (optimistic concurrency, see
   [concurrency-and-parallelism.md](concurrency-and-parallelism.md)).
-- **Natural idempotency** — design operations as "set to state X" rather than "increment".
+- **Natural idempotency** - design operations as "set to state X" rather than "increment".
 
 ---
 
 ## Common interview traps
 
-- Claiming a queue gives exactly-once out of the box — it's at-least-once; you add idempotency.
+- Claiming a queue gives exactly-once out of the box - it's at-least-once; you add idempotency.
 - Forgetting that `POST`/increment aren't idempotent, so blind retries double-apply.
-- Storing idempotency keys forever — use a TTL; keys are only needed during the retry window.
+- Storing idempotency keys forever - use a TTL; keys are only needed during the retry window.
 - Ignoring ordering of process-vs-commit, which is exactly what turns into loss or duplication.
 
 ## Related

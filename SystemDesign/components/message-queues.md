@@ -259,7 +259,7 @@ How many times a consumer is guaranteed to see a message. This is the central re
 | **At-least-once** ⭐ | ≥1 delivery; may duplicate | ACK after processing + retries; consumer must be **idempotent** | Default for most systems |
 | **Exactly-once** | Exactly 1 effective processing | Expensive: dedup + transactional offset/state commit | Financial/critical flows |
 
-Key caveat: Kafka's "exactly-once" is **exactly-once processing *within* Kafka** (consume → transform → produce, with transactional offset commits). It does **not** extend end-to-end to external systems — the moment you write to a database, call a third-party API, or send an email, you're back to at-least-once and need idempotency/dedup on your side. In interviews, default to **at-least-once + idempotent consumers**; only claim exactly-once when you can describe the dedup/transaction mechanism.
+Key caveat: Kafka's "exactly-once" is **exactly-once processing *within* Kafka** (consume → transform → produce, with transactional offset commits). It does **not** extend end-to-end to external systems - the moment you write to a database, call a third-party API, or send an email, you're back to at-least-once and need idempotency/dedup on your side. In interviews, default to **at-least-once + idempotent consumers**; only claim exactly-once when you can describe the dedup/transaction mechanism.
 
 ---
 
@@ -323,7 +323,7 @@ END FUNCTION
 
 ### **4. Message Batching**
 
-Process multiple messages together for efficiency. Accumulate incoming messages into a buffer and flush when either a size threshold (e.g. 100 messages) or a time threshold (e.g. 5s) is hit, whichever comes first. The whole batch is written in one DB transaction and ACKed together. This amortizes per-message overhead (round-trips, commits) and boosts throughput, at the cost of a little added latency — the classic throughput-vs-latency trade-off.
+Process multiple messages together for efficiency. Accumulate incoming messages into a buffer and flush when either a size threshold (e.g. 100 messages) or a time threshold (e.g. 5s) is hit, whichever comes first. The whole batch is written in one DB transaction and ACKed together. This amortizes per-message overhead (round-trips, commits) and boosts throughput, at the cost of a little added latency - the classic throughput-vs-latency trade-off.
 
 ---
 

@@ -53,13 +53,13 @@ delete(key)
 
 ## 4️⃣ Core Design Decisions
 
-The classic Dynamo building blocks — this question is really "do you know these five ideas?":
+The classic Dynamo building blocks - this question is really "do you know these five ideas?":
 
 | Concern | Technique |
 |---------|-----------|
 | Distribute keys across nodes | **Consistent hashing** (ring + virtual nodes) |
 | Availability + durability | **Replication** to N nodes |
-| Tunable consistency | **Quorum** — W + R > N gives read-your-writes |
+| Tunable consistency | **Quorum** - W + R > N gives read-your-writes |
 | Concurrent-write conflicts | **Versioning** with vector clocks |
 | Detect/repair divergence | **Merkle trees** + read repair + anti-entropy |
 | Temporary node failure | **Hinted handoff** |
@@ -125,7 +125,7 @@ If **W + R > N**, read and write sets overlap, guaranteeing a read sees the late
 - `W=N, R=1` → fast reads, slow durable writes.
 - `W=quorum, R=quorum` → balanced (e.g. N=3, W=2, R=2).
 
-This is the CAP/PACELC dial in practice — see
+This is the CAP/PACELC dial in practice - see
 [DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
 
 ### Deep Dive 3: Versioning with vector clocks (conflict resolution)
@@ -135,7 +135,7 @@ supersedes another or they genuinely **conflict**. Conflicts are resolved by las
 (simple, can lose data) or returned to the client to merge (like a shopping cart union).
 *Follow-up hook:* why is LWW dangerous? (silent lost updates under clock skew.)
 
-### Deep Dive 4: Failure handling — hinted handoff & read repair
+### Deep Dive 4: Failure handling - hinted handoff & read repair
 - **Hinted handoff:** if a replica is temporarily down, another node accepts the write and holds a
   "hint" to deliver it when the node returns → stays available.
 - **Read repair:** on a read, if replicas disagree, push the newest version to the stale ones.

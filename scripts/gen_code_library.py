@@ -61,7 +61,7 @@ def render_page(out_path: str, heading: str, intro: str, rel_dir: str) -> None:
 
 render_page(
     "DSA/code-library/patterns.md",
-    "DSA Patterns — Code Library",
+    "DSA Patterns - Code Library",
     "Runnable Python implementations of the core interview patterns. "
     "Each file has a header (difficulty, when-to-use, common mistakes) and a `__main__` demo. "
     "Source lives in `DSA/patterns/`.",
@@ -70,7 +70,7 @@ render_page(
 
 render_page(
     "DSA/code-library/algorithms.md",
-    "DSA Algorithms — Code Library",
+    "DSA Algorithms - Code Library",
     "Runnable Python implementations of core algorithms, grouped by domain. "
     "Source lives in `DSA/algorithms/`.",
     "algorithms",
@@ -78,7 +78,7 @@ render_page(
 
 render_page(
     "DSA/code-library/data-structures.md",
-    "DSA Data Structures — Code Library",
+    "DSA Data Structures - Code Library",
     "Runnable Python implementations of the data structures worth knowing by heart. "
     "Source lives in `DSA/data-structures/`.",
     "data-structures",

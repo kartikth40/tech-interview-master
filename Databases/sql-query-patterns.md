@@ -47,7 +47,7 @@ WHERE e.salary IS NOT NULL          -- row filter (before grouping)
 GROUP BY d.name
 HAVING AVG(e.salary) > 50000;       -- group filter (after aggregation)
 ```
-**Tests:** the WHERE-vs-HAVING distinction (row filter before grouping vs aggregate filter after) —
+**Tests:** the WHERE-vs-HAVING distinction (row filter before grouping vs aggregate filter after) -
 a top interview probe.
 
 ---
@@ -105,7 +105,7 @@ Know **ROW_NUMBER vs RANK vs DENSE_RANK** (tie handling) and LAG/LEAD for row-to
 ## Nth-highest value
 
 ```sql
--- 2nd-highest salary (window approach — handles ties predictably)
+-- 2nd-highest salary (window approach - handles ties predictably)
 WITH ranked AS (
     SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk
     FROM Employee
@@ -144,7 +144,7 @@ SELECT emp_id,
 FROM Sales
 GROUP BY emp_id;
 ```
-**Tests:** pivoting with `CASE` inside an aggregate — the portable way (vs vendor `PIVOT`).
+**Tests:** pivoting with `CASE` inside an aggregate - the portable way (vs vendor `PIVOT`).
 
 ---
 
@@ -157,7 +157,7 @@ FROM Sales
 GROUP BY DATE_TRUNC('day', sold_at)
 ORDER BY day;
 ```
-**Tests:** grouping by a truncated/bucketed date rather than the raw timestamp — common in analytics
+**Tests:** grouping by a truncated/bucketed date rather than the raw timestamp - common in analytics
 questions.
 
 ---
@@ -167,8 +167,8 @@ questions.
 - Putting an aggregate in `WHERE` (use `HAVING`).
 - Forgetting `LEFT JOIN` + `WHERE right.col = x` silently turns it back into an inner join (filter in
   the `ON` instead).
-- Assuming `ROW_NUMBER` and `RANK` are the same — they differ on ties.
-- `COUNT(*)` vs `COUNT(col)` — the latter skips NULLs.
+- Assuming `ROW_NUMBER` and `RANK` are the same - they differ on ties.
+- `COUNT(*)` vs `COUNT(col)` - the latter skips NULLs.
 - Selecting non-aggregated columns not in `GROUP BY` (invalid in standard SQL).
 
 ## Related

@@ -1,11 +1,11 @@
 ---
 title: DSA Mental Models
-description: How to think about DSA problems — decision flowcharts, signal→pattern mapping, the mental web of data structures and techniques, and how constraints reveal the target complexity.
+description: How to think about DSA problems - decision flowcharts, signal→pattern mapping, the mental web of data structures and techniques, and how constraints reveal the target complexity.
 ---
 
-# 🧭 DSA Mental Models — How to *Think*
+# 🧭 DSA Mental Models - How to *Think*
 
-Most interview problems reuse a small set of patterns. The skill isn't memorizing solutions — it's
+Most interview problems reuse a small set of patterns. The skill isn't memorizing solutions - it's
 **recognizing which pattern a problem is asking for**. This page is the thinking layer: decision
 flowcharts, trigger signals, and the mental web connecting structures to techniques.
 
@@ -34,11 +34,11 @@ flowchart LR
 ```
 
 The loop matters: if the first pattern doesn't fit the constraints, go back to the trigger
-questions — don't force a template.
+questions - don't force a template.
 
 ---
 
-## 2. Master decision flowchart — "which pattern?"
+## 2. Master decision flowchart - "which pattern?"
 
 Start from the **input shape**, then branch on the **signal words**. This covers the majority of
 interview problems.
@@ -105,7 +105,7 @@ Full keyword table: [DSAQuickLookup.md](DSAQuickLookup.md).
 
 ## 4. Constraints → target complexity
 
-**The constraint size tells you the complexity you're allowed** — which narrows the pattern before
+**The constraint size tells you the complexity you're allowed** - which narrows the pattern before
 you even think about the approach. This is one of the highest-leverage interview habits.
 
 ```mermaid
@@ -131,7 +131,7 @@ flowchart LR
 
 ---
 
-## 5. The mental web — how it all connects
+## 5. The mental web - how it all connects
 
 Patterns aren't isolated; they grow out of a few core structures and ideas. Seeing the web helps you
 *derive* a pattern when you can't recall it.
@@ -166,14 +166,14 @@ flowchart TD
 ```
 
 Read it as "X is built from / leads to Y." For example: **backtracking is DFS with undo**, and **DP
-is backtracking with memoization** — if you can write the brute-force recursion, you can usually
+is backtracking with memoization** - if you can write the brute-force recursion, you can usually
 optimize it into DP.
 
 ---
 
 ## 6. Per-family mini decision trees
 
-### Dynamic Programming — "is it DP, and what's the state?"
+### Dynamic Programming - "is it DP, and what's the state?"
 
 ```mermaid
 flowchart TD
@@ -185,7 +185,7 @@ flowchart TD
     TRANS --> BASE["Base cases + order<br/>(top-down memo or bottom-up)"]
 ```
 
-### Graph — "which traversal / algorithm?"
+### Graph - "which traversal / algorithm?"
 
 ```mermaid
 flowchart TD
@@ -199,7 +199,7 @@ flowchart TD
     G -- "min spanning tree" --> MST["Kruskal / Prim"]
 ```
 
-### Array / String — "which linear technique?"
+### Array / String - "which linear technique?"
 
 ```mermaid
 flowchart TD
@@ -214,7 +214,7 @@ flowchart TD
 
 ---
 
-## 7. Worked examples — the loop in action
+## 7. Worked examples - the loop in action
 
 Watch the recognition process, not just the answer. In each, the **signal** does the work.
 
@@ -222,7 +222,7 @@ Watch the recognition process, not just the answer. In each, the **signal** does
     - **Shape/constraints:** a string; asks for the *longest contiguous* substring with a property.
     - **Signal:** "longest contiguous substring + a constraint" → this is the canonical
       **Sliding Window** cue.
-    - **Why:** expand the window while valid, shrink from the left when a repeat appears — one pass,
+    - **Why:** expand the window while valid, shrink from the left when a repeat appears - one pass,
       O(n). A brute-force check of all substrings would be O(n²).
     - **Pattern:** [Sliding Window](code-library/patterns.md).
 
@@ -237,7 +237,7 @@ Watch the recognition process, not just the answer. In each, the **signal** does
     - **Shape/constraints:** courses with dependency pairs → a **graph**; asks if a valid order
       exists.
     - **Signal:** "order with dependencies" / "detect if ordering possible" → **Topological Sort**
-      (and cycle detection — a cycle means impossible).
+      (and cycle detection - a cycle means impossible).
     - **Why:** a DAG has a topological order; if you can't produce one (a cycle exists), you can't
       finish. Kahn's algorithm (BFS on in-degrees) or DFS with a visiting-state.
     - **Pattern:** [Topological Sort](code-library/algorithms.md).
@@ -246,7 +246,7 @@ Watch the recognition process, not just the answer. In each, the **signal** does
     - **Shape/constraints:** asks for the **minimum count of ways** to reach a target; the same
       sub-amounts recur across choices.
     - **Signal:** "min/max/count" + overlapping subproblems → **Dynamic Programming**. (A greedy
-      "take the biggest coin" fails for arbitrary denominations — a classic trap.)
+      "take the biggest coin" fails for arbitrary denominations - a classic trap.)
     - **Why:** `dp[amount] = 1 + min(dp[amount - coin])` over coins. Define state (remaining
       amount), transition (try each coin), base case (`dp[0]=0`).
     - **Pattern:** [Dynamic Programming](code-library/patterns.md).
@@ -254,17 +254,17 @@ Watch the recognition process, not just the answer. In each, the **signal** does
 !!! note "The meta-lesson"
     In all four, the **phrase** ("longest contiguous", "Kth in a stream", "dependencies", "min
     count") pointed at the pattern before any coding. Training that phrase→pattern reflex is the
-    whole game — see the [signal table](#3-signal-pattern-trigger-questions).
+    whole game - see the [signal table](#3-signal-pattern-trigger-questions).
 
 ---
 
 ## How to practice with this
 
 1. For each new problem, **say the input shape and constraints out loud** before anything else.
-2. Run the [4-step loop](#1-the-4-step-recognition-loop) — resist jumping straight to code.
+2. Run the [4-step loop](#1-the-4-step-recognition-loop) - resist jumping straight to code.
 3. When stuck, walk the [master flowchart](#2-master-decision-flowchart-which-pattern) and the
    [signal table](#3-signal-pattern-trigger-questions).
-4. After solving, note *which signal* pointed at the pattern — that's what builds recognition.
+4. After solving, note *which signal* pointed at the pattern - that's what builds recognition.
 
 ## Related
 

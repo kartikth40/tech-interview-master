@@ -1,9 +1,9 @@
 ---
 title: System Design Mental Models
-description: How to approach any system design interview — the 7-step framework as a flowchart, plus decision diagrams for SQL vs NoSQL, caching, scaling, and consistency.
+description: How to approach any system design interview - the 7-step framework as a flowchart, plus decision diagrams for SQL vs NoSQL, caching, scaling, and consistency.
 ---
 
-# 🧭 System Design Mental Models — How to *Approach*
+# 🧭 System Design Mental Models - How to *Approach*
 
 System design interviews feel open-ended, but strong candidates run the **same repeatable process**
 every time and make decisions from a small set of trade-offs. This page is the thinking layer:
@@ -18,7 +18,7 @@ the [real designs](designs/url-shortener.md).
 
 ---
 
-## 1. The framework — run this every time
+## 1. The framework - run this every time
 
 The 7-step loop (mirrors the [guide](SystemDesignGuide.md); timings assume a 45-min round):
 
@@ -33,12 +33,12 @@ flowchart TD
     S7 -.->|new requirement surfaces| S1
 ```
 
-The dotted arrow matters: if a deep-dive reveals a missed requirement, loop back — don't patch
+The dotted arrow matters: if a deep-dive reveals a missed requirement, loop back - don't patch
 around it.
 
 ---
 
-## 2. Step 1 — the clarifying questions to always ask
+## 2. Step 1 - the clarifying questions to always ask
 
 Before anything, pin down scope. These questions shape the entire design:
 
@@ -51,14 +51,14 @@ flowchart TD
     F & SC & NF & D --> OUT["Scope locked →<br/>now estimate"]
 ```
 
-The **read/write ratio** and **consistency need** are the two answers that most change the design —
+The **read/write ratio** and **consistency need** are the two answers that most change the design -
 ask them early.
 
 ---
 
-## 3. Estimation — constraints drive the architecture
+## 3. Estimation - constraints drive the architecture
 
-Rough numbers decide whether you need caching, sharding, or a CDN — *before* you draw anything.
+Rough numbers decide whether you need caching, sharding, or a CDN - *before* you draw anything.
 
 ```mermaid
 flowchart LR
@@ -118,7 +118,7 @@ Detail: [Caching component](components/caching.md) · [Caching Q&A](../QA-Bank/q
 
 ## 6. Decision: how do I scale it?
 
-Do the cheap thing first — don't jump to sharding.
+Do the cheap thing first - don't jump to sharding.
 
 ```mermaid
 flowchart LR
@@ -126,7 +126,7 @@ flowchart LR
     IDX --> V["2. Vertical scale<br/>(bigger box)"]
     V --> RR["3. Read replicas<br/>(offload reads)"]
     RR --> CA["4. Cache<br/>(Redis/CDN)"]
-    CA --> SH["5. Shard<br/>(split writes) — last resort"]
+    CA --> SH["5. Shard<br/>(split writes) - last resort"]
     SH --> NOTE["Sharding adds cross-shard joins,<br/>rebalancing, hot-shard pain"]
 ```
 
@@ -135,7 +135,7 @@ Detail: [Database Sharding](components/database-sharding.md) ·
 
 ---
 
-## 7. Decision: consistency — strong or eventual?
+## 7. Decision: consistency - strong or eventual?
 
 Choose **per data type**, not globally.
 
@@ -153,7 +153,7 @@ Detail: [Distributed Systems (CAP/PACELC)](DistributedSystemsConcepts.md) ·
 
 ---
 
-## 8. Worked walkthroughs — the framework in action
+## 8. Worked walkthroughs - the framework in action
 
 !!! example "Design a URL shortener"
     - **Requirements:** shorten a long URL, redirect fast; read-heavy (redirects ≫ creates).
@@ -171,16 +171,16 @@ Detail: [Distributed Systems (CAP/PACELC)](DistributedSystemsConcepts.md) ·
     - **Requirements:** show recent posts from people you follow; read-heavy; some users have
       millions of followers.
     - **Estimation:** read-heavy at huge fan-out → precompute vs compute-on-read is the core tension.
-    - **HLD:** the key decision is **fan-out on write vs on read** — push to followers' feeds at post
+    - **HLD:** the key decision is **fan-out on write vs on read** - push to followers' feeds at post
       time (fast reads, expensive for celebrities) vs merge at read time (cheap writes, slower reads).
-    - **Deep dive:** a **hybrid** — precompute for most users, read-time merge for high-follower
+    - **Deep dive:** a **hybrid** - precompute for most users, read-time merge for high-follower
       accounts. That single trade-off is what the interview is testing.
     - Full design: [Twitter / News Feed](designs/twitter.md).
 
 !!! note "The meta-lesson"
     Both walkthroughs front-load **requirements + estimation**, and the whole design pivots on **one
     or two key trade-offs** (code generation + caching; fan-out write vs read). Find that pivot and
-    reason about it out loud — that's the signal of a strong candidate.
+    reason about it out loud - that's the signal of a strong candidate.
 
 ---
 
@@ -189,7 +189,7 @@ Detail: [Distributed Systems (CAP/PACELC)](DistributedSystemsConcepts.md) ·
 1. Pick any [real design](designs/url-shortener.md); cover the solution and run the
    [7-step framework](#1-the-framework-run-this-every-time) yourself first.
 2. At each decision, consult the matching flowchart above (SQL/NoSQL, cache, scale, consistency).
-3. Force yourself to **state the read/write ratio and consistency need early** — they drive
+3. Force yourself to **state the read/write ratio and consistency need early** - they drive
    everything else.
 4. Name the **one or two pivotal trade-offs** for the problem; that's what interviewers probe.
 

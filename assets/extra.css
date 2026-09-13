@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Tech Interview Master — custom theme (green brand + readability polish)
+   Tech Interview Master - custom theme (green brand + readability polish)
    Layered on top of Material for MkDocs. Uses Material's CSS custom properties.
    ========================================================================== */
 
@@ -68,12 +68,12 @@
   color: var(--tim-green-light);
 }
 
-/* Buttons are not body links — no underline, keep them crisp */
+/* Buttons are not body links - no underline, keep them crisp */
 .md-typeset .md-button,
 .md-typeset .md-button:hover {
   text-decoration: none;
 }
-/* Primary (filled) button — force solid white text in BOTH schemes.
+/* Primary (filled) button - force solid white text in BOTH schemes.
    Material's slate scheme otherwise inherits a muted/translucent foreground,
    which made the resting label near-invisible on the green fill in dark mode. */
 .md-typeset .md-button--primary,
@@ -90,7 +90,7 @@
   color: #fff;
 }
 
-/* Secondary (ghost/outline) button — green text + border at rest, and an
+/* Secondary (ghost/outline) button - green text + border at rest, and an
    EXPLICIT hover state. Without the hover rule it fell back to Material's
    default (green text on a green fill = unreadable). On hover we now invert
    to a solid green fill with white text, matching the primary button. */
@@ -178,7 +178,7 @@
   background-color: rgba(76, 196, 126, 0.06);
 }
 
-/* ---- Blockquotes (pointer callouts) — translucent tint, readable both modes */
+/* ---- Blockquotes (pointer callouts) - translucent tint, readable both modes */
 .md-typeset blockquote {
   border-left: 4px solid var(--tim-green);
   background: rgba(46, 158, 91, 0.06);
@@ -267,7 +267,7 @@
 
 
 /* ==========================================================================
-   Enhancement pack — hover effects, polish, and micro-interactions
+   Enhancement pack - hover effects, polish, and micro-interactions
    ========================================================================== */
 
 /* ---- (2) Smooth scroll + headings clear the sticky header ----------------- */
@@ -474,7 +474,7 @@ body[class] .md-main__inner {
 }
 [data-md-color-scheme="slate"] .md-typeset code.tim-tag--company { color: #90b0ee; }
 
-/* ---- (13) Fade-in on scroll — CSS half (JS toggles .tim-in) --------------- */
+/* ---- (13) Fade-in on scroll - CSS half (JS toggles .tim-in) --------------- */
 .tim-fade {
   opacity: 0;
   transform: translateY(14px);
@@ -491,7 +491,7 @@ body[class] .md-main__inner {
 }
 
 
-/* ---- Line-number gutter (linenums) — clean, dim, non-selectable ----------
+/* ---- Line-number gutter (linenums) - clean, dim, non-selectable ----------
    Material renders linenums as a two-column table: `.linenos` gutter + code.
    Give the gutter a subtle divider, readable-but-dim numbers, right alignment,
    comfortable padding, and make it unselectable so copying skips the numbers. */
@@ -511,7 +511,7 @@ body[class] .md-main__inner {
   background: transparent;
   margin: 0;
 }
-/* Numbers are <a> links inside .normal — dim them, drop underline/link styling */
+/* Numbers are <a> links inside .normal - dim them, drop underline/link styling */
 .md-typeset .highlighttable .linenos a,
 .md-typeset .highlighttable .linenos .normal {
   color: var(--md-default-fg-color--lighter);
@@ -521,7 +521,7 @@ body[class] .md-main__inner {
   text-decoration: none;
 }
 
-/* the whole table shares the code block's frame — avoid a double border */
+/* the whole table shares the code block's frame - avoid a double border */
 .md-typeset .highlighttable {
   border-radius: 10px;
   overflow: hidden;
@@ -532,7 +532,7 @@ body[class] .md-main__inner {
   box-shadow: none;
   border-radius: 0;
 }
-/* the language chip must not overlap the line numbers — anchor it to the code cell */
+/* the language chip must not overlap the line numbers - anchor it to the code cell */
 .md-typeset .highlighttable .code {
   position: relative;
 }

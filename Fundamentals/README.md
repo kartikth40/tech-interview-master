@@ -1,19 +1,19 @@
-# 🧠 CS Fundamentals
+# CS Fundamentals
 
-The concept notes an interviewer *probes* — hashing, concurrency, OS, networking, DB
+The concept notes an interviewer *probes* - hashing, concurrency, OS, networking, DB
 internals, security, OOP, memory, estimation. This pillar answers the **"explain X in 2
 minutes"** and **"why X vs Y"** questions that come up outside of coding and system-design
 rounds (and inside them, as follow-ups).
 
 ## How to use this
 
-- Each file is **interview-length**: intuition, key trade-offs, and "when would you use X vs Y" —
+- Each file is **interview-length**: intuition, key trade-offs, and "when would you use X vs Y" -
   not a textbook. If you want the 2-minute spoken answer, read the **"Explain in 2 min"** box at
   the top of each concept.
 - Topics are tagged **[core]** (must-know for any SDE-1/2) or **[advanced]** (rarely asked, nice
   to have for SDE-2 / senior).
 - Concepts with a canonical deep-dive elsewhere (caching, sharding, CAP) are **linked, not
-  re-explained** — go there for depth.
+  re-explained** - go there for depth.
 - Pair each concept with its **Q&A file** (see map below) for rapid-fire drilling.
 
 ## Concept files
@@ -30,7 +30,7 @@ rounds (and inside them, as follow-ups).
 | A8 | [memory-and-runtime.md](memory-and-runtime.md) | stack vs heap, garbage collection, memory leaks, reference counting, Python GIL/generators/decorators | advanced |
 | A9 | [latency-numbers-and-estimation.md](latency-numbers-and-estimation.md) | numbers every engineer should know, back-of-envelope drills, QPS/storage/bandwidth math | core |
 | A10 | Distributed systems → [SystemDesign/DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md) | CAP/PACELC, replication, consensus, sagas | advanced |
-| A11 | [bloom-filters-and-probabilistic.md](bloom-filters-and-probabilistic.md) | bloom/counting bloom, count-min sketch, HyperLogLog — approximate answers, tiny memory | advanced |
+| A11 | [bloom-filters-and-probabilistic.md](bloom-filters-and-probabilistic.md) | bloom/counting bloom, count-min sketch, HyperLogLog - approximate answers, tiny memory | advanced |
 | A12 | [serialization-and-schemas.md](serialization-and-schemas.md) | JSON vs Protobuf vs Avro, schema evolution/compat, schema registry | core |
 | A13 | [idempotency-and-delivery-semantics.md](idempotency-and-delivery-semantics.md) | idempotency keys, at-least/at-most/exactly-once, dedup, retries | core |
 | A14 | [time-and-ordering.md](time-and-ordering.md) | wall-clock skew/NTP, happens-before, Lamport clocks, vector clocks | advanced |
@@ -53,7 +53,7 @@ maps to a Q&A file for drilling:
 | System design concepts | [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md) |
 | Python language | [qa-language-python.md](../QA-Bank/qa-language-python.md) |
 
-## Related material (canonical homes — don't duplicate, link)
+## Related material (canonical homes - don't duplicate, link)
 
 - **Caching** strategies & eviction → [SystemDesign/components/caching.md](../SystemDesign/components/caching.md)
 - **Sharding / partitioning** → [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md)

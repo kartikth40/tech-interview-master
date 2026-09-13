@@ -3,8 +3,8 @@
 
 ## Problem Statement
 
-Design a system that sends notifications to users across multiple channels — push (iOS/Android),
-SMS, and email — reliably and at scale.
+Design a system that sends notifications to users across multiple channels - push (iOS/Android),
+SMS, and email - reliably and at scale.
 
 **Example:** an app sends order updates, promotions, and alerts to millions of users via whichever
 channel(s) each user prefers.
@@ -86,7 +86,7 @@ Services / events
 └─────────┬─────────┘
           ▼
 ┌───────────────────┐
-│   Message Queue   │  (Kafka/SQS — decouples + buffers bursts)
+│   Message Queue   │  (Kafka/SQS - decouples + buffers bursts)
 └─────────┬─────────┘
    ┌───────┼─────────┐
    ▼       ▼         ▼
@@ -147,12 +147,12 @@ and channel workers **decouples** producers from providers, **absorbs spikes** (
 **retries/backpressure**. Producers return immediately after enqueuing. See
 [message-queues.md](../components/message-queues.md).
 
-### Deep Dive 2: Reliability — retries, idempotency, DLQ
+### Deep Dive 2: Reliability - retries, idempotency, DLQ
 Delivery is **at-least-once**, so a message can be retried and delivered twice. Make it safe:
 - **Idempotency key** per notification; the worker/provider dedups so a retry doesn't double-send.
 - **Retry with backoff** on transient provider errors; after N attempts move to a **dead-letter
   queue** for inspection.
-This is the delivery-semantics discussion — see
+This is the delivery-semantics discussion - see
 [qa-concurrency.md](../../QA-Bank/qa-concurrency.md) (at-least/at-most/exactly-once).
 
 ### Deep Dive 3: Fan-out for campaigns
@@ -166,7 +166,7 @@ Apply per-user rate limiting so a buggy producer can't spam one user (reuse the
 [rate-limiter](rate-limiter.md) design). Quiet hours / frequency caps live here too.
 
 ### Deep Dive 5: Delivery status tracking
-Providers send async delivery receipts (webhooks) — update the `deliveries` row from
+Providers send async delivery receipts (webhooks) - update the `deliveries` row from
 `sent → delivered/failed`. This powers "why didn't my notification arrive" debugging and retry
 decisions.
 

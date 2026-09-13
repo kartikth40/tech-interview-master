@@ -2,14 +2,14 @@
 
 ## Purpose
 
-A structured way to **practice** behavioral interviews — solo, with a peer, and with a professional
+A structured way to **practice** behavioral interviews - solo, with a peer, and with a professional
 mock. This file is the *practice process*. For the underlying content, use the canonical guides:
 - **STAR method, question categories, common mistakes** → [BehavioralGuide.md](BehavioralGuide.md)
 - **Your story bank** → [STAR-stories.md](STAR-stories.md)
 - **Company frameworks** → [company-specific/](company-specific/)
 - **Overall timeline** → [../InterviewPrep/StudyPlan-8weeks.md](../InterviewPrep/StudyPlan-8weeks.md)
 
-> This doc deliberately does **not** re-teach STAR or re-list the question bank — those live in the
+> This doc deliberately does **not** re-teach STAR or re-list the question bank - those live in the
 > guides above. It focuses on *how to practice and improve*.
 
 ---
@@ -30,7 +30,7 @@ silently hides all the problems.
 
 **One story, many questions.** The same "production outage you fixed" story can answer *solved a
 complex problem*, *worked under pressure*, *took ownership*, and *walk me through your debugging
-process*. Practice re-framing one story for 4 different prompts — it's how you cover more with fewer
+process*. Practice re-framing one story for 4 different prompts - it's how you cover more with fewer
 stories.
 
 ---
@@ -45,18 +45,18 @@ practice it explicitly. For your top stories, be ready for:
 | "Why did you make that decision?" | "It seemed right." | "I chose A over B because X; I weighed trade-offs Y vs Z." |
 | "What would you do differently?" | "Nothing." | "I'd do X earlier, because Y." (shows growth, not defensiveness) |
 | "How did the team react?" | "They did what I said." | "Initially skeptical; after I showed data on X, they bought in." |
-| "What did you learn?" | "To communicate better." | "Specifically Z — and here's how I applied it on a later project." |
+| "What did you learn?" | "To communicate better." | "Specifically Z - and here's how I applied it on a later project." |
 
 Pre-load, for each of your ~5-6 core stories: the **alternatives you rejected**, the **constraints**
 that shaped the decision, and what you'd **change with hindsight**.
 
 ---
 
-## 3️⃣ Peer Practice — 45-minute session
+## 3️⃣ Peer Practice - 45-minute session
 
 Find a partner (fellow job seeker, coworker prepping for promo, friend in tech).
 
-- **0-20 min:** Partner A interviews B — 2-3 behavioral questions + follow-ups.
+- **0-20 min:** Partner A interviews B - 2-3 behavioral questions + follow-ups.
 - **20-25 min:** Feedback (see rubric below).
 - **25-45 min:** Swap roles.
 
@@ -90,7 +90,7 @@ Expect 45-60 min, several behavioral questions with follow-ups, and written feed
 Capturing this while it's fresh is what compounds across a job search:
 
 ```
-Questions asked:        [list them — build your personal question bank]
+Questions asked:        [list them - build your personal question bank]
 Stories I used:         [story -> question mapping]
 Follow-ups asked:       [the drill-downs you got]
 What went well:         [specifics]
@@ -105,7 +105,7 @@ Prep before next round: [weak story to rewrite, topic to review]
 
 - [ ] 12-15 polished STAR stories (see [STAR-stories.md](STAR-stories.md)), covering all categories
 - [ ] Each core story survives follow-up drilling (alternatives / constraints / hindsight ready)
-- [ ] Practiced out loud and recorded — not just in your head
+- [ ] Practiced out loud and recorded - not just in your head
 - [ ] 2-3 peer mocks + 1-2 professional mocks done, feedback iterated
 - [ ] Target company's framework reviewed ([company-specific/](company-specific/))
 - [ ] Questions ready to ask the interviewer ([QuestionsToAsk.md](QuestionsToAsk.md))

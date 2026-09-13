@@ -34,7 +34,7 @@
 # NOTE: This file is the PATTERN applied to a concrete problem (Course Schedule). For the bare
 # 3-color cycle-detection algorithm (set-based, generic graph), see
 # algorithms/graph/cycle_detection_directed.py. This version uses an int state[] array keyed by
-# course index — the same idea, shaped for the LC 207/210 input format.
+# course index - the same idea, shaped for the LC 207/210 input format.
 
 
 # EXAMPLE: Course Schedule - can all courses be finished (is the graph acyclic)?
@@ -65,7 +65,7 @@ def can_finish(num_courses: int, prerequisites: list[list[int]]) -> bool:
     return True
 
 
-# (Network Delay Time / Dijkstra was moved out of this file — it's a shortest-path problem, not
+# (Network Delay Time / Dijkstra was moved out of this file - it's a shortest-path problem, not
 # cycle detection. See algorithms/graph/dijkstra.py for Dijkstra and its Network Delay Time variant.)
 
 

@@ -1,12 +1,12 @@
 site_name: Tech Interview Master
-site_description: SDE-1/SDE-2 interview prep — DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases. Runnable Python, 21 real system designs, ~194 conceptual Q&A.
+site_description: SDE-1/SDE-2 interview prep - DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases. Runnable Python, 21 real system designs, ~194 conceptual Q&A.
 site_author: kartikth40
 site_url: https://kartikth40.github.io/tech-interview-master/
 repo_url: https://github.com/kartikth40/tech-interview-master
 repo_name: kartikth40/tech-interview-master
 edit_uri: edit/main/
 copyright: >
-  Tech Interview Master — MIT licensed. Built with MkDocs + Material.
+  Tech Interview Master - MIT licensed. Built with MkDocs + Material.
 
 extra:
   social:
@@ -35,7 +35,7 @@ exclude_docs: |
   CODE_OF_CONDUCT.md
   requirements-docs.txt
   # README is the GitHub landing page; the site uses the richer index.md as Home.
-  # Anchor to the ROOT readme only — pillar READMEs (Fundamentals/, QA-Bank/, ...) must stay.
+  # Anchor to the ROOT readme only - pillar READMEs (Fundamentals/, QA-Bank/, ...) must stay.
   /README.md
   site/
   leetcode-companywise-interview-questions/
@@ -131,7 +131,7 @@ plugins:
   #
   # `enabled` (not just `cards`) is gated on CARDS so the plugin is FULLY inert
   # locally. When only `cards: false` was set, the plugin still wrote to
-  # `.cache/plugin/social/` on every build — and because docs_dir is the repo
+  # `.cache/plugin/social/` on every build - and because docs_dir is the repo
   # root, `mkdocs serve` watched `.cache`, saw the write, and rebuilt in an
   # infinite loop. Disabling the whole plugin locally stops the cache write.
   - social:
