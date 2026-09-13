@@ -12,7 +12,7 @@
 
 ---
 
-## 🥞 Stack vs heap `[core]`
+## Stack vs heap `[core]`
 
 | | Stack | Heap |
 |--|-------|------|
@@ -27,7 +27,7 @@ Each thread has its own stack; the heap is shared across threads (hence the need
 
 ---
 
-## ♻️ Garbage collection `[core]`
+## Garbage collection `[core]`
 
 Automatic reclamation of unreachable heap memory. Main approaches:
 
@@ -45,7 +45,7 @@ allocations to avoid stop-the-world pauses.
 
 ---
 
-## 🕳️ Memory leaks `[core]`
+## Memory leaks `[core]`
 
 Memory that's no longer needed but still **reachable**, so the GC won't reclaim it. Even in
 GC'd languages you can leak via:
@@ -59,7 +59,7 @@ and to close resources deterministically (context managers / try-with-resources)
 
 ---
 
-## 🔀 Pass-by-value vs pass-by-reference `[core]`
+## Pass-by-value vs pass-by-reference `[core]`
 
 - **Pass-by-value** — the callee gets a *copy*; changes don't affect the caller's variable.
 - **Pass-by-reference** — the callee gets an alias; changes are visible to the caller.
@@ -75,7 +75,7 @@ This is a top source of "why did my list change?" bugs — see value/reference s
 
 ---
 
-## 🐍 Python runtime specifics `[advanced]`
+## Python runtime specifics `[advanced]`
 
 Frequently probed for Python roles:
 
@@ -95,7 +95,7 @@ Frequently probed for Python roles:
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Saying "GC means no memory leaks" — you still leak via reachable-but-unused references.
 - Claiming reference counting handles everything — it can't collect cycles (needs a tracing pass).
@@ -104,7 +104,7 @@ Frequently probed for Python roles:
 - Using a mutable default argument and being surprised it persists across calls.
 - Ignoring GC pause times when reasoning about tail latency.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-language-python.md](../QA-Bank/qa-language-python.md)
 - Stack/heap sharing across threads, GIL → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)

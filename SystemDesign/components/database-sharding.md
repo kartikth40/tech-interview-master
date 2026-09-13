@@ -1,6 +1,6 @@
 # Database Sharding (Component Deep Dive)
 
-## 🎯 What is Database Sharding?
+## What is Database Sharding?
 
 Sharding is a horizontal partitioning strategy that splits a large database into smaller, more manageable pieces called **shards**. Each shard is a separate database that holds a subset of the data.
 
@@ -12,7 +12,7 @@ Sharding is a horizontal partitioning strategy that splits a large database into
 
 ---
 
-## 📊 Vertical vs Horizontal Partitioning
+## Vertical vs Horizontal Partitioning
 
 ### **Vertical Partitioning (Split by Columns)**
 ```sql
@@ -42,7 +42,7 @@ Use: Distribute data across multiple servers
 
 ---
 
-## 🔧 Sharding Strategies
+## Sharding Strategies
 
 ### 1. **Range-Based Sharding**
 
@@ -173,7 +173,7 @@ getShard(userId): return directory["user:" + userId]
 
 ---
 
-## 🗂️ Choosing the Shard Key
+## Choosing the Shard Key
 
 **Good Shard Key Properties:**
 - ✅ **High Cardinality**: Many unique values (e.g., user_id ✅, country ❌)
@@ -198,7 +198,7 @@ getShard(userId): return directory["user:" + userId]
 
 ---
 
-## 🎯 Querying Sharded Data
+## Querying Sharded Data
 
 ### **Single-Shard Query (Fast)** ✅
 ```text
@@ -241,7 +241,7 @@ user = SEARCH_ENGINE_QUERY(index = "users", match = { email: email })
 
 ---
 
-## 🔗 Handling Joins Across Shards
+## Handling Joins Across Shards
 
 ### **Problem:**
 ```sql
@@ -295,7 +295,7 @@ WHERE users.id = 123;
 
 ---
 
-## 🔄 Rebalancing Shards
+## Rebalancing Shards
 
 ### **When to Rebalance:**
 - Shard becomes too large (>1TB)
@@ -333,7 +333,7 @@ END FUNCTION
 
 ---
 
-## 🏗️ Database Sharding Architectures
+## Database Sharding Architectures
 
 ### **1. Application-Level Sharding**
 ```
@@ -369,7 +369,7 @@ Cons: Vendor-specific
 
 ---
 
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
 | Problem | Solution |
 |---------|----------|
@@ -389,7 +389,7 @@ Even with perfect hashing, a single key can be disproportionately hot (a celebri
 
 ---
 
-## 🆔 Globally Unique IDs (Required for Sharding)
+## Globally Unique IDs (Required for Sharding)
 
 ### **Problem with Auto-Increment:**
 ```sql
@@ -427,7 +427,7 @@ Because the timestamp occupies the high bits, Snowflake IDs are time-sortable (k
 
 ---
 
-## 📊 When to Shard?
+## When to Shard?
 
 **Shard when:**
 - ✅ Single database >1TB (slow queries, expensive backups)

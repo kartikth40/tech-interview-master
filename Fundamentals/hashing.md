@@ -12,7 +12,7 @@
 
 ---
 
-## 🎯 What a hash function is `[core]`
+## What a hash function is `[core]`
 
 A function `h(key) → integer` that is:
 - **Deterministic** — same input always gives the same output.
@@ -30,7 +30,7 @@ Different goals demand different properties, summarized here:
 
 ---
 
-## 🧺 Hash tables & collision handling `[core]`
+## Hash tables & collision handling `[core]`
 
 A collision is two keys hashing to the same bucket. It's unavoidable (pigeonhole principle), so the
 design question is *how you resolve it*.
@@ -67,7 +67,7 @@ addressing when memory locality matters and you can keep the table under ~70% fu
 
 ---
 
-## 📏 Load factor & resizing `[core]`
+## Load factor & resizing `[core]`
 
 **Load factor α = entries / buckets.** It's the dial that trades memory for speed.
 - Low α → wasted space but few collisions.
@@ -84,7 +84,7 @@ per insert — the same amortization argument as a dynamic array doubling.
 
 ---
 
-## 🌐 Consistent hashing `[advanced]`
+## Consistent hashing `[advanced]`
 
 Naive sharding does `server = hash(key) MOD N`. Add or remove one server and **almost every key
 remaps** — catastrophic for a cache (mass misses) or a stateful store (mass data movement).
@@ -100,7 +100,7 @@ with diagrams lives in the sharding deep-dive:
 
 ---
 
-## 🌸 Bloom filters `[advanced]`
+## Bloom filters `[advanced]`
 
 A probabilistic set: "**definitely not present**" or "**possibly present**" — never a false
 negative, but tunable false positives. Uses *k* hash functions setting bits in a bit array; you
@@ -112,7 +112,7 @@ taken. A negative answer skips the expensive path entirely.
 
 ---
 
-## 🔐 Cryptographic vs hash-table hashing `[core]`
+## Cryptographic vs hash-table hashing `[core]`
 
 | | Hash-table hash | Cryptographic hash |
 |--|-----------------|---------------------|
@@ -133,7 +133,7 @@ key, can verify the sender computed it. Used for signing API requests, webhooks,
 
 ---
 
-## 🧩 Where hashing shows up
+## Where hashing shows up
 
 - **Sharding / partitioning** — route key → node (consistent hashing). → [sharding doc](../SystemDesign/components/database-sharding.md)
 - **Caching** — cache keys, cache-key hashing. → [caching doc](../SystemDesign/components/caching.md)
@@ -144,7 +144,7 @@ key, can verify the sender computed it. Used for signing API requests, webhooks,
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Claiming hash tables are "O(1)" without the *average-case, assuming good hash + bounded load
   factor* caveat. Worst case is O(n) (all keys collide).
@@ -154,7 +154,7 @@ key, can verify the sender computed it. Used for signing API requests, webhooks,
 - Forgetting that resizing rehashes everything, so a single insert can spike to O(n).
 - Thinking a Bloom filter can give false negatives — it can't; only false positives.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-hashing.md](../QA-Bank/qa-hashing.md) · [qa-caching.md](../QA-Bank/qa-caching.md)
 - [Consistent hashing / sharding](../SystemDesign/components/database-sharding.md)

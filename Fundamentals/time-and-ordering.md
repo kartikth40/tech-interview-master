@@ -12,7 +12,7 @@
 
 ---
 
-## 🕰️ Why wall clocks fail `[advanced]`
+## Why wall clocks fail `[advanced]`
 
 Each machine has its own clock, and they **drift** apart. **NTP** synchronizes them but only to
 within milliseconds-to-tens-of-ms, and it can jump the clock forward or **backward**. Consequences:
@@ -26,7 +26,7 @@ So for correctness we track **causality**, not physical time.
 
 ---
 
-## ➡️ Happens-before `[advanced]`
+## Happens-before `[advanced]`
 
 Event A **happens-before** B (A → B) if:
 1. They're on the same node and A comes first, or
@@ -38,7 +38,7 @@ order is what we actually care about; wall-clock time is just an unreliable prox
 
 ---
 
-## 🔢 Lamport clocks `[advanced]`
+## Lamport clocks `[advanced]`
 
 A single integer counter per node:
 - Increment on every local event.
@@ -50,7 +50,7 @@ clocks order events but **can't detect concurrency/conflicts**.
 
 ---
 
-## 🧮 Vector clocks `[advanced]`
+## Vector clocks `[advanced]`
 
 A vector of counters, one entry per node (`[A:2, B:1, C:0]`):
 - Increment your own entry on an event.
@@ -66,7 +66,7 @@ Cost: the vector grows with the number of nodes (truncate stale entries).
 
 ---
 
-## ⚖️ Which to use `[advanced]`
+## Which to use `[advanced]`
 
 | Need | Use |
 |------|-----|
@@ -82,7 +82,7 @@ exception that proves how hard clock-based ordering is.
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Ordering distributed events by wall-clock timestamp (clocks drift; NTP isn't exact).
 - Using last-write-wins by timestamp and not realizing it can lose concurrent updates.
@@ -90,7 +90,7 @@ exception that proves how hard clock-based ordering is.
   vector clocks can.
 - Forgetting vector clocks grow with node count (need truncation/pruning).
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-databases.md](../QA-Bank/qa-databases.md) · [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
 - Consensus, replication, CAP → [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md)

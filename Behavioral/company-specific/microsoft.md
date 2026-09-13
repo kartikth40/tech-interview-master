@@ -1,6 +1,6 @@
 # Microsoft Behavioral Interview Guide
 
-## 🎯 Microsoft Culture & Values
+## Microsoft Culture & Values
 
 Microsoft's culture has evolved significantly under Satya Nadella's leadership, emphasizing **Growth Mindset**, **Customer Obsession**, **Diversity & Inclusion**, and **One Microsoft** (collaboration across teams).
 

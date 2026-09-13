@@ -1,7 +1,7 @@
 # YouTube System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a video streaming platform like YouTube that allows:
 - Upload videos

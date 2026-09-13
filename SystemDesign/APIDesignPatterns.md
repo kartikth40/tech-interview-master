@@ -1,6 +1,6 @@
 # API Design Patterns
 
-## 🎯 Overview
+## Overview
 
 Choosing the right API style is a common system design discussion. This guide covers REST, GraphQL, and gRPC - when to use each, trade-offs, and interview-ready talking points.
 
@@ -355,7 +355,7 @@ END ON
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [System Design Guide](SystemDesignGuide.md)
 - [Low-Level Design Guide](LowLevelDesign.md)

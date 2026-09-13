@@ -4,7 +4,7 @@ A comprehensive collection of questions organized by difficulty and topic to pra
 
 ---
 
-## 📊 How to Use This Guide
+## How to Use This Guide
 
 ### **Week 8 Mock Interview Schedule:**
 - **Days 1-2**: Easy/Medium questions (warm-up)
@@ -28,7 +28,7 @@ After each mock, evaluate:
 
 ---
 
-## 🔰 Mock Interview Set 1: Easy/Medium (Warm-up)
+## Mock Interview Set 1: Easy/Medium (Warm-up)
 
 **Duration:** 45 minutes  
 **Target:** Get comfortable with interview format
@@ -85,7 +85,7 @@ Follow-ups:
 
 ---
 
-## ⚡ Mock Interview Set 2: Medium (Core Patterns)
+## Mock Interview Set 2: Medium (Core Patterns)
 
 **Duration:** 45-60 minutes  
 **Target:** Pattern recognition and optimization
@@ -139,7 +139,7 @@ Pattern: Dynamic Programming
 
 ---
 
-## 🔥 Mock Interview Set 3: Medium/Hard (Challenging)
+## Mock Interview Set 3: Medium/Hard (Challenging)
 
 **Duration:** 60 minutes  
 **Target:** Advanced problem-solving
@@ -197,7 +197,7 @@ Pattern: Tree traversal (preorder/level-order)
 
 ---
 
-## 🎯 Mock Interview Set 4: Hard (Advanced)
+## Mock Interview Set 4: Hard (Advanced)
 
 **Duration:** 60 minutes  
 **Target:** Demonstrate expertise
@@ -274,7 +274,7 @@ Time: O(m*n), Space: O(m*n)
 
 ---
 
-## 🏢 Company-Specific Mock Interviews
+## Company-Specific Mock Interviews
 
 ### **Google Style (60 min)**
 
@@ -416,7 +416,7 @@ Amazon unique: They WILL ask which LP your design shows
 
 ---
 
-## 🧠 System Design Mock Topics (Choose 1-2)
+## System Design Mock Topics (Choose 1-2)
 
 ### **Easy:**
 1. **URL Shortener** (Bit.ly)
@@ -445,7 +445,7 @@ Amazon unique: They WILL ask which LP your design shows
 
 ---
 
-## 📋 Behavioral Mock Questions (15-20 min)
+## Behavioral Mock Questions (15-20 min)
 
 ### **Must Prepare:**
 
@@ -508,7 +508,7 @@ Amazon unique: They WILL ask which LP your design shows
 
 ---
 
-## 🎯 Mock Interview Partners
+## Mock Interview Partners
 
 **Where to Find:**
 1. **Pramp** (free, peer-to-peer)
@@ -524,7 +524,7 @@ Amazon unique: They WILL ask which LP your design shows
 
 ---
 
-## 📊 Progress Tracker
+## Progress Tracker
 
 Track your mock interview performance:
 
@@ -538,7 +538,7 @@ Track your mock interview performance:
 
 ---
 
-## 💡 Final Tips
+## Final Tips
 
 ### **Red Flags to Avoid:**
 - ❌ Jumping into code without discussing approach

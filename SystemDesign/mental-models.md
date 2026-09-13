@@ -193,7 +193,7 @@ Detail: [Distributed Systems (CAP/PACELC)](DistributedSystemsConcepts.md) ·
    everything else.
 4. Name the **one or two pivotal trade-offs** for the problem; that's what interviewers probe.
 
-## 🔗 Related
+## Related
 
 - Detailed framework + numbers → [SystemDesignGuide.md](SystemDesignGuide.md)
 - Real designs → [designs/](designs/url-shortener.md)

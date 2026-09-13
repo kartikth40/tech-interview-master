@@ -12,7 +12,7 @@ This guide covers everything unique to interviewing for tech roles in India, whe
 
 ---
 
-## 💰 Salary Ranges (2026 Data)
+## Salary Ranges (2026 Data)
 
 ### **MAANG in India (Google, Meta, Amazon, Microsoft, Apple)**
 
@@ -123,7 +123,7 @@ This guide covers everything unique to interviewing for tech roles in India, whe
 
 ---
 
-## 🏢 Top Companies in India (By Category)
+## Top Companies in India (By Category)
 
 ### **Category 1: MAANG (Global Tech Giants)**
 
@@ -478,7 +478,7 @@ This guide covers everything unique to interviewing for tech roles in India, whe
 
 ---
 
-## 🗺️ Office Locations Deep Dive
+## Office Locations Deep Dive
 
 ### **Bangalore (Bengaluru)** 🏙️
 
@@ -643,7 +643,7 @@ This guide covers everything unique to interviewing for tech roles in India, whe
 
 ---
 
-## 🤝 Referral Strategies (Step-by-Step)
+## Referral Strategies (Step-by-Step)
 
 ### **Strategy 1: LinkedIn Networking (Highest Success Rate)**
 
@@ -908,7 +908,7 @@ Many tech leaders in India are active on Twitter:
 
 ---
 
-## 📊 Salary Negotiation (India-Specific Tips)
+## Salary Negotiation (India-Specific Tips)
 
 ### **Rule 1: Always Have Competing Offers**
 
@@ -1038,7 +1038,7 @@ Best,
 
 ---
 
-## 🎯 Interview Preparation Tips (India-Specific)
+## Interview Preparation Tips (India-Specific)
 
 ### **Tip 1: Understand India Office Priorities**
 
@@ -1188,7 +1188,7 @@ Shows you understand constraints of building in India (not just copying US syste
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 **Salary Research:**
 - levels.fyi/India

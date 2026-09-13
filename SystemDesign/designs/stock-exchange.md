@@ -1,7 +1,7 @@
 # Stock Exchange / Matching Engine System Design
 > **SDE-2 Interview Ready** | 45-minute format · *advanced / low-frequency*
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design the core of a stock exchange: accept buy/sell orders, match them fairly, and publish trades
 and market data — with correctness and very low latency.

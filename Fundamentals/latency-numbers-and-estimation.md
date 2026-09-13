@@ -15,7 +15,7 @@
 
 ---
 
-## 🔢 Powers of 2 & scale words `[core]`
+## Powers of 2 & scale words `[core]`
 
 Data sizes are powers of 2; traffic/counts are powers of 10. Know the mapping cold:
 
@@ -32,7 +32,7 @@ factor). This single conversion drives most QPS math.
 
 ---
 
-## ⏱️ Latency numbers to know `[core]`
+## Latency numbers to know `[core]`
 
 A compact recall set (approximate, orders of magnitude — that's the point):
 
@@ -53,7 +53,7 @@ keep data local. Full table + context: [SystemDesignGuide.md](../SystemDesign/Sy
 
 ---
 
-## 🧮 The estimation method `[core]`
+## The estimation method `[core]`
 
 A repeatable four-step drill:
 
@@ -79,7 +79,7 @@ grade the *approach and assumptions*, not arithmetic to 3 significant figures.
 
 ---
 
-## 🏋️ Worked drill: a photo-sharing feed `[core]`
+## Worked drill: a photo-sharing feed `[core]`
 
 Assumptions stated up front (make them, don't ask for exact figures):
 - 100 M DAU, each posts 1 photo/day, reads 100 photos/day.
@@ -97,7 +97,7 @@ storage + sharding, not a single DB.
 
 ---
 
-## 📊 Useful reference points `[advanced]`
+## Useful reference points `[advanced]`
 
 Rough single-node ceilings (vary widely with workload — use as sanity anchors, not guarantees):
 - Commodity server: **~1K QPS** for real work.
@@ -110,7 +110,7 @@ prompt states an SLA.
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Skipping estimation and jumping to boxes-and-arrows — the numbers justify the design.
 - Forgetting the **peak factor** (traffic isn't spread evenly over 24 h).
@@ -119,7 +119,7 @@ prompt states an SLA.
   sharding/queues).
 - False precision — round to orders of magnitude and move on.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
 - Estimation step in the interview framework + full latency table → [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md)

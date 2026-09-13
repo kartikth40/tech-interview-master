@@ -13,7 +13,7 @@
 
 ---
 
-## 🎯 Concurrency vs parallelism `[core]`
+## Concurrency vs parallelism `[core]`
 
 | | Concurrency | Parallelism |
 |--|-------------|-------------|
@@ -27,7 +27,7 @@ processes across cores).
 
 ---
 
-## 🧠 Threads vs async / event loop `[core]`
+## Threads vs async / event loop `[core]`
 
 Two ways to be concurrent:
 
@@ -44,7 +44,7 @@ common async bug.
 
 ---
 
-## 🔒 Synchronization primitives `[core]`
+## Synchronization primitives `[core]`
 
 | Primitive | What it does | Use when |
 |-----------|--------------|----------|
@@ -59,7 +59,7 @@ as small as possible — holding a lock longer than needed kills throughput.
 
 ---
 
-## 💥 Race conditions & atomicity `[core]`
+## Race conditions & atomicity `[core]`
 
 A **race condition**: the result depends on the *timing* of interleaved operations. The canonical
 example is `count += 1`, which is really *read → add → write* — three steps that another thread can
@@ -78,7 +78,7 @@ partial state. Fix the race with a lock, an atomic increment, or by not sharing 
 
 ---
 
-## ⚰️ Deadlock, livelock, starvation `[core]`
+## Deadlock, livelock, starvation `[core]`
 
 - **Deadlock** — threads wait on each other forever. Needs all four **Coffman conditions**: mutual
   exclusion, hold-and-wait, no preemption, circular wait. Break *any one* to prevent it — most
@@ -97,7 +97,7 @@ Thread B: lock(Y); ... lock(X)   # A holds X waits Y, B holds Y waits X → stuc
 
 ---
 
-## 🏭 Producer-consumer & thread pools `[core]`
+## Producer-consumer & thread pools `[core]`
 
 - **Producer-consumer** — producers push work onto a bounded queue, consumers pull. The queue
   decouples rates and provides backpressure (producers block when it's full). A condition variable
@@ -108,7 +108,7 @@ Thread B: lock(Y); ... lock(X)   # A holds X waits Y, B holds Y waits X → stuc
 
 ---
 
-## 📉 Amdahl's law `[advanced]`
+## Amdahl's law `[advanced]`
 
 Speedup from parallelism is capped by the **serial fraction**. If fraction *s* of the work is
 inherently sequential, max speedup with infinite cores is **1/s**. So if 10% is serial, you can
@@ -117,7 +117,7 @@ portion, and don't expect linear scaling — coordination and the serial tail do
 
 ---
 
-## 🐍 Python: the GIL `[core]`
+## Python: the GIL `[core]`
 
 The **Global Interpreter Lock** lets only one thread execute Python bytecode at a time. Consequences:
 - **CPU-bound + threads → no speedup** (threads fight over the GIL). Use `multiprocessing` or native
@@ -138,7 +138,7 @@ Quick decision guide:
 
 ---
 
-## 🔐 Optimistic vs pessimistic locking `[advanced]`
+## Optimistic vs pessimistic locking `[advanced]`
 
 - **Pessimistic** — lock first, assume conflict is likely. Blocks others (row locks, `SELECT … FOR
   UPDATE`). Safe but reduces concurrency; risks deadlock.
@@ -150,7 +150,7 @@ This maps directly to database concurrency control (MVCC is optimistic-flavored)
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Saying "concurrency = parallelism." Structure vs execution — keep them distinct.
 - Claiming Python threads speed up CPU-bound code (the GIL prevents it).
@@ -159,7 +159,7 @@ This maps directly to database concurrency control (MVCC is optimistic-flavored)
   critical sections, lock ordering, or no sharing.
 - Ignoring that an event loop is stalled by one blocking/CPU-heavy call.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-concurrency.md](../QA-Bank/qa-concurrency.md)
 - Optimistic locking / MVCC → [databases-internals.md](databases-internals.md)

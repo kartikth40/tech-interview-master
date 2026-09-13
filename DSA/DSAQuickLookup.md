@@ -3,7 +3,7 @@
 > 🧭 Want the *visual* thinking layer — decision flowcharts, the mental web, and
 > constraints→complexity reasoning? See **[DSA Mental Models](mental-models.md)**.
 
-## 🎯 Problem → Pattern Quick Guide
+## Problem → Pattern Quick Guide
 
 ### Keywords → Pattern Map
 
@@ -90,7 +90,7 @@
 
 ---
 
-## 📊 Pattern Categories & Complexity Summary
+## Pattern Categories & Complexity Summary
 
 ### 1. **ARRAY PATTERNS**
 | Method | Time | Space | Best For |
@@ -266,7 +266,7 @@
 
 ---
 
-## 🚀 Quick Decision Tree
+## Quick Decision Tree
 
 ```
 Choose Your Pattern:
@@ -349,7 +349,7 @@ Choose Your Pattern:
 
 ---
 
-## 💡 Common Mistakes to Avoid
+## Common Mistakes to Avoid
 
 | Mistake | Fix |
 |---------|-----|
@@ -364,7 +364,7 @@ Choose Your Pattern:
 
 ---
 
-## 📚 File References
+## File References
 
 - **Arrays:** [Two Pointers](patterns/two_pointers.py), [Sliding Window](patterns/sliding_window.py), [Prefix Sum](patterns/prefix_sum_pattern.py), [kSum Reduction](patterns/k_sum_reduction.py)
 - **Graphs:** [DFS](algorithms/graph/dfs.py), [BFS](algorithms/graph/bfs.py), [Dijkstra's](algorithms/graph/dijkstra.py), [Bellman-Ford](algorithms/graph/bellman_ford.py), [Floyd-Warshall](algorithms/graph/floyd_warshall.py), [Kruskal's](algorithms/graph/kruskals.py), [Prim's](algorithms/graph/prims.py), [Kosaraju's](algorithms/graph/kosaraju.py), [Tarjan's](algorithms/graph/tarjan.py)
@@ -382,7 +382,7 @@ Choose Your Pattern:
 
 ---
 
-## ⭐ Top-Tech SDE-2 Must-Knows (high frequency - prioritize these)
+## Top-Tech SDE-2 Must-Knows (high frequency - prioritize these)
 
 These come up again and again in real SDE-2 loops across MAANG and top Indian unicorns. Be fluent, not just familiar.
 
@@ -396,7 +396,7 @@ These come up again and again in real SDE-2 loops across MAANG and top Indian un
 
 ---
 
-## 🔬 Advanced / Rarely Asked at SDE-2 (study last, or skip)
+## Advanced / Rarely Asked at SDE-2 (study last, or skip)
 
 These appear in the repo for completeness, but are **low-yield for a typical SDE-2 coding round** (MAANG
 or top unicorns) - they are mostly competitive-programming territory. Don't spend core prep time here

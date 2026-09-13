@@ -97,7 +97,7 @@
 
 ---
 
-## 🔗 Related
+## Related
 
 - Internals (ACID, isolation, MVCC, indexing) → [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
 - Query patterns → [sql-query-patterns.md](sql-query-patterns.md)

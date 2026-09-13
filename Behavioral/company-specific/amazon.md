@@ -1,6 +1,6 @@
 # Amazon - Behavioral Interview Guide
 
-## 🎯 Amazon Interview Overview
+## Amazon Interview Overview
 
 **Format:**
 - 5-7 rounds (1 phone screen + 4-6 onsite/virtual + 1 "Bar Raiser")
@@ -15,7 +15,7 @@
 
 ---
 
-## 🌟 Amazon's 16 Leadership Principles (LPs)
+## Amazon's 16 Leadership Principles (LPs)
 
 The **full LP reference** — each principle's definition, the questions it maps to, and what
 interviewers look for — lives in one canonical place so it stays consistent:
@@ -61,7 +61,7 @@ R: Rewrite shipped (a bit late) and enabled new features — I was partly wrong,
 
 ---
 
-## 📊 Amazon LP Coverage Matrix
+## Amazon LP Coverage Matrix
 
 Prepare 12-15 stories that each map to multiple LPs:
 
@@ -83,7 +83,7 @@ Prepare 12-15 stories that each map to multiple LPs:
 
 ---
 
-## ⚠️ Amazon-Specific Do's and Don'ts
+## Amazon-Specific Do's and Don'ts
 
 ### ✅ Do:
 - **Map every story to LPs** - "This shows Ownership because..."
@@ -104,7 +104,7 @@ Prepare 12-15 stories that each map to multiple LPs:
 
 ---
 
-## 🎯 Questions to Ask Interviewer
+## Questions to Ask Interviewer
 
 **Customer Obsession:**
 - "Can you share an example of when your team went above and beyond for a customer?"

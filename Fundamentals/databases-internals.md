@@ -13,7 +13,7 @@
 
 ---
 
-## 🔐 ACID `[core]`
+## ACID `[core]`
 
 | Property | Meaning |
 |----------|---------|
@@ -27,7 +27,7 @@ logged before being applied, so a crash can be replayed or rolled back.
 
 ---
 
-## 🎚️ Isolation levels & anomalies `[core]`
+## Isolation levels & anomalies `[core]`
 
 Stricter isolation = fewer anomalies but less concurrency. The anomalies, weakest first:
 
@@ -47,7 +47,7 @@ Serializable only when correctness demands it.
 
 ---
 
-## 🌲 Indexing `[core]`
+## Indexing `[core]`
 
 An index is a secondary structure that makes lookups fast without scanning the whole table.
 
@@ -69,7 +69,7 @@ storage. Index the columns you filter/join/sort on — not everything. A **compo
 
 ---
 
-## 🧱 Normalization vs denormalization `[core]`
+## Normalization vs denormalization `[core]`
 
 - **Normalization** removes redundancy by splitting into related tables (3NF). Fewer update
   anomalies, but reads need joins.
@@ -81,7 +81,7 @@ read-heavy or analytical paths (OLAP), and for NoSQL where joins are expensive o
 
 ---
 
-## 🆚 SQL vs NoSQL `[core]`
+## SQL vs NoSQL `[core]`
 
 | | SQL (relational) | NoSQL |
 |--|------------------|-------|
@@ -97,7 +97,7 @@ known up front — model the queries first.
 
 ---
 
-## 🔁 Replication `[core]`
+## Replication `[core]`
 
 Keeping copies of data on multiple nodes for **availability** and **read throughput**.
 
@@ -114,7 +114,7 @@ read it back" bugs — fix with read-your-writes routing.
 
 ---
 
-## 🪓 Partitioning / sharding `[core]`
+## Partitioning / sharding `[core]`
 
 Splitting data *across* nodes so no single node holds it all — the key to write scaling. Strategies
 (range, hash, consistent hashing) and the rebalancing/hot-shard problems have a canonical home:
@@ -126,7 +126,7 @@ each shard for availability/reads.
 
 ---
 
-## ⚖️ CAP / PACELC `[advanced]`
+## CAP / PACELC `[advanced]`
 
 Once data is distributed, a network **partition (P)** forces a choice between **consistency (C)** and
 **availability (A)** — you can't have both during a partition. **PACELC** extends it: *else* (when
@@ -137,7 +137,7 @@ This is a system-design cornerstone with a full treatment (plus consensus, quoru
 
 ---
 
-## 🔄 MVCC & concurrency control `[advanced]`
+## MVCC & concurrency control `[advanced]`
 
 **Multi-Version Concurrency Control** lets readers and writers not block each other: each write
 creates a new *version* of a row, and each transaction reads a consistent snapshot. Used by Postgres
@@ -148,7 +148,7 @@ Old versions accumulate and must be cleaned up (Postgres `VACUUM`) — a real op
 
 ---
 
-## 🔌 Connection pooling `[core]`
+## Connection pooling `[core]`
 
 Opening a DB connection is expensive (TCP + auth + session setup). A **connection pool** keeps a set
 of open connections and hands them out, capping total connections so the DB isn't overwhelmed. This
@@ -157,7 +157,7 @@ resources.
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Confusing **consistency** in ACID (constraints valid) with **consistency** in CAP (all nodes see
   the same data) — different meanings.
@@ -167,7 +167,7 @@ resources.
   normal-operation latency trade-off.
 - Choosing NoSQL "because it scales" without knowing the access patterns.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-databases.md](../QA-Bank/qa-databases.md)
 - [Sharding / partitioning deep-dive](../SystemDesign/components/database-sharding.md)

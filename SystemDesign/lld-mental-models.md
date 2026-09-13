@@ -177,7 +177,7 @@ Full implementation (with the fee calculation and dispatch): [LLD guide → Park
 4. Add a pattern only when you can name the pain it removes.
 5. Sanity-check against **SOLID** and walk one concrete flow (e.g. "a car parks, then leaves").
 
-## 🔗 Related
+## Related
 
 - Full code, patterns, LLD problems → [Low-Level Design guide](LowLevelDesign.md)
 - OOP pillars, SOLID, composition vs inheritance → [Fundamentals](../Fundamentals/oop-and-language-concepts.md)

@@ -1,4 +1,4 @@
-# 🎯 Tech Interview Master
+# [🎯 Tech Interview Master](https://kartikth40.github.io/tech-interview-master/)
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Stars](https://img.shields.io/github/stars/kartikth40/tech-interview-master?style=social)
@@ -15,7 +15,7 @@
 
 ---
 
-## 📚 What's Inside?
+## What's Inside?
 
 ### 1️⃣ [DSA Mastery](DSA/)
 - **19 Core Patterns** with complexity analysis and skeleton templates
@@ -142,7 +142,7 @@ Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### For DSA Practice:
 ```bash
@@ -183,7 +183,7 @@ cat InterviewPrep/StudyPlan-8weeks.md
 
 ---
 
-## 🎯 Target Audience
+## Target Audience
 - **SDE-1 / SDE-2** candidates preparing for top tech companies
 - **Self-learners** who want comprehensive, organized interview prep
 - **Career switchers** entering software engineering
@@ -191,7 +191,7 @@ cat InterviewPrep/StudyPlan-8weeks.md
 
 ---
 
-## 📊 Coverage Overview
+## Coverage Overview
 
 | Category | Topics Covered | Difficulty | Completion |
 |----------|---------------|------------|------------|
@@ -206,7 +206,7 @@ cat InterviewPrep/StudyPlan-8weeks.md
 
 ---
 
-## 🗺️ Repository Structure
+## Repository Structure
 
 ```
 tech-interview-master/
@@ -322,7 +322,7 @@ tech-interview-master/
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 ✅ **Comprehensive Coverage** - DSA + System Design + Behavioral + CS Fundamentals + Q&A Bank + Databases in one place  
 ✅ **Actionable Templates** - Ready-to-use code and story frameworks  
@@ -335,7 +335,7 @@ tech-interview-master/
 
 ---
 
-## 📚 Resources Used
+## Resources Used
 
 - LeetCode Top Interview Questions
 - System Design Primer
@@ -346,7 +346,7 @@ tech-interview-master/
 
 ---
 
-## ⭐ Support & Contributing
+## Support & Contributing
 
 If this repository helps you land your dream job:
 - **Star** ⭐ this repo
@@ -356,7 +356,7 @@ If this repository helps you land your dream job:
 
 ---
 
-## 📝 License
+## License
 
 This repository is licensed under the **MIT License** - free to use, modify, and share.
 
@@ -364,7 +364,7 @@ See [LICENSE](LICENSE) for full terms.
 
 ---
 
-## 🎯 Final Words
+## Final Words
 
 **Interview preparation is a marathon, not a sprint.**
 
@@ -378,7 +378,7 @@ This repository contains everything you need to succeed, but remember:
 
 ---
 
-## 💰 India Salary Ranges (2026)
+## India Salary Ranges (2026)
 
 ### MAANG India Offices
 

@@ -266,7 +266,7 @@ Watch the recognition process, not just the answer. In each, the **signal** does
    [signal table](#3-signal-pattern-trigger-questions).
 4. After solving, note *which signal* pointed at the pattern — that's what builds recognition.
 
-## 🔗 Related
+## Related
 
 - Keyword → pattern table → [DSAQuickLookup.md](DSAQuickLookup.md)
 - Intuition + when-to-use per pattern → [DSACompleteGuide.md](DSACompleteGuide.md)

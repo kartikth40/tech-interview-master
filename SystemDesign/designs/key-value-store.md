@@ -1,7 +1,7 @@
 # Distributed Key-Value Store System Design (Dynamo-style)
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a distributed key-value store (like DynamoDB / Cassandra) that stores `key → value` pairs
 across many nodes with high availability and horizontal scale.

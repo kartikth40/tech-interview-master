@@ -13,7 +13,7 @@ Sales(id, emp_id, amount, sold_at)
 
 ---
 
-## 🔗 Joins (inner / outer / self)
+## Joins (inner / outer / self)
 
 ```sql
 -- Employees with their department name (INNER: only matched rows)
@@ -36,7 +36,7 @@ join to itself via aliases.
 
 ---
 
-## 📊 GROUP BY + HAVING + aggregates
+## GROUP BY + HAVING + aggregates
 
 ```sql
 -- Departments with average salary > 50k (HAVING filters groups, WHERE filters rows)
@@ -52,7 +52,7 @@ a top interview probe.
 
 ---
 
-## 🪆 Subqueries vs CTEs
+## Subqueries vs CTEs
 
 ```sql
 -- Employees earning above their department's average (correlated subquery)
@@ -76,7 +76,7 @@ for clarity; know both.
 
 ---
 
-## 🪟 Window functions (the SDE-2 differentiator)
+## Window functions (the SDE-2 differentiator)
 
 ```sql
 -- Rank employees by salary within each department
@@ -102,7 +102,7 @@ Know **ROW_NUMBER vs RANK vs DENSE_RANK** (tie handling) and LAG/LEAD for row-to
 
 ---
 
-## 🥇 Nth-highest value
+## Nth-highest value
 
 ```sql
 -- 2nd-highest salary (window approach — handles ties predictably)
@@ -117,7 +117,7 @@ literal offset (ROW_NUMBER / `LIMIT 1 OFFSET 1`), and how ties change the answer
 
 ---
 
-## 🧹 Finding & removing duplicates
+## Finding & removing duplicates
 
 ```sql
 -- Find duplicate emails
@@ -134,7 +134,7 @@ DELETE FROM Users WHERE id IN (SELECT id FROM dupes WHERE rn > 1);
 
 ---
 
-## 🔄 Pivot (rows → columns)
+## Pivot (rows → columns)
 
 ```sql
 -- Sales per employee split into columns by year (conditional aggregation)
@@ -148,7 +148,7 @@ GROUP BY emp_id;
 
 ---
 
-## 📅 Date bucketing
+## Date bucketing
 
 ```sql
 -- Daily sales totals
@@ -162,7 +162,7 @@ questions.
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Putting an aggregate in `WHERE` (use `HAVING`).
 - Forgetting `LEFT JOIN` + `WHERE right.col = x` silently turns it back into an inner join (filter in
@@ -171,7 +171,7 @@ questions.
 - `COUNT(*)` vs `COUNT(col)` — the latter skips NULLs.
 - Selecting non-aggregated columns not in `GROUP BY` (invalid in standard SQL).
 
-## 🔗 Related
+## Related
 
 - Theory behind these → [sql-theory-qa.md](sql-theory-qa.md)
 - Timed practice → [query-practice-set.md](query-practice-set.md)

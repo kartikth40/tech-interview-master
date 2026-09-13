@@ -1,6 +1,6 @@
 # Load Balancer (Component Deep Dive)
 
-## 🎯 What is a Load Balancer?
+## What is a Load Balancer?
 
 A load balancer distributes incoming network traffic across multiple servers to ensure no single server bears too much load, improving:
 - **Availability** - If one server fails, traffic routes to healthy servers
@@ -9,7 +9,7 @@ A load balancer distributes incoming network traffic across multiple servers to 
 
 ---
 
-## 📊 Types of Load Balancers
+## Types of Load Balancers
 
 ### 1. **Hardware Load Balancer**
 ```
@@ -37,7 +37,7 @@ Use: Cloud-native applications ⭐
 
 ---
 
-## 🔧 Load Balancer Layers (OSI Model)
+## Load Balancer Layers (OSI Model)
 
 ### **Layer 4 (Transport Layer) Load Balancer**
 
@@ -104,7 +104,7 @@ Client → Load Balancer inspects URL:
 
 ---
 
-## ⚖️ Load Balancing Algorithms
+## Load Balancing Algorithms
 
 ### 1. **Round Robin**
 ```
@@ -192,7 +192,7 @@ Server 3 (avg 150ms response time)
 
 ---
 
-## 🏥 Health Checks
+## Health Checks
 
 ```text
 # Active Health Check (Proactive)
@@ -224,7 +224,7 @@ FUNCTION handle_request(req, server):
 
 ---
 
-## 🔒 SSL Termination
+## SSL Termination
 
 ```
 Client (HTTPS) → Load Balancer (SSL terminated) → Servers (HTTP)
@@ -241,7 +241,7 @@ Drawback:
 
 ---
 
-## 📝 Session Persistence (Sticky Sessions)
+## Session Persistence (Sticky Sessions)
 
 ### **Problem:**
 User logs in → Session stored on Server 1 → Next request goes to Server 2 → User appears logged out
@@ -276,7 +276,7 @@ session = SHARED_STORE.get("session:" + session_id)
 
 ---
 
-## 🌍 Global Load Balancing (DNS-Based)
+## Global Load Balancing (DNS-Based)
 
 ```
 User in US → us-east-1.example.com
@@ -296,7 +296,7 @@ DNS returns different IP based on:
 
 ---
 
-## 🔧 Configuration (conceptual)
+## Configuration (conceptual)
 
 A Layer-7 balancer (NGINX/HAProxy/Envoy) is configured with:
 - An **upstream pool** of backend servers, each with an optional **weight** (higher weight = more traffic) and **backup** servers used only when the primaries fail.
@@ -307,7 +307,7 @@ A Layer-7 balancer (NGINX/HAProxy/Envoy) is configured with:
 
 ---
 
-## 📊 Comparison Matrix
+## Comparison Matrix
 
 | Algorithm | Pros | Cons | Best For |
 |-----------|------|------|----------|
@@ -319,7 +319,7 @@ A Layer-7 balancer (NGINX/HAProxy/Envoy) is configured with:
 
 ---
 
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
 | Problem | Solution |
 |---------|----------|
@@ -331,7 +331,7 @@ A Layer-7 balancer (NGINX/HAProxy/Envoy) is configured with:
 
 ---
 
-## 🚀 Advanced Features
+## Advanced Features
 
 ### 1. **Rate Limiting**
 The balancer can rate-limit per client (e.g. keyed by source IP) - a sustained rate (e.g. 10 req/s)
@@ -361,7 +361,7 @@ Green (new): 0% traffic
 
 ---
 
-## 📈 Monitoring Metrics
+## Monitoring Metrics
 
 ```
 Key metrics to track:

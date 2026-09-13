@@ -1,6 +1,6 @@
 # Apple Behavioral Interview Guide
 
-## 🎯 Apple Culture & Values
+## Apple Culture & Values
 
 Apple is **obsessed with quality, craftsmanship, and user experience**. They value deep technical expertise, attention to detail, ownership, and the ability to work in **highly secretive, cross-functional environments**.
 

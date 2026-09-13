@@ -12,7 +12,7 @@
 
 ---
 
-## 🔑 Idempotency `[core]`
+## Idempotency `[core]`
 
 An operation is **idempotent** if applying it multiple times equals applying it once.
 - Naturally idempotent: `SET balance = 100`, `DELETE user 5`, HTTP `GET`/`PUT`/`DELETE`.
@@ -35,7 +35,7 @@ payment API is the canonical example — retrying a charge with the same key nev
 
 ---
 
-## 📮 Delivery semantics `[core]`
+## Delivery semantics `[core]`
 
 | Semantic | Guarantee | Failure mode | Needs |
 |----------|-----------|--------------|-------|
@@ -54,7 +54,7 @@ At-least-once: process        →  then commit     (crash after process = reproc
 
 ---
 
-## 🎯 "Exactly-once" — what it really means `[advanced]`
+## "Exactly-once" — what it really means `[advanced]`
 
 True end-to-end exactly-once across arbitrary systems is generally impossible; what people call
 exactly-once is **at-least-once delivery + idempotent (or transactional) processing** so duplicates
@@ -66,7 +66,7 @@ Be honest in interviews: "exactly-once *effects*, achieved via at-least-once + i
 
 ---
 
-## 🛠️ Making consumers idempotent `[core]`
+## Making consumers idempotent `[core]`
 
 - **Dedup table / set** of processed IDs (with TTL) — skip if seen.
 - **Upsert instead of insert** — writing the same row twice is a no-op.
@@ -76,14 +76,14 @@ Be honest in interviews: "exactly-once *effects*, achieved via at-least-once + i
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Claiming a queue gives exactly-once out of the box — it's at-least-once; you add idempotency.
 - Forgetting that `POST`/increment aren't idempotent, so blind retries double-apply.
 - Storing idempotency keys forever — use a TTL; keys are only needed during the retry window.
 - Ignoring ordering of process-vs-commit, which is exactly what turns into loss or duplication.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-concurrency.md](../QA-Bank/qa-concurrency.md) · [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
 - Optimistic concurrency (conditional writes) → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)

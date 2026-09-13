@@ -1,6 +1,6 @@
 # Distributed Systems Concepts
 
-## 🎯 Why This Matters
+## Why This Matters
 
 Every system design interview at SDE-2 level will probe your understanding of distributed systems. These concepts come up in almost every design - knowing them deeply separates good answers from great ones.
 
@@ -480,7 +480,7 @@ Payment and notifications continue working
 
 ---
 
-## 🔟 Observability
+## Observability
 
 ### The Three Pillars
 
@@ -522,7 +522,7 @@ SLI/SLO/SLA:
 
 ---
 
-## 📊 Quick Reference
+## Quick Reference
 
 | Concept | Key Point | Example |
 |---------|-----------|---------|
@@ -536,7 +536,7 @@ SLI/SLO/SLA:
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [System Design Guide](SystemDesignGuide.md)
 - [Message Queues Component](components/message-queues.md)

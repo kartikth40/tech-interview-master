@@ -1,7 +1,7 @@
 # WhatsApp Messaging System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a real-time messaging platform like WhatsApp that supports:
 - One-to-one messaging

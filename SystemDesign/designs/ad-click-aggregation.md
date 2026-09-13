@@ -1,7 +1,7 @@
 # Ad Click Aggregation System Design (Streaming Analytics)
 > **SDE-2 Interview Ready** | 45-minute format · *advanced / Xu Vol 2*
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a system that ingests a massive stream of ad-click events and produces aggregated metrics
 (clicks per ad per minute, top-N ads) in near real time for dashboards and billing.

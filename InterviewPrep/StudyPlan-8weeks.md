@@ -1,6 +1,6 @@
 # 8-Week Tech Interview Study Plan
 
-## 🎯 Overview
+## Overview
 
 This plan prepares you for **SDE-1/SDE-2 interviews at MAANG + top Indian unicorns** (Google, Meta, Amazon, Microsoft, Apple, Flipkart, Razorpay, CRED, Swiggy, Zomato, ...).
 
@@ -14,7 +14,7 @@ This plan prepares you for **SDE-1/SDE-2 interviews at MAANG + top Indian unicor
 
 ---
 
-## 📊 Weekly Breakdown
+## Weekly Breakdown
 
 | Week | Focus | DSA Problems | System Design | Behavioral | CS Fund + Q&A | Hours/Week |
 |------|-------|--------------|---------------|------------|---------------|------------|
@@ -26,7 +26,7 @@ This plan prepares you for **SDE-1/SDE-2 interviews at MAANG + top Indian unicor
 
 ---
 
-## 📅 Week 1-2: DSA Fundamentals
+## Week 1-2: DSA Fundamentals
 
 **Goal:** Master core patterns, build problem-solving speed
 
@@ -107,7 +107,7 @@ Weekend (2.5h/day = 5h):
 
 ---
 
-## 📅 Week 3-4: DSA Advanced
+## Week 3-4: DSA Advanced
 
 **Goal:** Master advanced patterns, tackle hard problems
 
@@ -192,7 +192,7 @@ Weekend (2.5h/day = 5h):
 
 ---
 
-## 📅 Week 5-6: System Design Focus
+## Week 5-6: System Design Focus
 
 **Goal:** Master system design framework, design end-to-end systems
 
@@ -269,7 +269,7 @@ Pick 2 hard problems per day from these topics:
 
 ---
 
-## 📅 Week 7: Behavioral + Comprehensive Review
+## Week 7: Behavioral + Comprehensive Review
 
 **Goal:** Polish behavioral answers, review weak areas
 
@@ -317,7 +317,7 @@ Focus on company-specific problems:
 
 ---
 
-## 📅 Week 8: Mock Interviews + Final Prep
+## Week 8: Mock Interviews + Final Prep
 
 **Goal:** Simulate real interview conditions, build confidence
 
@@ -363,7 +363,7 @@ Choose top 2 companies, solve their tagged problems:
 
 ---
 
-## 📊 Progress Tracking
+## Progress Tracking
 
 ### Overall Checklist
 
@@ -401,7 +401,7 @@ Choose top 2 companies, solve their tagged problems:
 
 ---
 
-## 💡 Study Tips
+## Study Tips
 
 ### Do's:
 ✅ **Solve problems without looking at solutions** (try 30-45 min first)  
@@ -422,7 +422,7 @@ Choose top 2 companies, solve their tagged problems:
 
 ---
 
-## 🎯 Customization Options
+## Customization Options
 
 ### If you have LESS than 8 weeks:
 - **4 weeks:** Skip review weeks, do 50 DSA problems, 4 system designs, 10 stories
@@ -440,7 +440,7 @@ Choose top 2 companies, solve their tagged problems:
 
 ---
 
-## 📚 Resources
+## Resources
 
 ### DSA Practice:
 - [DSA Complete Guide](../DSA/DSACompleteGuide.md)
@@ -467,7 +467,7 @@ Choose top 2 companies, solve their tagged problems:
 
 ---
 
-## 🚀 Final Words
+## Final Words
 
 **This plan is aggressive but achievable.** If you follow it consistently:
 - You'll solve 110+ DSA problems

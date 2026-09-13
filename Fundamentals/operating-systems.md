@@ -12,7 +12,7 @@
 
 ---
 
-## 🧩 Process vs thread `[core]`
+## Process vs thread `[core]`
 
 | | Process | Thread |
 |--|---------|--------|
@@ -28,7 +28,7 @@ pushes CPU-bound work toward processes — see [concurrency-and-parallelism.md](
 
 ---
 
-## 🔄 Context switch `[core]`
+## Context switch `[core]`
 
 Saving the CPU state (registers, program counter, stack pointer) of the current thread and loading
 another's so the CPU can switch execution. It's pure overhead — no useful work happens during the
@@ -38,7 +38,7 @@ priority thread becoming runnable.
 
 ---
 
-## 📅 Scheduling `[core]`
+## Scheduling `[core]`
 
 The scheduler picks which runnable thread gets the CPU next, balancing responsiveness against
 throughput and fairness.
@@ -56,7 +56,7 @@ Modern OSes are preemptive; cooperative shows up in async event loops.
 
 ---
 
-## 🗺️ Virtual memory & paging `[core]`
+## Virtual memory & paging `[core]`
 
 Each process gets its own **virtual address space**; the OS + MMU translate virtual addresses to
 physical RAM via **page tables**, in fixed-size **pages** (commonly 4 KB).
@@ -73,7 +73,7 @@ Demand paging (load a page only when first accessed) keeps startup cheap.
 
 ---
 
-## 🔒 Deadlock `[core]`
+## Deadlock `[core]`
 
 Processes/threads wait on resources held by each other, forever. Requires all four **Coffman
 conditions** simultaneously:
@@ -94,7 +94,7 @@ Same conditions and fixes apply to lock deadlock in application code →
 
 ---
 
-## 🧠 Memory management `[core]`
+## Memory management `[core]`
 
 - **Stack** — per-thread, LIFO, holds call frames and locals; fast, auto-freed on return; limited
   size (stack overflow on deep recursion).
@@ -108,7 +108,7 @@ memory-and-runtime.md *(planned)*.
 
 ---
 
-## 📞 System calls `[core]`
+## System calls `[core]`
 
 The controlled entry point from **user mode** into **kernel mode** — how a program asks the OS to do
 privileged things (open a file, send on a socket, spawn a process). It involves a mode switch, which
@@ -120,7 +120,7 @@ full hardware access. This boundary is what keeps a buggy program from crashing 
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Saying threads are "always faster" — they're cheaper to switch, but shared state needs
   synchronization and a thread crash can kill the whole process.
@@ -130,7 +130,7 @@ full hardware access. This boundary is what keeps a buggy program from crashing 
 - Listing only some Coffman conditions — all four are required, and breaking one is enough.
 - Ignoring that syscalls and context switches are real costs in latency-sensitive code.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-operating-systems.md](../QA-Bank/qa-operating-systems.md)
 - Threads, locks, deadlock in app code → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)

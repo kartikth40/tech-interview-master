@@ -1,7 +1,7 @@
 # Google Drive / Dropbox System Design (File Storage & Sync)
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a cloud file storage and sync service like Dropbox or Google Drive: users upload files, they
 sync across devices, and can be shared.

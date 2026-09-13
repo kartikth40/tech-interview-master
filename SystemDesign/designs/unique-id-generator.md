@@ -1,7 +1,7 @@
 # Unique ID Generator System Design (Distributed IDs)
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a service that generates globally unique IDs across a distributed system — no central
 sequence bottleneck, and ideally IDs that sort roughly by creation time.

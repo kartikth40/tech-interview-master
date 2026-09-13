@@ -1,6 +1,6 @@
 # Low-Level Design (LLD) Interview Guide
 
-## 🎯 What is LLD?
+## What is LLD?
 
 Low-Level Design focuses on the **code-level architecture** of a system - class diagrams, design patterns, interfaces, and object relationships. LLD interviews are common at SDE-1/2 level and test your ability to translate requirements into clean, extensible code.
 
@@ -18,7 +18,7 @@ Low-Level Design focuses on the **code-level architecture** of a system - class 
 
 ---
 
-## 📋 LLD Interview Framework (Use Every Time)
+## LLD Interview Framework (Use Every Time)
 
 ### Step 1: Clarify Requirements (5 min)
 - What are the core entities?
@@ -50,7 +50,7 @@ Low-Level Design focuses on the **code-level architecture** of a system - class 
 
 ---
 
-## 🧱 SOLID Principles
+## SOLID Principles
 
 Every LLD answer should demonstrate SOLID awareness.
 
@@ -256,7 +256,7 @@ test_service = OrderService(InMemoryDatabase())
 
 ---
 
-## 🎨 Design Patterns (Interview Essentials)
+## Design Patterns (Interview Essentials)
 
 ### Creational Patterns
 
@@ -516,7 +516,7 @@ class InsertCommand:                       # each command stores what it needs t
 
 ---
 
-## 🏗️ Common LLD Interview Problems
+## Common LLD Interview Problems
 
 ### 1. Parking Lot
 
@@ -735,7 +735,7 @@ print(limiter.is_allowed("user1"))  # True
 
 ---
 
-## 📊 Design Pattern Quick Reference
+## Design Pattern Quick Reference
 
 | Pattern | Category | Use When |
 |---------|----------|----------|
@@ -751,7 +751,7 @@ print(limiter.is_allowed("user1"))  # True
 
 ---
 
-## ⚠️ Common LLD Mistakes
+## Common LLD Mistakes
 
 | Mistake | Fix |
 |---------|-----|
@@ -764,7 +764,7 @@ print(limiter.is_allowed("user1"))  # True
 
 ---
 
-## 🎯 Interview Tips
+## Interview Tips
 
 1. **Start with entities** - list all nouns from the problem
 2. **Draw the class diagram first** - relationships before code
@@ -775,7 +775,7 @@ print(limiter.is_allowed("user1"))  # True
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [System Design Guide](SystemDesignGuide.md)
 - [API Design Patterns](APIDesignPatterns.md)

@@ -1,7 +1,7 @@
 # Web Crawler System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a web crawler that systematically downloads web pages starting from seed URLs, extracts
 links, and keeps crawling — at scale, politely, and without getting stuck.

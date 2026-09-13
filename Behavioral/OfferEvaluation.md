@@ -1,12 +1,12 @@
 # Offer Evaluation Framework
 
-## 🎯 Overview
+## Overview
 
 Evaluating a job offer is more than comparing base salaries. This framework helps you make a holistic, data-driven decision - especially when comparing multiple offers.
 
 ---
 
-## 📊 The 5-Dimension Framework
+## The 5-Dimension Framework
 
 Score each dimension 1-5, then weight by your priorities.
 
@@ -127,7 +127,7 @@ Score 1-5:
 
 ---
 
-## 🧮 Scoring Template
+## Scoring Template
 
 ```
                     Offer A    Offer B    Offer C
@@ -149,7 +149,7 @@ Weighted Score                 4.1        3.9        3.6
 
 ---
 
-## 🔄 Comparing Multiple Offers
+## Comparing Multiple Offers
 
 ### The Deadline Problem
 
@@ -185,7 +185,7 @@ If two offers score within 0.3 of each other:
 
 ---
 
-## 🚩 Red Flags in Offers
+## Red Flags in Offers
 
 ```
 Compensation red flags:
@@ -229,7 +229,7 @@ Company red flags:
 
 ---
 
-## 📝 Decision Checklist
+## Decision Checklist
 
 Before accepting, confirm:
 
@@ -257,7 +257,7 @@ Before accepting, confirm:
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [Salary Negotiation](SalaryNegotiation.md)
 - [Questions to Ask](QuestionsToAsk.md)

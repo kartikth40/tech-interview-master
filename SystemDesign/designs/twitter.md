@@ -5,7 +5,7 @@
 > design — see **Deep Dive 1: Timeline Generation (Fanout)** below for push vs pull vs hybrid
 > fan-out and the celebrity problem.
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a microblogging platform like Twitter (X) that allows:
 - Post tweets (280 characters)

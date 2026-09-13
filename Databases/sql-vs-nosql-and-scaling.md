@@ -7,7 +7,7 @@
 
 ---
 
-## 🎯 The "which DB" framing `[core]`
+## The "which DB" framing `[core]`
 
 Don't answer "SQL" or "NoSQL" reflexively — reason from requirements:
 
@@ -26,7 +26,7 @@ Polyglot persistence — right tool per workload — reads as senior.
 
 ---
 
-## 🆚 Quick comparison `[core]`
+## Quick comparison `[core]`
 
 | | SQL (relational) | NoSQL |
 |--|------------------|-------|
@@ -39,7 +39,7 @@ Polyglot persistence — right tool per workload — reads as senior.
 
 ---
 
-## 📈 Scaling a SQL database `[core]`
+## Scaling a SQL database `[core]`
 
 The usual ladder (do the cheap thing first):
 1. **Indexes + query tuning** — fix the slow queries before adding hardware.
@@ -54,7 +54,7 @@ shards → use sagas, denormalization, good shard key.)
 
 ---
 
-## 🔑 Partition / shard key choice `[core]`
+## Partition / shard key choice `[core]`
 
 The single most important scaling decision. A good key:
 - **Distributes evenly** (avoid hot partitions — e.g. don't shard by `country` if 80% are one
@@ -68,7 +68,7 @@ replicate it.)
 
 ---
 
-## 🌐 Consistency & CAP in the decision `[advanced]`
+## Consistency & CAP in the decision `[advanced]`
 
 Once data is replicated/sharded, CAP forces the consistency-vs-availability choice during a
 partition, and PACELC adds latency-vs-consistency otherwise. Map it to the domain:
@@ -79,7 +79,7 @@ Choose per data type, not globally. Full treatment: [DistributedSystemsConcepts.
 
 ---
 
-## 🔗 The chained follow-ups (what comes after your first answer)
+## The chained follow-ups (what comes after your first answer)
 
 Interviewers rarely stop at "which DB." Be ready for:
 - "It's getting slow — how do you scale reads?" → indexes, replicas, cache.
@@ -90,7 +90,7 @@ Interviewers rarely stop at "which DB." Be ready for:
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Picking NoSQL "for scale" without access patterns to justify it.
 - Jumping straight to sharding before indexes/replicas/caching.
@@ -98,7 +98,7 @@ Interviewers rarely stop at "which DB." Be ready for:
 - Assuming read replicas are instantly consistent (lag is real).
 - Treating the whole app as one consistency model instead of per-data-type.
 
-## 🔗 Related
+## Related
 
 - Internals & SQL-vs-NoSQL trade-offs → [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
 - Sharding deep-dive → [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md)

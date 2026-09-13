@@ -1,7 +1,7 @@
 # Search Autocomplete / Typeahead System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a search autocomplete (typeahead) that, as a user types a prefix, returns the top few most
 relevant completions in real time.

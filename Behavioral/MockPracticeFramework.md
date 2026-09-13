@@ -1,6 +1,6 @@
 # Behavioral Mock Interview Practice Framework
 
-## 🎯 Purpose
+## Purpose
 
 A structured way to **practice** behavioral interviews — solo, with a peer, and with a professional
 mock. This file is the *practice process*. For the underlying content, use the canonical guides:
@@ -101,7 +101,7 @@ Prep before next round: [weak story to rewrite, topic to review]
 
 ---
 
-## 🎯 Readiness Checklist
+## Readiness Checklist
 
 - [ ] 12-15 polished STAR stories (see [STAR-stories.md](STAR-stories.md)), covering all categories
 - [ ] Each core story survives follow-up drilling (alternatives / constraints / hindsight ready)

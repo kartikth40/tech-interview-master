@@ -1,6 +1,6 @@
 # Message Queues & Event Streaming
 
-## 🎯 Overview
+## Overview
 
 Message queues are intermediate buffers that enable asynchronous communication between services. They decouple producers from consumers and handle traffic spikes, failures, and retry logic.
 

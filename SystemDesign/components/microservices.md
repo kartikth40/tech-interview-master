@@ -1,6 +1,6 @@
 # Microservices Architecture
 
-## 🎯 Overview
+## Overview
 
 Microservices architecture splits a monolithic application into small, independent services that communicate over the network. Each service owns its data and can be deployed independently.
 

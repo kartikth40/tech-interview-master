@@ -1,7 +1,7 @@
 # Instagram System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a photo-sharing social media platform like Instagram that allows:
 - Upload and share photos

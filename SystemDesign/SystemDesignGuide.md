@@ -1,6 +1,6 @@
 # System Design Interview Guide
 
-## 🎯 Overview
+## Overview
 
 System design interviews test your ability to design large-scale distributed systems. This guide provides frameworks, methodologies, and templates to tackle any system design question.
 
@@ -9,7 +9,7 @@ System design interviews test your ability to design large-scale distributed sys
 
 ---
 
-## 📋 Interview Framework (Use This Every Time)
+## Interview Framework (Use This Every Time)
 
 ### **Step 1: Requirements Clarification (5 min)**
 Ask questions to understand scope:
@@ -152,7 +152,7 @@ Discuss:
 
 ---
 
-## 🔑 Key Concepts
+## Key Concepts
 
 ### **1. Scalability**
 
@@ -321,7 +321,7 @@ balancer (coarse) and/or per-service (fine). Return HTTP **429 Too Many Requests
 
 ---
 
-## 📐 Common Design Patterns
+## Common Design Patterns
 
 ### **1. Read-Heavy System**
 ```
@@ -364,7 +364,7 @@ Solutions:
 
 ---
 
-## 🎯 Common Pitfalls to Avoid
+## Common Pitfalls to Avoid
 
 ❌ **Don't jump straight to design** - Clarify requirements first  
 ❌ **Don't over-engineer** - Start simple, then scale  
@@ -376,7 +376,7 @@ Solutions:
 
 ---
 
-## 🔟 The "10× Load" Mental Model
+## The "10× Load" Mental Model
 
 A powerful interview technique: at every stage of your design, ask yourself **"What breaks if traffic increases 10×?"**
 
@@ -406,7 +406,7 @@ This shows interviewers you think about scalability proactively, not reactively.
 
 ---
 
-## 📚 Next Steps
+## Next Steps
 
 1. Study [Design Examples](designs/) - Real-world system designs
 2. Learn [Components](components/) - Deep dive into building blocks
@@ -415,7 +415,7 @@ This shows interviewers you think about scalability proactively, not reactively.
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [URL Shortener Design](designs/url-shortener.md)
 - [Twitter Design](designs/twitter.md)

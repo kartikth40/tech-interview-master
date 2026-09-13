@@ -1,6 +1,6 @@
 # Google (Behavioral Interview Guide)
 
-## 🎯 Google Interview Overview
+## Google Interview Overview
 
 **Format:**
 - 4-5 rounds (1 phone screen + 4 onsite/virtual)
@@ -16,7 +16,7 @@
 
 ---
 
-## 🌟 Googleyness (Google's Culture Fit)
+## Googleyness (Google's Culture Fit)
 
 ### What is "Googleyness"?
 
@@ -37,7 +37,7 @@
 
 ---
 
-## 📝 Common Google Behavioral Questions
+## Common Google Behavioral Questions
 
 ### **Googleyness & Collaboration**
 
@@ -231,7 +231,7 @@ fixed it properly, improved performance by 300%."
 
 ---
 
-## 🎯 Questions to Ask Interviewer
+## Questions to Ask Interviewer
 
 **Googleyness:**
 - "How does your team collaborate when there's technical disagreement?"
@@ -249,7 +249,7 @@ fixed it properly, improved performance by 300%."
 
 ---
 
-## ⚠️ Google-Specific Do's and Don'ts
+## Google-Specific Do's and Don'ts
 
 ### ✅ Do:
 - **Show humility while owning your work** - credit the team for the outcome, but be explicit about what *you* did ("my part was...")
@@ -271,7 +271,7 @@ fixed it properly, improved performance by 300%."
 
 ---
 
-## 📊 Google Behavioral Scoring Rubric
+## Google Behavioral Scoring Rubric
 
 | Trait | Strong Signal (4/4) | Weak Signal (1/4) |
 |-------|---------------------|-------------------|
@@ -283,7 +283,7 @@ fixed it properly, improved performance by 300%."
 
 ---
 
-## 🎓 Example Stories for Google
+## Example Stories for Google
 
 ### **Collaboration Story**
 ```
@@ -328,7 +328,7 @@ Result: Next launch successful, team won company award
 
 ---
 
-## 💡 Pro Tips for Google
+## Pro Tips for Google
 
 1. **Credit the team, but be clear about what YOU did**
    - Google values collaboration - but the interviewer is scoring *you*, so your individual contribution must be unmistakable.

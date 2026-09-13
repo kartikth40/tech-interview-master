@@ -1,6 +1,6 @@
 # Questions to Ask Your Interviewer
 
-## 🎯 Why This Matters
+## Why This Matters
 
 Asking good questions signals:
 - **Genuine interest** in the role and company
@@ -14,7 +14,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 🏢 Questions About the Role
+## Questions About the Role
 
 ```
 "What does success look like in this role in the first 90 days?"
@@ -38,7 +38,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 👥 Questions About the Team
+## Questions About the Team
 
 ```
 "How long have you been on this team? What's kept you here?"
@@ -62,7 +62,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 🔧 Questions About Engineering Culture
+## Questions About Engineering Culture
 
 ```
 "What does your deployment process look like? How often do you ship?"
@@ -86,7 +86,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 📈 Questions About Growth
+## Questions About Growth
 
 ```
 "What does the career ladder look like here? What does it take to get promoted?"
@@ -107,7 +107,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 🏗️ Questions About the Product/Company
+## Questions About the Product/Company
 
 ```
 "What's the team's roadmap for the next 6-12 months?"
@@ -128,7 +128,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 🎯 Company-Specific Questions
+## Company-Specific Questions
 
 ### For Google
 ```
@@ -175,7 +175,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## ❓ Questions to Ask the Recruiter (Not the Interviewer)
+## Questions to Ask the Recruiter (Not the Interviewer)
 
 ```
 "What's the timeline for the hiring decision?"
@@ -187,7 +187,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 🚫 Questions to Avoid
+## Questions to Avoid
 
 ```
 ❌ "What does your company do?" (Do your research)
@@ -200,7 +200,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 💡 Pro Tips
+## Pro Tips
 
 1. **Listen actively** - the best follow-up questions come from what they say
 2. **Take notes** - shows you're engaged, helps you compare offers later
@@ -211,7 +211,7 @@ Always prepare 4-5 questions. Some may get answered during the interview - have 
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [Behavioral Guide](BehavioralGuide.md)
 - [Salary Negotiation](SalaryNegotiation.md)

@@ -1,7 +1,7 @@
 # URL Shortener System Design (bit.ly)
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a URL shortening service like bit.ly or TinyURL that:
 - Converts long URLs to short URLs

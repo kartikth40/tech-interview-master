@@ -127,13 +127,13 @@ FROM monthly ORDER BY mon;
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 - Syntax leans PostgreSQL (`DATE_TRUNC`, `::int`); adjust for MySQL (`DATE_FORMAT`, `CAST`).
 - For "nth-highest" / "top per group," always clarify tie handling (ROW_NUMBER vs DENSE_RANK).
 - The gaps-and-islands pattern (Q11) recurs for streaks, sessions, and consecutive-range problems.
 
-## 🔗 Related
+## Related
 
 - Pattern explanations → [sql-query-patterns.md](sql-query-patterns.md)
 - Theory → [sql-theory-qa.md](sql-theory-qa.md)

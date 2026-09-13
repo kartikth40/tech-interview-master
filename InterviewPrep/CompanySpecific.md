@@ -1,6 +1,6 @@
 # Company-Specific Interview Tips (MAANG)
 
-## 🎯 Overview
+## Overview
 
 Each top tech company has unique interview styles, focus areas, and cultures. This guide helps you tailor your preparation to specific companies.
 
@@ -10,7 +10,7 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 
 ---
 
-## 🔍 Google
+## Google
 
 ### Interview Process
 - **Phone Screen:** 1 technical (45 min)
@@ -71,7 +71,7 @@ where you were wrong and someone corrected you".
 
 ---
 
-## 📘 Meta (Facebook)
+## Meta (Facebook)
 
 ### Interview Process
 - **Phone Screen:** 1-2 technical (45 min each)
@@ -141,7 +141,7 @@ resources", "Describe a time you gave/received difficult feedback".
 
 ---
 
-## 📦 Amazon
+## Amazon
 
 ### Interview Process
 - **Phone Screen:** 1 technical + behavioral (60 min)
@@ -221,7 +221,7 @@ resources", "Describe a time you gave/received difficult feedback".
 
 ---
 
-## 🪟 Microsoft
+## Microsoft
 
 ### Interview Process
 - **Phone Screen:** 1 technical (60 min)
@@ -284,7 +284,7 @@ resources", "Describe a time you gave/received difficult feedback".
 
 ---
 
-## 🍎 Apple
+## Apple
 
 ### Interview Process
 - **Phone Screen:** 1-2 technical (45 min each)
@@ -354,7 +354,7 @@ resources", "Describe a time you gave/received difficult feedback".
 
 ---
 
-## 📊 MAANG Comparison Matrix
+## MAANG Comparison Matrix
 
 | Aspect | Google | Meta | Amazon | Microsoft | Apple |
 |--------|--------|------|--------|-----------|-------|
@@ -368,7 +368,7 @@ resources", "Describe a time you gave/received difficult feedback".
 
 ---
 
-## 🎯 How to Use This Guide
+## How to Use This Guide
 
 ### 1. Choose Your Top 2 Companies
 Focus deeply on 2 companies max. Trying to prepare for all 5 dilutes your effort.
@@ -397,7 +397,7 @@ Use LeetCode's company filter (requires premium):
 
 ---
 
-## 💡 General MAANG Tips
+## General MAANG Tips
 
 ### All Companies Value:
 ✅ **Communication** - Think out loud  
@@ -418,7 +418,7 @@ Use LeetCode's company filter (requires premium):
 
 ---
 
-## 🚀 Final Strategy
+## Final Strategy
 
 **Week 1-4:** Build DSA fundamentals (all companies)  
 **Week 5-6:** Focus on top 2 company patterns  

@@ -18,6 +18,9 @@ extra:
 extra_css:
   - assets/extra.css
 
+extra_javascript:
+  - assets/extra.js
+
 # Use the existing Markdown in place (no separate docs/ folder, no content duplication).
 # The same-dir plugin (below) allows docs_dir to be the repo root next to this config.
 docs_dir: .
@@ -81,9 +84,10 @@ theme:
     - content.code.annotate
     - content.action.edit
     - content.tooltips
+  favicon: assets/favicon.svg
   icon:
     repo: fontawesome/brands/github
-    logo: material/school
+    logo: material/code-braces
 
 markdown_extensions:
   - admonition

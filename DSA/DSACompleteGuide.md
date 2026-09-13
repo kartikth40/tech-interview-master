@@ -6,7 +6,7 @@
 > For the *visual* thinking layer (decision flowcharts, the mental web, constraints→complexity),
 > see [DSA Mental Models](mental-models.md).
 
-## 📑 Table of Contents
+## Table of Contents
 
 1. [Array](#1-array) - Two Pointers, Sliding Window, Prefix/Suffix, Kadane's
 2. [Dynamic Programming](#2-dynamic-programming) - 1D, 2D, Knapsack, Partition, String DP, LIS
@@ -30,7 +30,7 @@
 
 ---
 
-## 🎯 CORE PATTERNS
+## CORE PATTERNS
 
 ### 1. Array
 

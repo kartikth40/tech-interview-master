@@ -1,7 +1,7 @@
 # Distributed Message Queue System Design (Kafka-style)
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a distributed message queue / streaming platform like Kafka: producers publish messages,
 consumers read them, with durability, ordering, and horizontal scale.

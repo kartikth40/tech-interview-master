@@ -11,7 +11,7 @@
 
 ---
 
-## 🧱 OSI vs TCP/IP `[core]`
+## OSI vs TCP/IP `[core]`
 
 OSI is the 7-layer teaching model; TCP/IP is the 4-layer model the internet actually uses.
 
@@ -27,7 +27,7 @@ why, matters more.
 
 ---
 
-## 🔀 TCP vs UDP `[core]`
+## TCP vs UDP `[core]`
 
 | | TCP | UDP |
 |--|-----|-----|
@@ -42,7 +42,7 @@ media) or you want to build your own protocol on top (QUIC does exactly this).
 
 ---
 
-## 🤝 TCP handshake & connection setup `[core]`
+## TCP handshake & connection setup `[core]`
 
 TCP opens with a **3-way handshake** — `SYN → SYN-ACK → ACK` — to agree on sequence numbers before
 any data flows. This round trip is why connection reuse matters: **keep-alive** lets multiple
@@ -58,7 +58,7 @@ Client                    Server
 
 ---
 
-## 🔒 HTTPS / TLS handshake `[core]`
+## HTTPS / TLS handshake `[core]`
 
 TLS runs on top of TCP to give **encryption, integrity, and server authentication**. Simplified:
 1. Client sends supported ciphers + random.
@@ -73,7 +73,7 @@ handshake to one round trip (0-RTT for resumption).
 
 ---
 
-## 📖 DNS `[core]`
+## DNS `[core]`
 
 DNS resolves a hostname to an IP, walking a hierarchy: **resolver → root → TLD (.com) →
 authoritative** server. Results are **cached** with a TTL at every level (browser, OS, resolver) to
@@ -83,7 +83,7 @@ responses.
 
 ---
 
-## 🌍 What happens when you type a URL `[core]`
+## What happens when you type a URL `[core]`
 
 The end-to-end walk that ties the stack together:
 1. **URL parse** — scheme, host, path.
@@ -99,7 +99,7 @@ and connection reuse (keep-alive, HTTP/2).
 
 ---
 
-## 🚀 HTTP/1.1 vs 2 vs 3 `[core]`
+## HTTP/1.1 vs 2 vs 3 `[core]`
 
 | | HTTP/1.1 | HTTP/2 | HTTP/3 |
 |--|----------|--------|--------|
@@ -115,7 +115,7 @@ stall the others.
 
 ---
 
-## 🔌 Sockets, ports & WebSockets `[core]`
+## Sockets, ports & WebSockets `[core]`
 
 - A **socket** is one endpoint of a connection, identified by `(IP, port)`. A connection is the
   4-tuple `(src IP, src port, dst IP, dst port)`.
@@ -126,7 +126,7 @@ stall the others.
 
 ---
 
-## 🗺️ CDN basics `[core]`
+## CDN basics `[core]`
 
 A Content Delivery Network caches content on **edge servers** geographically close to users, cutting
 latency and offloading the origin. Best for static assets (images, JS, video); can also cache
@@ -135,7 +135,7 @@ dynamic responses briefly. Deeper treatment with caching strategies:
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Saying "TCP is always better than UDP" — UDP wins when latency beats reliability (live media, DNS).
 - Forgetting DNS resolution and TLS are separate steps in the URL walk.
@@ -144,7 +144,7 @@ dynamic responses briefly. Deeper treatment with caching strategies:
 - Confusing a socket (endpoint) with a port (service identifier).
 - Ignoring connection reuse (keep-alive / multiplexing) when reasoning about performance.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-networking.md](../QA-Bank/qa-networking.md)
 - TLS crypto, certs, attacks → [security-fundamentals.md](security-fundamentals.md)

@@ -1,6 +1,6 @@
 # Amazon's 16 Leadership Principles
 
-## 🎯 Overview
+## Overview
 
 Amazon's **16 Leadership Principles** are not just values-they are **used to evaluate every candidate** in behavioral interviews. Every question maps to 1-2 principles.
 
@@ -8,7 +8,7 @@ Amazon's **16 Leadership Principles** are not just values-they are **used to eva
 
 ---
 
-## 📋 The 16 Principles
+## The 16 Principles
 
 ### 1. **Customer Obsession**
 
@@ -324,7 +324,7 @@ Leaders focus on the key inputs for their business and deliver them with the rig
 
 ---
 
-## 📊 Quick Reference Matrix
+## Quick Reference Matrix
 
 | Principle | Key Behavior | Story Example |
 |-----------|--------------|---------------|
@@ -347,7 +347,7 @@ Leaders focus on the key inputs for their business and deliver them with the rig
 
 ---
 
-## 💡 Tips for Amazon Interviews
+## Tips for Amazon Interviews
 
 1. **Start every answer with the principle name**  
    *"This is a good example of **Customer Obsession**. In my previous role..."*
@@ -366,7 +366,7 @@ Leaders focus on the key inputs for their business and deliver them with the rig
 
 ---
 
-## 🎯 Story Coverage Checklist
+## Story Coverage Checklist
 
 Aim for **12-15 strong stories, each tagged to 2-3 principles** (not one story per LP). Make sure the
 set collectively covers all 16, with extra depth on the most-tested ones:

@@ -11,7 +11,7 @@
 
 ---
 
-## 🌸 Bloom filter `[advanced]`
+## Bloom filter `[advanced]`
 
 A bit array + *k* hash functions. To **add** an item, hash it *k* ways and set those *k* bits. To
 **check**, hash it *k* ways and see if all *k* bits are set:
@@ -35,7 +35,7 @@ taken?" pre-check. Built on hash functions — see [hashing.md](hashing.md).
 
 ---
 
-## 📊 Count-min sketch `[advanced]`
+## Count-min sketch `[advanced]`
 
 Estimates **frequency** of items in a stream using a small 2-D array of counters and *k* hash
 functions. To add, increment one counter per row; to query, take the **minimum** across the rows
@@ -46,7 +46,7 @@ per-item counter map won't fit — trending terms, per-key traffic, rate stats.
 
 ---
 
-## 🔢 HyperLogLog `[advanced]`
+## HyperLogLog `[advanced]`
 
 Estimates **cardinality** (number of *distinct* items) using a few KB regardless of set size, by
 observing the maximum run of leading zeros in item hashes (rare long runs imply many distinct items).
@@ -57,7 +57,7 @@ events, where storing every distinct item is infeasible. Redis `PFADD`/`PFCOUNT`
 
 ---
 
-## ⚖️ Choosing a structure
+## Choosing a structure
 
 | Question | Structure | Error mode |
 |----------|-----------|-----------|
@@ -71,14 +71,14 @@ known error bound beats an out-of-memory failure.
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Claiming a bloom filter can give false negatives — it cannot; only false positives.
 - Trying to delete from a standard bloom filter (use a counting bloom filter).
 - Confusing frequency (count-min) with cardinality (HyperLogLog) — different questions.
 - Using them when an exact set fits fine — added complexity for no benefit.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-hashing.md](../QA-Bank/qa-hashing.md)
 - Hash functions (the building block) → [hashing.md](hashing.md)

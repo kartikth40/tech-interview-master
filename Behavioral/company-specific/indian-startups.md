@@ -1,6 +1,6 @@
 # Indian Startup Behavioral Guide
 
-## 🚀 Overview
+## Overview
 
 Indian startups have distinct cultures compared to MAANG companies. This guide covers behavioral expectations for top Indian unicorns and high-growth startups.
 
@@ -13,7 +13,7 @@ Indian startups have distinct cultures compared to MAANG companies. This guide c
 
 ---
 
-## 🛒 Flipkart (E-Commerce Giant)
+## Flipkart (E-Commerce Giant)
 
 ### **Company Overview**
 **Founded:** 2007  
@@ -162,7 +162,7 @@ Learning: Ownership means caring about outcome, not just output
 
 ---
 
-## 💳 Razorpay (Fintech Leader)
+## Razorpay (Fintech Leader)
 
 ### **Company Overview**
 **Founded:** 2014  
@@ -326,7 +326,7 @@ Learning: MVP mindset + parallelization = speed without sacrificing quality
 
 ---
 
-## 💎 CRED (Design-Obsessed Fintech)
+## CRED (Design-Obsessed Fintech)
 
 ### **Company Overview**
 **Founded:** 2018  
@@ -482,7 +482,7 @@ Learning: Disagree without being disagreeable, use data not ego
 
 ---
 
-## 🛍️ Zepto (10-Minute Delivery)
+## Zepto (10-Minute Delivery)
 
 ### **Company Overview**
 **Founded:** 2021 (very young!)  
@@ -608,7 +608,7 @@ Learning: In startups, "not my job" doesn't exist
 
 ---
 
-## 🍕 Swiggy (Food Delivery Leader)
+## Swiggy (Food Delivery Leader)
 
 ### **Company Overview**
 **Founded:** 2014  
@@ -736,7 +736,7 @@ Learning: Break big problem into small ones, fix incrementally
 
 ---
 
-## 🍽️ Zomato (Food + Dining)
+## Zomato (Food + Dining)
 
 ### **Company Overview**
 **Founded:** 2008 (oldest Indian food-tech)  
@@ -857,7 +857,7 @@ Learning: Optimize for lifetime value, not just next quarter
 
 ---
 
-## 📊 Comparison Matrix: Indian Startups
+## Comparison Matrix: Indian Startups
 
 | Aspect | Flipkart | Razorpay | CRED | Zepto | Swiggy | Zomato |
 |--------|----------|----------|------|-------|--------|--------|
@@ -873,7 +873,7 @@ Learning: Optimize for lifetime value, not just next quarter
 
 ---
 
-## 🎯 How to Choose the Right Startup
+## How to Choose the Right Startup
 
 ### **Choose Flipkart if:**
 - ✅ You want Walmart stability + startup pace
@@ -961,7 +961,7 @@ Startups fail often. Show you can bounce back:
 
 ---
 
-## 📚 Resources
+## Resources
 
 **Startup News:**
 - YourStory (startup ecosystem)

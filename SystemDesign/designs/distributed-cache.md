@@ -1,7 +1,7 @@
 # Distributed Cache System Design (Redis/Memcached)
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a distributed caching system like Redis or Memcached that:
 - Stores key-value pairs in memory

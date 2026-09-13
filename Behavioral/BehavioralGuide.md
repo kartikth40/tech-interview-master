@@ -1,6 +1,6 @@
 # Behavioral Interview Guide
 
-## 🎯 Overview
+## Overview
 
 Behavioral interviews assess your past experiences, problem-solving approach, teamwork, and cultural fit. They typically account for 20-30% of the overall interview evaluation at top companies.
 
@@ -8,7 +8,7 @@ Behavioral interviews assess your past experiences, problem-solving approach, te
 
 ---
 
-## ⭐ STAR Method Framework
+## STAR Method Framework
 
 **STAR = Situation, Task, Action, Result**
 
@@ -40,7 +40,7 @@ Use this structure for EVERY behavioral answer:
 
 ---
 
-## 📝 STAR Method Example
+## STAR Method Example
 
 **Question:** "Tell me about a time you had a conflict with a teammate."
 
@@ -69,7 +69,7 @@ Use this structure for EVERY behavioral answer:
 
 ---
 
-## 🏢 Common Behavioral Question Categories
+## Common Behavioral Question Categories
 
 ### 1. **Leadership & Initiative**
 - Tell me about a time you led a project
@@ -113,7 +113,7 @@ Use this structure for EVERY behavioral answer:
 
 ---
 
-## 💡 Tips for Crafting STAR Stories
+## Tips for Crafting STAR Stories
 
 ### **Do's:**
 ✅ **Be specific** - Use real examples with details  
@@ -136,7 +136,7 @@ Use this structure for EVERY behavioral answer:
 
 ---
 
-## 🎯 Company-Specific Frameworks
+## Company-Specific Frameworks
 
 Each top company weights behavioral signals differently - map your stories to the framework of whoever you're interviewing with.
 
@@ -156,7 +156,7 @@ Emphasis on ownership, scrappiness, and customer/impact focus - plus scale chall
 
 ---
 
-## 🔷 SDE-2 Behavioral: Extra Prep (all top companies)
+## SDE-2 Behavioral: Extra Prep (all top companies)
 
 Beyond standard STAR stories, top-tech loops probe three things harder at the SDE-2 level - regardless of company:
 
@@ -207,7 +207,7 @@ all under follow-up-proof specifics.
 
 ---
 
-## 📋 Story Bank Template
+## Story Bank Template
 
 Create a document with 12-15 stories covering all categories (each mapping to 2-3 company principles):
 
@@ -236,7 +236,7 @@ Repeat for 15-20 stories covering:
 
 ---
 
-## 🗣️ Answer Structure Templates
+## Answer Structure Templates
 
 ### **For "Tell me about yourself"** (2 minutes max)
 
@@ -304,7 +304,7 @@ better outcomes and healthier work-life balance."
 
 ---
 
-## 🎤 Interview Day Tips
+## Interview Day Tips
 
 ### Before:
 - Review your story bank
@@ -331,7 +331,7 @@ better outcomes and healthier work-life balance."
 
 ---
 
-## 📚 Next Steps
+## Next Steps
 
 1. Read [STAR Stories Template](STAR-stories.md) and fill out 15-20 stories
 2. Study [Amazon Leadership Principles](leadership-principles.md) - the most structured framework
@@ -345,7 +345,7 @@ better outcomes and healthier work-life balance."
 
 ---
 
-## ⚠️ Common Mistakes to Avoid
+## Common Mistakes to Avoid
 
 | Mistake | Why It's Bad | Fix |
 |---------|-------------|-----|
@@ -358,7 +358,7 @@ better outcomes and healthier work-life balance."
 
 ---
 
-## 🎯 Success Checklist
+## Success Checklist
 
 - [ ] Prepared 15-20 STAR stories
 - [ ] Stories cover all question categories

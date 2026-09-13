@@ -1,6 +1,6 @@
 # Meta (Facebook) - Behavioral Interview Guide
 
-## 🎯 Meta Interview Overview
+## Meta Interview Overview
 
 **Format:**
 - 5-6 rounds (1 phone screen + 4-5 onsite/virtual)
@@ -17,7 +17,7 @@
 
 ---
 
-## 🌟 Meta Core Values
+## Meta Core Values
 
 ### 1. **Move Fast** 🚀
 - Ship quickly, iterate based on feedback
@@ -51,7 +51,7 @@
 
 ---
 
-## 📝 Common Meta Behavioral Questions
+## Common Meta Behavioral Questions
 
 ### **Impact & Results**
 
@@ -303,7 +303,7 @@ Learning: Don't just improve existing solution 10%, rethink the problem."
 
 ---
 
-## 🎯 Questions to Ask Interviewer
+## Questions to Ask Interviewer
 
 **Impact:**
 - "What's the biggest impact your team has had on Facebook's users?"
@@ -322,7 +322,7 @@ Learning: Don't just improve existing solution 10%, rethink the problem."
 
 ---
 
-## ⚠️ Meta-Specific Do's and Don'ts
+## Meta-Specific Do's and Don'ts
 
 ### ✅ Do:
 - **Emphasize metrics** - Every answer should have numbers
@@ -344,7 +344,7 @@ Learning: Don't just improve existing solution 10%, rethink the problem."
 
 ---
 
-## 📊 Meta Behavioral Scoring Rubric
+## Meta Behavioral Scoring Rubric
 
 | Trait | Strong Signal (4/4) | Weak Signal (1/4) |
 |-------|---------------------|-------------------|
@@ -357,7 +357,7 @@ Learning: Don't just improve existing solution 10%, rethink the problem."
 
 ---
 
-## 🎓 Example Stories for Meta
+## Example Stories for Meta
 
 ### **Impact Story (Billions Scale)**
 ```
@@ -412,7 +412,7 @@ Learning: Ownership = care about user experience, not just your code
 
 ---
 
-## 💡 Pro Tips for Meta
+## Pro Tips for Meta
 
 > ⚠️ **Use YOUR real numbers.** The metrics in the example stories above ($2M, 2B users, 500 TB/day)
 > are placeholders showing the *format* — not targets. Meta interviewers drill hard into follow-ups

@@ -1,7 +1,7 @@
 # Payment Gateway Design (Razorpay/PhonePe Style)
 > **SDE-2 Interview Ready** | 45-minute format | India-focused
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a payment gateway like Razorpay or PhonePe that enables merchants to accept payments through UPI, cards, wallets, and netbanking in India.
 
@@ -691,7 +691,7 @@ CREATE INDEX idx_payments_merchant_created
 
 ---
 
-## 🔟 Interview Tips
+## Interview Tips
 
 ### What to Focus on (45-min interview):
 

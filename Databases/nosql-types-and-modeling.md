@@ -7,7 +7,7 @@
 
 ---
 
-## 🧩 The four families `[core]`
+## The four families `[core]`
 
 | Type | Model | Strength | Example | Use when |
 |------|-------|----------|---------|----------|
@@ -22,7 +22,7 @@ relationship traversal → graph.
 
 ---
 
-## 🎯 Access-pattern-first modeling `[core]`
+## Access-pattern-first modeling `[core]`
 
 The biggest mindset shift from SQL: in NoSQL you **model for your queries, not for normalization**.
 You don't design normalized tables then figure out queries — you list the queries first and shape the
@@ -33,7 +33,7 @@ data so each is a single efficient read.
 
 ---
 
-## 🪆 Embed vs reference (document modeling) `[core]`
+## Embed vs reference (document modeling) `[core]`
 
 ```text
 # Embed: store related data inside the document
@@ -54,7 +54,7 @@ many-to-many" data. Watch the document size limit (e.g. Mongo 16 MB) — unbound
 
 ---
 
-## 🔎 Secondary indexes `[advanced]`
+## Secondary indexes `[advanced]`
 
 NoSQL stores index by the primary/partition key by default; querying by *other* attributes needs a
 **secondary index**, which the store maintains for you (local or global). They cost write throughput
@@ -64,7 +64,7 @@ many secondary indexes, a relational DB might fit better.
 
 ---
 
-## ⚖️ Denormalization trade-offs `[core]`
+## Denormalization trade-offs `[core]`
 
 NoSQL leans on denormalization to avoid joins: duplicate data so each query is one read. The cost is
 **write amplification and consistency work** — when the duplicated field changes, you must update
@@ -73,7 +73,7 @@ consistency for read speed and scale.
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Modeling NoSQL like SQL (normalized tables) and then being surprised there are no joins.
 - Choosing NoSQL "because it scales" without stating the access patterns that justify it.
@@ -82,7 +82,7 @@ consistency for read speed and scale.
 - Picking a graph DB when a couple of joins in SQL would do — reserve it for genuine multi-hop
   traversal.
 
-## 🔗 Related
+## Related
 
 - SQL vs NoSQL decision + scaling → [sql-vs-nosql-and-scaling.md](sql-vs-nosql-and-scaling.md)
 - Internals / trade-offs → [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)

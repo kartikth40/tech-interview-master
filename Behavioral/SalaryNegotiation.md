@@ -1,6 +1,6 @@
 # Salary Negotiation Guide
 
-## 🎯 Why Negotiation Matters
+## Why Negotiation Matters
 
 Most candidates leave money on the table by not negotiating. Studies show:
 - **85%** of hiring managers have room to negotiate
@@ -11,7 +11,7 @@ Most candidates leave money on the table by not negotiating. Studies show:
 
 ---
 
-## 📊 Know Your Numbers First
+## Know Your Numbers First
 
 ### Research Market Rates
 
@@ -46,7 +46,7 @@ Most candidates leave money on the table by not negotiating. Studies show:
 
 ---
 
-## 🗣️ The Negotiation Playbook
+## The Negotiation Playbook
 
 ### Rule 1: Never Give a Number First
 
@@ -95,7 +95,7 @@ Components to negotiate:
 
 ---
 
-## 💬 Negotiation Scripts
+## Negotiation Scripts
 
 ### Initial Counter-Offer
 
@@ -171,7 +171,7 @@ Use this time to:
 
 ---
 
-## 🧮 Evaluating RSUs/ESOPs
+## Evaluating RSUs/ESOPs
 
 ### RSU Vesting Schedule (MAANG)
 
@@ -219,7 +219,7 @@ Discount by 70-90% for realistic value.
 
 ---
 
-## ⚠️ Common Negotiation Mistakes
+## Common Negotiation Mistakes
 
 | Mistake | Why It's Bad | Fix |
 |---------|-------------|-----|
@@ -233,7 +233,7 @@ Discount by 70-90% for realistic value.
 
 ---
 
-## 📋 Offer Evaluation Checklist
+## Offer Evaluation Checklist
 
 Before accepting any offer, evaluate:
 
@@ -264,7 +264,7 @@ Before accepting any offer, evaluate:
 
 ---
 
-## 🎯 Post-Negotiation
+## Post-Negotiation
 
 ### If They Meet Your Ask
 ```
@@ -294,7 +294,7 @@ Always leave the door open - the tech world is small.
 
 ---
 
-## 🔗 Related Resources
+## Related Resources
 
 - [India-Specific Guide](../InterviewPrep/India-Specific.md) - Detailed salary data
 - [Questions to Ask Interviewers](QuestionsToAsk.md)

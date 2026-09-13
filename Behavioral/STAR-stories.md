@@ -1,6 +1,6 @@
 # STAR Stories Bank Template
 
-## 📝 Instructions
+## Instructions
 
 1. Prepare **12-15 stories** covering different categories (each can map to 2-3 company principles)
 2. Use the **STAR format** (Situation, Task, Action, Result)
@@ -16,7 +16,7 @@
 
 ---
 
-## 🎯 Story Categories Checklist
+## Story Categories Checklist
 
 Prepare at least:
 - [ ] 3 Leadership stories
@@ -68,7 +68,7 @@ Prepare at least:
 
 ---
 
-## 📚 Your Story Bank
+## Your Story Bank
 
 ### LEADERSHIP STORIES
 
@@ -386,7 +386,7 @@ Prepare at least:
 
 ---
 
-## 📊 Story Coverage Matrix
+## Story Coverage Matrix
 
 Use this to ensure you have balanced coverage:
 
@@ -403,7 +403,7 @@ Use this to ensure you have balanced coverage:
 
 ---
 
-## 🎯 Practice Tracker
+## Practice Tracker
 
 | Story # | Title | Practice 1 | Practice 2 | Practice 3 | Interview Ready? |
 |---------|-------|-----------|-----------|-----------|-----------------|
@@ -414,7 +414,7 @@ Use this to ensure you have balanced coverage:
 
 ---
 
-## 💡 Tips for Writing Great Stories
+## Tips for Writing Great Stories
 
 1. **Start with the result** - Work backwards from impact
 2. **Use numbers** - "Increased X by Y%" is better than "improved X"
@@ -425,7 +425,7 @@ Use this to ensure you have balanced coverage:
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 1. Fill out at least 15 stories using this template
 2. Practice each story 3+ times out loud

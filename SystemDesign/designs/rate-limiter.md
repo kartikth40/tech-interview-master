@@ -1,7 +1,7 @@
 # Rate Limiter System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a rate limiter that caps how many requests a client can make in a time window, protecting
 services from abuse, brute-force, scraping, and overload.

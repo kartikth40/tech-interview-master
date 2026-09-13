@@ -12,7 +12,7 @@
 
 ---
 
-## 🏛️ The four pillars `[core]`
+## The four pillars `[core]`
 
 | Pillar | Idea | Example |
 |--------|------|---------|
@@ -27,7 +27,7 @@ Open/Closed principle.
 
 ---
 
-## 🎯 SOLID `[core]`
+## SOLID `[core]`
 
 Five principles for maintainable OO design:
 - **S**ingle Responsibility — a class has one reason to change.
@@ -42,7 +42,7 @@ name a violation and its fix in an LLD round.
 
 ---
 
-## 🧩 Composition vs inheritance `[core]`
+## Composition vs inheritance `[core]`
 
 - **Inheritance** ("is-a") — subclass gets the parent's behavior. Tight coupling; deep hierarchies
   are brittle and hit the fragile-base-class problem.
@@ -55,7 +55,7 @@ why many designs prefer *interfaces + composition* (strategy pattern) over subcl
 
 ---
 
-## 🔌 Interface vs abstract class `[core]`
+## Interface vs abstract class `[core]`
 
 | | Interface | Abstract class |
 |--|-----------|----------------|
@@ -70,7 +70,7 @@ and mixins; the distinction still matters conceptually.)
 
 ---
 
-## 📦 Value vs reference semantics `[core]`
+## Value vs reference semantics `[core]`
 
 - **Value** — the variable holds the data; assignment/passing *copies* it. Mutating the copy
   doesn't affect the original (primitives; structs in some languages).
@@ -84,7 +84,7 @@ pass-by-object-reference detail.
 
 ---
 
-## 🧊 Immutability `[core]`
+## Immutability `[core]`
 
 An immutable object can't change after creation. Benefits: **thread-safe by default** (no races on
 read-only data — see [concurrency-and-parallelism.md](concurrency-and-parallelism.md)), safe to
@@ -94,7 +94,7 @@ update genuinely matters for performance.
 
 ---
 
-## 🧬 Generics `[advanced]`
+## Generics `[advanced]`
 
 Generics let you write type-safe code parameterized over a type — `List<T>`, `Map<K,V>` — instead of
 duplicating logic per type or losing type safety with `Object`/`Any`. They catch type errors at
@@ -103,7 +103,7 @@ readability benefit, checked by tools like mypy rather than at runtime.)
 
 ---
 
-## 🚨 Error handling `[core]`
+## Error handling `[core]`
 
 Two broad styles:
 - **Exceptions** — throw/catch; separates the happy path from error handling. Common in Python/Java.
@@ -117,7 +117,7 @@ to hide them).
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Reciting the four pillars but not being able to give a concrete polymorphism example.
 - Reaching for inheritance to reuse code — prefer composition unless it's a true "is-a".
@@ -126,7 +126,7 @@ to hide them).
   mutability decides what the caller sees.
 - Catching broad exceptions and swallowing them (hides bugs).
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-oop-design.md](../QA-Bank/qa-oop-design.md)
 - SOLID + GoF patterns + LLD problems → [SystemDesign/LowLevelDesign.md](../SystemDesign/LowLevelDesign.md)

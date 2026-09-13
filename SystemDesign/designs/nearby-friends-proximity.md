@@ -1,7 +1,7 @@
 # Nearby Friends / Proximity Service System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a service that shows a user which of their friends are nearby, updating in near real time as
 people move — like Snap Map or "Nearby Friends" on Facebook.

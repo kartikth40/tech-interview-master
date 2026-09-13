@@ -13,7 +13,7 @@ Interviewing in India has unique characteristics whether you're targeting MAANG 
 
 ---
 
-## 🏢 MAANG Offices in India
+## MAANG Offices in India
 
 ### **Google India**
 **Locations:** Bangalore, Hyderabad, Gurgaon, Mumbai  
@@ -90,7 +90,7 @@ Interviewing in India has unique characteristics whether you're targeting MAANG 
 
 ---
 
-## 📝 Common Behavioral Questions (India-Specific)
+## Common Behavioral Questions (India-Specific)
 
 ### **1. Tight Deadlines with Limited Resources**
 
@@ -224,7 +224,7 @@ Added: "Also watched YouTube tutorials in Hindi to understand concepts faster"
 
 ---
 
-## 🎯 Cultural Nuances (India-Specific)
+## Cultural Nuances (India-Specific)
 
 ### **1. Hierarchy vs Flat Culture**
 
@@ -338,7 +338,7 @@ AND save 15% on data transfer costs."
 
 ---
 
-## 🚀 Indian Startup Culture
+## Indian Startup Culture
 
 ### **Top Indian Unicorns/Startups (2026)**
 
@@ -468,7 +468,7 @@ AND save 15% on data transfer costs."
 
 ---
 
-## 💰 Salary Expectations in India (2026)
+## Salary Expectations in India (2026)
 
 ### **MAANG Offices (Google, Microsoft, Meta, Amazon, Apple)**
 
@@ -541,7 +541,7 @@ Startup has upside (if company does well)
 
 ---
 
-## 🌆 Office Locations (City-Specific Insights)
+## Office Locations (City-Specific Insights)
 
 ### **Bangalore (Bengaluru)** 🏙️
 **Pros:**
@@ -619,7 +619,7 @@ Startup has upside (if company does well)
 
 ---
 
-## 🤝 Referral Strategies (India-Specific)
+## Referral Strategies (India-Specific)
 
 ### **1. LinkedIn Networking**
 **Strategy:**
@@ -707,7 +707,7 @@ Thanks,
 
 ---
 
-## ⚖️ Work-Life Balance Questions
+## Work-Life Balance Questions
 
 ### **Q: "How do you maintain work-life balance?"**
 
@@ -751,7 +751,7 @@ suggest solutions: better estimation, automation, or hiring."
 
 ---
 
-## 💻 Remote Work Questions (Post-COVID)
+## Remote Work Questions (Post-COVID)
 
 ### **India Context:**
 - Most companies shifted to hybrid (3 days office + 2 days remote)
@@ -773,7 +773,7 @@ Result: Shipped features on time, manager didn't notice WFH vs office difference
 
 ---
 
-## 🎯 Pro Tips for Indian Market
+## Pro Tips for Indian Market
 
 ### **1. Highlight India-Specific Projects**
 ```
@@ -811,7 +811,7 @@ Some interviewers (especially startups) may switch to Hindi to test comfort.
 
 ---
 
-## 🚫 Red Flags to Avoid
+## Red Flags to Avoid
 
 ### **1. Criticizing Indian Work Culture**
 ❌ "I want to join MAANG because Indian startups have poor work-life balance"
@@ -833,7 +833,7 @@ You: "Same as US users"
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 ### **India-Specific Salary/Company Data:**
 - **levels.fyi/India** - Salary ranges for MAANG in India

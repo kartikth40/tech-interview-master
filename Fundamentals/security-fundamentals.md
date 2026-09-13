@@ -12,7 +12,7 @@
 
 ---
 
-## 🪪 Authentication vs authorization `[core]`
+## Authentication vs authorization `[core]`
 
 | | Authentication (authN) | Authorization (authZ) |
 |--|------------------------|------------------------|
@@ -26,7 +26,7 @@ that identity (RBAC = role-based, ABAC = attribute-based).
 
 ---
 
-## 🎫 Sessions vs JWT vs OAuth2/OIDC `[core]`
+## Sessions vs JWT vs OAuth2/OIDC `[core]`
 
 | Approach | How it works | Trade-off |
 |----------|--------------|-----------|
@@ -41,7 +41,7 @@ refresh-token flow, or a small blocklist.
 
 ---
 
-## 🔑 Password storage `[core]`
+## Password storage `[core]`
 
 Never store plaintext or a fast hash. Use a **slow, salted** password hash — **bcrypt, scrypt, or
 Argon2** — deliberately expensive to brute-force.
@@ -54,7 +54,7 @@ This is the "third category" of hashing — see the hash-vs-crypto-vs-password b
 
 ---
 
-## 🔒 Symmetric vs asymmetric encryption `[core]`
+## Symmetric vs asymmetric encryption `[core]`
 
 - **Symmetric** (AES) — one shared key for encrypt + decrypt. Fast; the hard part is *sharing the
   key* safely.
@@ -68,7 +68,7 @@ key.
 
 ---
 
-## 💥 Common attacks & defenses `[core]`
+## Common attacks & defenses `[core]`
 
 | Attack | What it is | Primary defense |
 |--------|-----------|-----------------|
@@ -82,7 +82,7 @@ encoding for HTML). Injection-class bugs (SQLi, command injection, XSS) all stem
 
 ---
 
-## 🚦 Rate limiting `[core]`
+## Rate limiting `[core]`
 
 Caps how often a client can act — protects against brute-force, scraping, and abuse, and provides
 backpressure. Common algorithms: **token bucket** (allows bursts), **leaky bucket** (smooths),
@@ -92,7 +92,7 @@ System-design context: [SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.
 
 ---
 
-## 🗝️ Secrets management `[core]`
+## Secrets management `[core]`
 
 Keep credentials out of source code and images. Use a **secrets manager / vault** (HashiCorp Vault,
 AWS Secrets Manager, KMS-encrypted config), inject at runtime via env vars or mounted files,
@@ -101,7 +101,7 @@ AWS Secrets Manager, KMS-encrypted config), inject at runtime via env vars or mo
 
 ---
 
-## 🛡️ Principles to state `[core]`
+## Principles to state `[core]`
 
 - **Defense in depth** — layered controls; one failure shouldn't be game over.
 - **Least privilege** — grant the minimum access needed.
@@ -111,7 +111,7 @@ AWS Secrets Manager, KMS-encrypted config), inject at runtime via env vars or mo
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Conflating authentication with authorization.
 - Calling OAuth2 an "authentication" protocol — it's *authorization*; OIDC adds authentication.
@@ -120,7 +120,7 @@ AWS Secrets Manager, KMS-encrypted config), inject at runtime via env vars or mo
 - Defending SQL injection with input escaping/blocklists instead of parameterized queries.
 - Treating HTTPS as "security done" — it protects transit, not stored data or app-layer bugs.
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-security.md](../QA-Bank/qa-security.md)
 - Password hashing, HMAC, crypto-vs-table hash → [hashing.md](hashing.md)

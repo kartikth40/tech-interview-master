@@ -1,6 +1,6 @@
 # Caching (Component Deep Dive)
 
-## 🎯 What is Caching?
+## What is Caching?
 
 Caching stores frequently accessed data in a fast storage layer to reduce latency and load on backend systems.
 
@@ -12,7 +12,7 @@ Caching stores frequently accessed data in a fast storage layer to reduce latenc
 
 ---
 
-## 📊 Cache Hierarchy
+## Cache Hierarchy
 
 ```
 L1: Browser Cache (1-5ms)
@@ -28,7 +28,7 @@ Database (100-500ms)
 
 ---
 
-## 🔧 Caching Strategies
+## Caching Strategies
 
 ### 1. **Cache-Aside (Lazy Loading)** ⭐ Most Common
 
@@ -170,7 +170,7 @@ END EVERY
 
 ---
 
-## 🗑️ Cache Eviction Policies
+## Cache Eviction Policies
 
 ### 1. **LRU (Least Recently Used)** ⭐ Most Common
 
@@ -220,7 +220,7 @@ END AFTER
 
 ---
 
-## ⏱️ TTL Best Practices
+## TTL Best Practices
 
 ```text
 # Different TTLs for different data types
@@ -242,7 +242,7 @@ END FUNCTION
 
 ---
 
-## 🔄 Cache Invalidation
+## Cache Invalidation
 
 > "There are only two hard things in Computer Science: cache invalidation and naming things." - Phil Karlton
 
@@ -282,7 +282,7 @@ END FUNCTION
 
 ---
 
-## 🌊 Cache Stampede (Thundering Herd)
+## Cache Stampede (Thundering Herd)
 
 ### **Problem:**
 ```
@@ -336,7 +336,7 @@ END FUNCTION
 
 ---
 
-## 🔥 Hot Key Problem
+## Hot Key Problem
 
 ### **Problem:**
 One key (e.g., celebrity user profile) gets 1M req/sec → Single cache server overloaded
@@ -382,7 +382,7 @@ key = "user:celebrity:" + replica
 
 ---
 
-## 📊 Cache Efficiency Metrics
+## Cache Efficiency Metrics
 
 Track hits and misses; **hit rate = hits / (hits + misses)**. Target >80%.
 
@@ -395,7 +395,7 @@ Track hits and misses; **hit rate = hits / (hits + misses)**. Target >80%.
 
 ---
 
-## 🗂️ Distributed Caching
+## Distributed Caching
 
 ### **Single Server Cache (Simple)**
 ```
@@ -423,7 +423,7 @@ binary search over the sorted ring. See the worked pseudocode in
 
 ---
 
-## 🌍 CDN (Content Delivery Network)
+## CDN (Content Delivery Network)
 
 ```
 User in US → US CDN Edge → Origin Server (California)
@@ -451,7 +451,7 @@ SET_RESPONSE_HEADER("Cache-Control", "public, max-age=31536000, immutable")
 
 ---
 
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
 | Problem | Solution |
 |---------|----------|
@@ -464,7 +464,7 @@ SET_RESPONSE_HEADER("Cache-Control", "public, max-age=31536000, immutable")
 
 ---
 
-## 🏗️ Multi-Level Caching Architecture
+## Multi-Level Caching Architecture
 
 ```
 Request Flow:
@@ -511,7 +511,7 @@ END FUNCTION
 
 ---
 
-## 📈 When to Cache?
+## When to Cache?
 
 **Cache if:**
 - ✅ Data is read frequently (>10x reads vs writes)

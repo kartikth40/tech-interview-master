@@ -1,6 +1,6 @@
 # Monitoring & Observability
 
-## 🎯 Overview
+## Overview
 
 **Monitoring** tells you when something is wrong.  
 **Observability** helps you understand **why** it's wrong.

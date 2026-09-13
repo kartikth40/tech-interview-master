@@ -1,7 +1,7 @@
 # Notification System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a system that sends notifications to users across multiple channels — push (iOS/Android),
 SMS, and email — reliably and at scale.

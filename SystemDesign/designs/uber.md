@@ -1,7 +1,7 @@
 # Uber/Ola Ride-Hailing System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
-## 🎯 Problem Statement
+## Problem Statement
 
 Design a ride-hailing platform like Uber or Ola that connects riders with drivers for on-demand transportation.
 

@@ -11,7 +11,7 @@
 
 ---
 
-## 🆚 JSON vs Protobuf vs Avro `[core]`
+## JSON vs Protobuf vs Avro `[core]`
 
 | | JSON | Protobuf | Avro |
 |--|------|----------|------|
@@ -29,7 +29,7 @@ volume and speed matter. gRPC's use of Protobuf is covered in
 
 ---
 
-## 🧬 Schema evolution & compatibility `[core]`
+## Schema evolution & compatibility `[core]`
 
 The core problem: producers and consumers deploy at different times, so data written by one version
 must be readable by another. Two directions:
@@ -60,7 +60,7 @@ it's the common choice for long-lived Kafka event logs backed by a **schema regi
 
 ---
 
-## 🗂️ Schema registry `[advanced]`
+## Schema registry `[advanced]`
 
 For event streams (Kafka), a **schema registry** stores schema versions centrally. Producers
 register a schema and send a small schema ID with each message instead of the full schema; consumers
@@ -69,7 +69,7 @@ push a breaking change), which is how large event-driven systems avoid breaking 
 
 ---
 
-## ⚖️ When to use which `[core]`
+## When to use which `[core]`
 
 - **Public / third-party API** → JSON (readable, universal, easy to debug/cache).
 - **Internal high-volume RPC** → Protobuf over gRPC (small, fast, typed contract).
@@ -78,14 +78,14 @@ push a breaking change), which is how large event-driven systems avoid breaking 
 
 ---
 
-## ⚠️ Common interview traps
+## Common interview traps
 
 - Treating "just use JSON everywhere" as free — verbosity and parse cost add up at scale.
 - Reusing or renumbering field tags — the classic schema-evolution bug.
 - Assuming a schema change is safe without checking **both** backward and forward compatibility.
 - Forgetting that binary formats need the schema out-of-band (registry or shared `.proto`).
 
-## 🔗 Related
+## Related
 
 - Q&A drills: [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
 - gRPC / Protobuf in APIs → [SystemDesign/APIDesignPatterns.md](../SystemDesign/APIDesignPatterns.md)
