@@ -464,85 +464,17 @@ Rider    RideService   MatchingService   GeoService   Redis   Driver
 
 **Challenge:** Find the best driver among thousands nearby
 
-**Approach:**
-```text
-FUNCTION findBestDriver(ride)
-  pickup = ride.pickup_location
-
-  # 1. Find drivers within 3 km using Redis geo-index
-  nearbyDrivers = redis.geoRadius(
-    "drivers:available",
-    pickup.lon, pickup.lat,
-    3, "km",              # 3 km radius
-    WITH_DISTANCE,        # include distance
-    ORDER_ASCENDING       # closest first
-  )
-
-  IF nearbyDrivers IS EMPTY THEN
-    # Expand radius to 5 km
-    nearbyDrivers = redis.geoRadius("drivers:available", pickup.lon, pickup.lat, 5, "km", ...)
-  END IF
-
-  # 2. Filter available drivers (not on ride)
-  available = empty list
-  FOR EACH (driverId, distance) IN nearbyDrivers
-    status = redis.get("driver:" + driverId + ":status")
-    IF status EQUALS "online" THEN
-      append { driverId: driverId, distance: toNumber(distance) } TO available
-    END IF
-  END FOR
-
-  # 3. Calculate ETA for top 5 closest
-  candidates = first 5 of available
-  withETA = empty list
-  FOR EACH driver IN candidates
-    driverLoc = getDriverLocation(driver.driverId)
-    route     = MapsProvider.getRoute(driverLoc, pickup)
-    append {
-      driverId: driver.driverId,
-      distance: driver.distance,
-      eta: route.duration      # minutes
-    } TO withETA
-  END FOR
-
-  # 4. Pick driver with best ETA
-  SORT withETA BY eta ASCENDING
-  bestDriver = withETA[0]
-
-  # 5. Acquire lock (prevent double-assignment)
-  locked = redis.setIfAbsent(
-    "driver:" + bestDriver.driverId + ":lock",
-    ride.id,
-    expirySeconds = 60
-  )
-
-  IF NOT locked THEN
-    # Driver already assigned, try next
-    RETURN findBestDriver(ride)   # recursive retry
-  END IF
-
-  # 6. Update driver status
-  redis.set("driver:" + bestDriver.driverId + ":status", "on_ride")
-  redis.set("driver:" + bestDriver.driverId + ":active_ride", ride.id)
-
-  # 7. Send push notification
-  sendPushNotification(bestDriver.driverId, {
-    title: "New Ride Request",
-    body:  "Pickup in " + bestDriver.eta + " min",
-    data:  { ride_id: ride.id }
-  })
-
-  RETURN bestDriver
-END FUNCTION
-```
+**Approach (the steps that matter):**
+1. **Find candidates** - `GEORADIUS` on a Redis geo-index (`drivers:available`) for drivers within 3 km of pickup (expand to 5 km if empty). Redis geo query is O(log N + M).
+2. **Rank** - for the closest ~5, compute real ETA via a maps/routing provider (accounts for traffic, not just straight-line distance) and pick the lowest ETA.
+3. **Assign atomically** - acquire a short-TTL lock on the chosen driver (`SET driver:{id}:lock ride_id NX EX 60`) to prevent double-assignment; if the lock fails, try the next candidate.
+4. **Commit + notify** - mark the driver `on_ride`, record the active ride, and push a request notification.
 
 **Trade-offs:**
 - ✅ Fast (Redis geo queries: O(log N + M))
-- ✅ Accurate (uses real-time traffic via Google Maps)
-- ❌ Google Maps API costs ($5 per 1000 requests)
+- ✅ Accurate ETA (uses real-time traffic)
+- ❌ Routing-API cost per request → cache common routes
 - ❌ Lock contention at peak times
-
-**Optimization:** Cache common routes to reduce Maps API calls
 
 ---
 
@@ -621,75 +553,17 @@ END FUNCTION
 
 **Challenge:** Dynamically adjust prices based on demand/supply
 
-**Algorithm:**
-```text
-FUNCTION calculateFare(pickup, dropoff, rideType)
-  # 1. Base fare calculation
-  route    = MapsProvider.getRoute(pickup, dropoff)
-  distance = route.distance      # km
-  duration = route.duration      # minutes
+**The core idea (don't memorize the exact multipliers - they're product tuning):**
+- **Fare** = base + (distance × per-km) + (duration × per-min), then × surge multiplier.
+- **Surge** is driven by the **demand/supply ratio** in the pickup area: `pending_rides / available_drivers` (both computed locally - pending rides from the DB, drivers from the Redis geo-index within ~2 km). The higher the ratio, the higher the multiplier, **capped** (e.g. at 3×) so prices stay bounded.
+- Optional signals nudge the multiplier: peak hours, weather. These are tunable knobs, not the design.
 
-  baseFare = (distance * 10) + (duration * 2) + 50   # Rs 10/km, Rs 2/min, Rs 50 base
-
-  # 2. Calculate surge multiplier
-  surgeMultiplier = calculateSurge(pickup)
-
-  finalFare = baseFare * surgeMultiplier
-
-  RETURN {
-    base_fare: baseFare,
-    surge_multiplier: surgeMultiplier,
-    final_fare: round(finalFare)
-  }
-END FUNCTION
-
-FUNCTION calculateSurge(location)
-  # Get demand vs supply ratio in this area
-
-  # 1. Count pending rides (demand)
-  pendingRides = Rides.count(
-    status = "searching",
-    pickup_location near location within 2 km
-  )
-
-  # 2. Count available drivers (supply)
-  availableDrivers = redis.geoRadius("drivers:available", location.lon, location.lat, 2, "km")
-
-  ratio = pendingRides / MAX(count(availableDrivers), 1)
-
-  # 3. Calculate surge multiplier
-  surge = 1.0
-  IF ratio > 5 THEN
-    surge = 2.0        # 2x surge (very high demand)
-  ELSE IF ratio > 3 THEN
-    surge = 1.5        # 1.5x surge
-  ELSE IF ratio > 2 THEN
-    surge = 1.2        # 1.2x surge
-  END IF
-
-  # 4. Time-based surge (peak hours)
-  hour = currentHour()
-  IF (hour >= 8 AND hour <= 10) OR (hour >= 18 AND hour <= 20) THEN
-    surge = surge * 1.1    # additional 10% during peak hours
-  END IF
-
-  # 5. Weather-based surge (rain)
-  weather = WeatherProvider.get(location)
-  IF weather.rain THEN
-    surge = surge * 1.2    # additional 20% in rain
-  END IF
-
-  RETURN MIN(surge, 3.0)   # cap at 3x
-END FUNCTION
-```
+The interview point is the **feedback loop** (local demand/supply → bounded multiplier → incentivizes more drivers into the area), not the specific constants.
 
 **Trade-offs:**
-- ✅ Balances supply-demand dynamically
-- ✅ Incentivizes drivers during peak hours
-- ❌ Customer dissatisfaction (high prices)
-- ❌ Complex to explain to customers
-
-**Alternative:** Flat pricing with wait times (like Ola Share)
+- ✅ Balances supply-demand dynamically; incentivizes drivers during peaks
+- ❌ Customer dissatisfaction; hard to explain
+- **Alternative:** flat pricing with longer wait times
 
 ---
 
@@ -804,10 +678,3 @@ A: Use Google Maps with traffic data, apply city-specific multipliers (Bangalore
 - Queue: Kafka (location updates stream)
 - Maps: Google Maps API / Mapbox
 - Real-time: WebSocket / Server-Sent Events
-
-**Estimated Cost (15M rides/month):**
-- Compute: ₹15L/month
-- Database: ₹8L/month
-- Redis: ₹3L/month
-- Google Maps API: ₹10L/month
-- **Total:** ~₹36L/month (~$43K USD)

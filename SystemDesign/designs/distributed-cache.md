@@ -670,6 +670,3 @@ A:
 - Latency: <1ms (in-memory)
 - Throughput: 100K ops/sec per node
 - Availability: 99.99% (with replication)
-
-**Cost (10-node cluster, 160 GB total):**
-- AWS ElastiCache (Redis): ~₹80L/month (~$10K USD)

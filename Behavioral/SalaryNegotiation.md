@@ -5,7 +5,7 @@
 Most candidates leave money on the table by not negotiating. Studies show:
 - **85%** of hiring managers have room to negotiate
 - Average negotiation yields **10-20%** more compensation
-- First offer is rarely the best offer — companies expect negotiation
+- First offer is rarely the best offer - companies expect negotiation
 
 **Key mindset:** Negotiation is professional, expected, and respected. It signals you know your worth.
 
@@ -16,14 +16,14 @@ Most candidates leave money on the table by not negotiating. Studies show:
 ### Research Market Rates
 
 **Sources (India):**
-- [Levels.fyi](https://levels.fyi) — MAANG India compensation data
-- [Glassdoor](https://glassdoor.co.in) — Salary ranges by company/role
-- [LinkedIn Salary](https://linkedin.com/salary) — Role-based data
-- [AmbitionBox](https://ambitionbox.com) — India-specific, startup data
-- [Blind](https://teamblind.com) — Anonymous peer data
+- [Levels.fyi](https://levels.fyi) - MAANG India compensation data
+- [Glassdoor](https://glassdoor.co.in) - Salary ranges by company/role
+- [LinkedIn Salary](https://linkedin.com/salary) - Role-based data
+- [AmbitionBox](https://ambitionbox.com) - India-specific, startup data
+- [Blind](https://teamblind.com) - Anonymous peer data
 
 **Sources (Global):**
-- Levels.fyi — Most accurate for MAANG
+- Levels.fyi - Most accurate for MAANG
 - Glassdoor, LinkedIn Salary
 - Peer conversations (most accurate)
 
@@ -103,7 +103,7 @@ Components to negotiate:
 Scenario: Received ₹28 LPA offer, want ₹35 LPA
 
 Script:
-"Thank you so much for the offer — I'm genuinely excited 
+"Thank you so much for the offer - I'm genuinely excited 
 about the role and the team. After reviewing the package 
 and researching market rates for this level, I was hoping 
 we could get closer to ₹35 LPA. 
@@ -116,7 +116,7 @@ Key elements:
 ✅ Express genuine enthusiasm first
 ✅ Give a specific number (not a range)
 ✅ Justify with data (market research, experience, competing offers)
-✅ Ask a question — don't make it a demand
+✅ Ask a question - don't make it a demand
 ```
 
 ### When They Say "This Is Our Best Offer"
@@ -125,7 +125,7 @@ Key elements:
 Script:
 "I appreciate you checking. I'm very interested in joining 
 and want to make this work. If the base isn't flexible, 
-could we explore other components — perhaps a higher 
+could we explore other components - perhaps a higher 
 joining bonus or an additional RSU grant? 
 
 I want to make sure I'm joining at a number I feel good 
@@ -141,14 +141,14 @@ Why this works:
 
 ```
 Script:
-"I want to be transparent — I do have another offer at 
+"I want to be transparent - I do have another offer at 
 ₹38 LPA from [Company]. I'm genuinely more excited about 
 this role and team, which is why I'm having this conversation. 
 Is there any way to close the gap?"
 
 Rules:
 ✅ Only use if you actually have the offer
-✅ Don't bluff — it can backfire badly
+✅ Don't bluff - it can backfire badly
 ✅ Mention the company if it's a credible competitor
 ✅ Emphasize you prefer THIS company (don't sound like you're just using them)
 ```
@@ -158,7 +158,7 @@ Rules:
 ```
 Script:
 "Thank you for the offer. I'm very excited about this 
-opportunity. Could I have until [specific date — 3-5 days] 
+opportunity. Could I have until [specific date - 3-5 days] 
 to review the complete package and get back to you?"
 
 Most companies will give 3-7 days.
@@ -268,14 +268,14 @@ Before accepting any offer, evaluate:
 
 ### If They Meet Your Ask
 ```
-"Thank you so much — I'm thrilled to accept. 
+"Thank you so much - I'm thrilled to accept. 
 I'm excited to join the team and contribute from day one."
 ```
 
 ### If They Can't Move
 ```
 "I appreciate you going to bat for me. 
-I understand the constraints. I'd like to accept — 
+I understand the constraints. I'd like to accept - 
 could we revisit compensation at my 6-month review 
 based on performance?"
 
@@ -289,13 +289,13 @@ the process. After careful consideration, I've decided
 to pursue another opportunity that's a better fit for 
 my goals right now. I hope our paths cross again."
 
-Always leave the door open — the tech world is small.
+Always leave the door open - the tech world is small.
 ```
 
 ---
 
 ## 🔗 Related Resources
 
-- [India-Specific Guide](../InterviewPrep/India-Specific.md) — Detailed salary data
+- [India-Specific Guide](../InterviewPrep/India-Specific.md) - Detailed salary data
 - [Questions to Ask Interviewers](QuestionsToAsk.md)
 - [Offer Evaluation Framework](OfferEvaluation.md)

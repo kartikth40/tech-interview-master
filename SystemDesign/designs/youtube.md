@@ -545,75 +545,18 @@ END FUNCTION
 7. If network slow → Download lower resolution segments
 ```
 
-**Master Playlist (master.m3u8):**
-```m3u8
-#EXTM3U
-#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360
-360p/playlist.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=2000000,RESOLUTION=1280x720
-720p/playlist.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080
-1080p/playlist.m3u8
+**Master playlist** - a small manifest listing each rendition and its bandwidth/resolution; the
+client picks one and fetches that rendition's segment playlist:
+```
+#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360    -> 360p/playlist.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2000000,RESOLUTION=1280x720  -> 720p/playlist.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080 -> 1080p/playlist.m3u8
 ```
 
-**360p Playlist (360p/playlist.m3u8):**
-```m3u8
-#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:10
-#EXTINF:10.0,
-segment000.ts
-#EXTINF:10.0,
-segment001.ts
-#EXTINF:10.0,
-segment002.ts
-...
-```
-
-**Client Logic (Pseudo-code):**
-```text
-FUNCTION play(videoId):
-    # 1. Fetch master playlist
-    masterPlaylist = fetch "/videos/{videoId}/master.m3u8"
-    resolutions = parseMasterPlaylist(masterPlaylist)
-
-    # 2. Start with lowest resolution
-    currentResolution = resolutions[0]   # 360p
-    currentPlaylist   = fetch currentResolution.url
-
-    # 3. Play segments
-    segmentIndex = 0
-
-    LOOP forever:
-        segment = currentPlaylist.segments[segmentIndex]
-
-        # Download segment
-        startTime = current time
-        downloadSegment(segment.url)
-        downloadTime = current time - startTime
-
-        # Calculate network speed
-        segmentSize = segment.size                        # bytes
-        bandwidth   = (segmentSize * 8) / downloadTime    # bps
-
-        # Adjust quality based on bandwidth
-        optimalResolution = selectResolution(bandwidth, resolutions)
-
-        IF optimalResolution is not currentResolution:
-            # Switch resolution
-            currentResolution = optimalResolution
-            currentPlaylist   = fetch currentResolution.url
-
-        segmentIndex = segmentIndex + 1
-END FUNCTION
-
-FUNCTION selectResolution(bandwidth, resolutions):
-    # Select highest resolution that fits bandwidth
-    candidates = resolutions WHERE r.bandwidth <= bandwidth * 0.8   # 80% buffer
-    SORT candidates by bandwidth descending
-    RETURN first item of candidates
-END FUNCTION
-```
+**Client adaptation logic (the key idea):** start at the lowest rendition, measure the download
+speed of each ~10s segment (`bandwidth ≈ segment_bytes × 8 / download_time`), and switch to the
+highest rendition whose required bandwidth fits within ~80% of measured bandwidth (headroom to
+avoid oscillation). This is all client-side; the server just hosts static segments + playlists.
 
 **Trade-offs:**
 - ✅ Smooth playback (no buffering)
@@ -774,10 +717,3 @@ A: Start with 144p/240p, aggressive compression, allow download for offline view
 - Search: Elasticsearch
 - Queue: SQS/Kafka
 - Transcoding: FFmpeg (AWS Elastic Transcoder)
-
-**Estimated Cost (1B hours watched/month):**
-- Storage: ₹25Cr/month
-- Bandwidth (CDN): ₹50Cr/month
-- Transcoding: ₹10Cr/month
-- Compute: ₹15Cr/month
-- **Total:** ~₹100Cr/month (~$12M USD)

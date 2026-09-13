@@ -34,7 +34,7 @@
 | Pattern matching | KMP | O(n+m) | O(m) | Build failure function |
 | Pattern matching | Rabin-Karp | O(n+m) avg | O(1) | Rolling hash |
 | Distinct substrings | Suffix Trie | O(n²) | O(n²) | Insert all suffixes into trie |
-| Distinct substrings | Suffix Array + LCP | O(n log n) | O(n) | Sort suffixes, compute LCP ⭐ |
+| Distinct substrings | Suffix Array + LCP | O(n log n) | O(n) | Sort suffixes, compute LCP _(advanced, rare)_ |
 | Count ways to X | DP | O(?) | O(?) | Define dp[state] = ways to reach |
 | Minimum steps/cost to X | DP / BFS | O(?) | O(?) | BFS for unweighted, DP for weighted |
 | Longest increasing subsequence | 1D DP | O(n²) | O(n) | Compare all previous elements |
@@ -105,7 +105,8 @@
 | 2D DP | O(mn) | O(mn) | dp[i][j] = state for i of A, j of B |
 | Knapsack | O(nW) | O(nW) | Capacity-based; can optimize to O(W) |
 | Partition | O(n³) | O(n²) | Try all split points (MCM, etc) |
-| String DP | O(mn) | O(mn) | LCS, Edit Distance, Matching || Bitmask DP | O(2^n * n) | O(2^n * n) | State compression: TSP, subset constraints ⭐ |
+| String DP | O(mn) | O(mn) | LCS, Edit Distance, Matching |
+| Bitmask DP | O(2^n * n) | O(2^n * n) | State compression: TSP, subset constraints _(advanced, rare)_ |
 ### 3. **GRAPH ALGORITHMS** ⭐
 | Algorithm | Time | Space | Use When |
 |-----------|------|-------|----------|
@@ -127,8 +128,8 @@
 | KMP | O(n+m) | O(m) | Pattern matching (n=text, m=pattern) |
 | Rabin-Karp | O(n+m) avg | O(1) | Multiple pattern searches |
 | Suffix Trie | O(n²) | O(n²) | Distinct substrings, all suffixes |
-| Suffix Array + LCP | O(n log n) | O(n) | Distinct substrings ⭐ OPTIMAL |
-| Manacher's Algorithm | O(n) | O(n) | Longest palindromic substring ⭐ |
+| Suffix Array + LCP | O(n log n) | O(n) | Distinct substrings _(advanced, rarely asked)_ |
+| Manacher's Algorithm | O(n) | O(n) | Longest palindrome _(advanced; center-expansion is the accepted answer)_ |
 
 ### 5. **TREE TRAVERSALS**
 | Traversal | Order | Use |
@@ -290,7 +291,7 @@ Choose Your Pattern:
 ├─ Sequence? → 1D DP
 ├─ 2D problem? → 2D DP
 ├─ Capacity? → Knapsack
-├─ State constraints? → Bitmask DP ⭐
+├─ State constraints (small n)? → Bitmask DP (advanced)
 ├─ Edit? → 2D DP (Edit Distance)
 └─ Ways/Min cost? → DP with states
 
@@ -304,7 +305,7 @@ Choose Your Pattern:
 ├─ Tree - Copy? → Preorder
 ├─ Tree - Delete? → Postorder
 ├─ Tree - Levels? → Level Order (BFS)
-├─ Palindrome? → Manacher's Algorithm ⭐
+├─ Palindrome? → Expand-around-center (Manacher's only if O(n) required)
 └─ Pattern match? → KMP / Rabin-Karp
 
 ⚙️ SPECIALIZED
@@ -378,9 +379,31 @@ Choose Your Pattern:
 
 ---
 
-## ⭐ SDE-1/2 Interview Must-Knows
+## ⭐ Top-Tech SDE-2 Must-Knows (high frequency - prioritize these)
 
-**Segment Tree** - Range query/update problems (Google, Meta, Amazon)  
-**Bitmask DP** - Constraint-based state compression (Google, Microsoft)  
-**Manacher's Algorithm** - Elegant palindrome solution (Meta, Amazon)  
-**Monotonic Deque** - Sliding window optimization (All top companies)
+These come up again and again in real SDE-2 loops across MAANG and top Indian unicorns. Be fluent, not just familiar.
+
+**Monotonic Deque** - Sliding window min/max in O(n) (all top companies)  
+**Union-Find** - Connectivity, grouping, cycle detection (Redundant Connection, Accounts Merge)  
+**Dijkstra + BFS/DFS on grids & graphs** - the graph workhorses  
+**Backtracking** - subsets/permutations/combinations, Word Search  
+**Heaps / Top-K / two-heap median** - Kth Largest, Merge K Lists, Median from Data Stream  
+**Trie + grid DFS** - Word Search II  
+**DP** - 1D/2D, knapsack, LIS (O(n log n)), edit distance, coin change
+
+---
+
+## 🔬 Advanced / Rarely Asked at SDE-2 (study last, or skip)
+
+These appear in the repo for completeness, but are **low-yield for a typical SDE-2 coding round** (MAANG
+or top unicorns) - they are mostly competitive-programming territory. Don't spend core prep time here
+until the must-knows above are solid. Know that they exist and what problem they solve; deep
+memorization is rarely rewarded.
+
+**Segment Tree / Fenwick (BIT)** - range query + update. Rare at SDE-2; only if the JD hints at it.  
+**Bitmask DP / TSP** - constraint-based state compression. Edge case at SDE-2.  
+**Manacher's Algorithm** - O(n) longest palindrome. Center-expansion (O(n²)) is the accepted answer.  
+**Suffix Trie / Suffix Array + LCP** - distinct substrings. Competitive-programming topic.  
+**KMP / Rabin-Karp / Z-Algorithm** - the failure-function / rolling-hash derivations are seldom required.  
+**Kosaraju's / Tarjan's SCC** - strongly connected components. Uncommon at SDE-2.  
+**Rerooting DP / Floyd-Warshall** - niche; know the idea, not the code from memory.

@@ -174,44 +174,9 @@ END EVERY
 
 ### 1. **LRU (Least Recently Used)** ⭐ Most Common
 
-```text
-CLASS LRUCache
-    # cache is an ordered map that maintains insertion order
-
-    FUNCTION init(capacity)
-        this.capacity = capacity
-        this.cache = new OrderedMap()
-    END FUNCTION
-
-    FUNCTION get(key)
-        IF NOT this.cache.contains(key) THEN
-            RETURN null
-        END IF
-
-        # Move to end (mark as recently used)
-        value = this.cache.get(key)
-        this.cache.remove(key)
-        this.cache.put(key, value)
-
-        RETURN value
-    END FUNCTION
-
-    FUNCTION put(key, value)
-        # Remove if exists (to re-insert at end)
-        IF this.cache.contains(key) THEN
-            this.cache.remove(key)
-        END IF
-
-        # Evict oldest if at capacity
-        IF this.cache.size >= this.capacity THEN
-            firstKey = this.cache.firstKey()
-            this.cache.remove(firstKey)
-        END IF
-
-        this.cache.put(key, value)
-    END FUNCTION
-END CLASS
-```
+Evict the entry that was accessed longest ago. Implemented with a hash map + doubly linked list
+(or an ordered map) for O(1) get/put - see the worked implementation in
+[DSA/data-structures/design/lru_cache.py](../../DSA/data-structures/design/lru_cache.py).
 
 **Pros:** Evicts truly unused data  
 **Cons:** Doesn't account for access frequency  
@@ -221,46 +186,11 @@ END CLASS
 
 ### 2. **LFU (Least Frequently Used)**
 
-```text
-CLASS LFUCache
-    # cache maps key -> { value, frequency }
-
-    FUNCTION init(capacity)
-        this.capacity = capacity
-        this.cache = empty map      # key -> node
-    END FUNCTION
-
-    FUNCTION get(key)
-        IF NOT this.cache.contains(key) THEN
-            RETURN null
-        END IF
-
-        item = this.cache.get(key)
-        item.frequency = item.frequency + 1
-        RETURN item.value
-    END FUNCTION
-
-    FUNCTION put(key, value)
-        IF this.cache.size >= this.capacity THEN
-            # Find and evict least frequently used
-            minFreq = INFINITY
-            evictKey = null
-            FOR EACH (k, v) IN this.cache
-                IF v.frequency < minFreq THEN
-                    minFreq = v.frequency
-                    evictKey = k
-                END IF
-            END FOR
-            this.cache.remove(evictKey)
-        END IF
-
-        this.cache.put(key, { value: value, frequency: 1 })
-    END FUNCTION
-END CLASS
-```
+Evict the entry with the lowest access count (track a frequency counter per key; O(1) with a
+frequency-bucket structure).
 
 **Pros:** Keeps "hot" data in cache  
-**Cons:** Old popular items hard to evict  
+**Cons:** Old popular items are hard to evict (frequency doesn't decay)  
 **Use:** Recommendation systems, analytics
 
 ---
@@ -314,7 +244,7 @@ END FUNCTION
 
 ## 🔄 Cache Invalidation
 
-> "There are only two hard things in Computer Science: cache invalidation and naming things." — Phil Karlton
+> "There are only two hard things in Computer Science: cache invalidation and naming things." - Phil Karlton
 
 ### 1. **TTL-Based (Passive)**
 ```text
@@ -454,45 +384,11 @@ key = "user:celebrity:" + replica
 
 ## 📊 Cache Efficiency Metrics
 
-```text
-# Track cache performance
-CLASS CacheMetrics
-    FUNCTION init()
-        this.hits = 0
-        this.misses = 0
-    END FUNCTION
-
-    FUNCTION recordHit()  this.hits = this.hits + 1   END FUNCTION
-    FUNCTION recordMiss() this.misses = this.misses + 1 END FUNCTION
-
-    FUNCTION getHitRate()
-        total = this.hits + this.misses
-        RETURN (this.hits / total) * 100
-    END FUNCTION
-END CLASS
-
-metrics = new CacheMetrics()
-
-FUNCTION getWithMetrics(key)
-    cached = CACHE_GET(key)
-
-    IF cached EXISTS THEN
-        metrics.recordHit()
-        RETURN cached
-    END IF
-
-    metrics.recordMiss()
-    # Fetch from DB...
-END FUNCTION
-
-# Monitor hit rate
-PRINT "Cache hit rate: " + metrics.getHitRate() + "%"
-# Target: >80% for good cache performance
-```
+Track hits and misses; **hit rate = hits / (hits + misses)**. Target >80%.
 
 **Key Metrics:**
-- **Hit Rate**: Hits / (Hits + Misses) — Target: >80%
-- **Miss Rate**: Misses / (Hits + Misses) — Lower is better
+- **Hit Rate**: Hits / (Hits + Misses) - Target: >80%
+- **Miss Rate**: Misses / (Hits + Misses) - Lower is better
 - **Eviction Rate**: How often cache is full and evicts data
 - **Memory Usage**: Current usage vs capacity
 - **Latency**: P50, P95, P99 response times
@@ -518,48 +414,12 @@ App Servers ──→ Hash(key) % num_servers
 ```
 
 ### **Consistent Hashing** ⭐ (Handles server addition/removal)
-```text
-CLASS ConsistentHash
-    FUNCTION init(nodes = [], virtualNodes = 150)
-        this.ring = empty map          # hash -> node
-        this.virtualNodes = virtualNodes
-        FOR EACH node IN nodes
-            this.addNode(node)
-        END FOR
-    END FUNCTION
 
-    FUNCTION addNode(node)
-        FOR i FROM 0 TO this.virtualNodes - 1
-            hash = this.hash(node + ":" + i)
-            this.ring.put(hash, node)
-        END FOR
-    END FUNCTION
-
-    FUNCTION getNode(key)
-        hash = this.hash(key)
-
-        # Find first node clockwise
-        sortedHashes = SORT_ASCENDING(this.ring.keys())
-        FOR EACH nodeHash IN sortedHashes
-            IF nodeHash >= hash THEN
-                RETURN this.ring.get(nodeHash)
-            END IF
-        END FOR
-
-        # Wrap around
-        RETURN this.ring.get(sortedHashes[0])
-    END FUNCTION
-
-    FUNCTION hash(str)
-        h = 0
-        FOR EACH char IN str
-            h = (h << 5) - h + charCode(char)
-            h = h AS 32-bit integer
-        END FOR
-        RETURN ABS(h)
-    END FUNCTION
-END CLASS
-```
+Map both nodes and keys onto a hash ring; a key belongs to the first node clockwise. Adding or
+removing a node only remaps ~1/N of keys (vs `hash(key) % N`, which remaps almost everything).
+Use **virtual nodes** (e.g. 150 per physical node) for even distribution. Lookup is O(log N) via
+binary search over the sorted ring. See the worked pseudocode in
+[designs/distributed-cache.md](../designs/distributed-cache.md).
 
 ---
 

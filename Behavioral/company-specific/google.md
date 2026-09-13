@@ -252,7 +252,7 @@ fixed it properly, improved performance by 300%."
 ## ⚠️ Google-Specific Do's and Don'ts
 
 ### ✅ Do:
-- **Show humility** - "We did..." not "I did..."
+- **Show humility while owning your work** - credit the team for the outcome, but be explicit about what *you* did ("my part was...")
 - **Admit mistakes** - They want to see learning
 - **Ask clarifying questions** - Shows intellectual curiosity
 - **Share credit** - Acknowledge teammates
@@ -330,13 +330,14 @@ Result: Next launch successful, team won company award
 
 ## 💡 Pro Tips for Google
 
-1. **Use "We" more than "I"**
-   - Google values collaboration above individual genius
-   - Example: "We designed..." not "I designed..."
+1. **Credit the team, but be clear about what YOU did**
+   - Google values collaboration - but the interviewer is scoring *you*, so your individual contribution must be unmistakable.
+   - Frame it as: "The team decided X; **my** part was to design/build/drive Y." Set the collaborative context with "we," then use "I" for your specific actions.
+   - Avoid both extremes: the lone-hero "I did everything" AND the vague "we did it" that hides your role.
 
 2. **Show learning from everything**
    - Every STAR story should end with "I learned..."
-   - Growth mindset is critical
+   - Growth mindset is critical (note: the Action section is still 50-60% of the answer and must be in "I" - see [BehavioralGuide.md](../BehavioralGuide.md))
 
 3. **Be comfortable saying "I don't know, but..."**
    - "I don't know, but I'd start by researching X and Y"
@@ -367,7 +368,7 @@ Result: Next launch successful, team won company award
 - 🎓 People who grow from failures
 
 **Prepare:**
-- 3-4 collaboration stories (showing "we")
+- 3-4 collaboration stories (team context + your clear individual contribution)
 - 2-3 failure stories (showing learning)
 - 2-3 leadership stories (influence without authority)
 - 2-3 learning new skills quickly stories
@@ -381,5 +382,5 @@ Result: Next launch successful, team won company award
 
 **Next Steps:**
 - Review [STAR Stories](../STAR-stories.md) template
-- Prepare stories emphasizing "we" and learning
+- Prepare collaboration stories that show the team context AND your specific contribution
 - Practice admitting mistakes comfortably

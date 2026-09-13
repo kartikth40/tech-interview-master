@@ -233,8 +233,13 @@ where width of each bar is 1, compute how much water can trap.
 
 Example:
 height = [0,1,0,2,1,0,1,3,2,1,2,1]
-         ▓       ▓▓▓▓    ▓▓▓▓▓ 
-Output: 6
+
+           #
+     #~~~~~##~#
+ _#~##~####### 
+ 0 1 0 2 1 0 1 3 2 1 2 1     (# = bar, ~ = trapped water)
+
+Output: 6   (units of water trapped between the bars)
 
 Follow-ups:
 1. 2D version (water trapped in 2D grid)

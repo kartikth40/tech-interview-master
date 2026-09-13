@@ -21,7 +21,7 @@
 - **19 Core Patterns** with complexity analysis and skeleton templates
 - **Quick Lookup Tables** for instant pattern recognition (keyword → pattern)
 - **50+ Coded Solutions** across arrays, graphs, strings, DP, trees, and more
-- **10 Data Structures** — MinHeap, MaxHeap, PriorityQueue, BST, Trie, Segment Tree, Graph, LinkedList, Stack/MinStack, LRU Cache
+- **10 Data Structures** - MinHeap, MaxHeap, PriorityQueue, BST, Trie, Segment Tree, Graph, LinkedList, Stack/MinStack, LRU Cache
 - **Advanced Algorithms:** Segment Tree, Bitmask DP, Manacher's, Monotonic Deque, Rerooting DP
 
 **Quick Links:**
@@ -31,7 +31,7 @@
 ---
 
 ### 2️⃣ [System Design](SystemDesign/)
-- **10 Real System Designs** - All optimized for 45-min SDE-2 interviews
+- **21 Real System Designs** - All optimized for 45-min SDE-2 interviews
 - **Interview-Ready Format** - Perfect for MAANG/Unicorn/Startup interviews
 - **India-Specific Designs** (Payment Gateway with UPI/Razorpay, Food Delivery like Swiggy/Zomato)
 - **Component Deep-Dives** (Load Balancers, Caching, DB Sharding, Message Queues, Microservices, Monitoring)
@@ -41,7 +41,7 @@
 - **Trade-off Analysis** for scalability decisions
 
 **All Designs SDE-2 Optimized:**
-Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL Shortener, Distributed Cache, Netflix
+Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL Shortener, Distributed Cache, Netflix, Rate Limiter, Key-Value Store, Unique ID Generator, Web Crawler, Notification System, Search Autocomplete, Google Drive/Dropbox, Distributed Message Queue, Nearby Friends, Ad Click Aggregation, Stock Exchange
 
 **Quick Links:**
 - 📖 [System Design Guide](SystemDesign/SystemDesignGuide.md) - Complete framework
@@ -106,6 +106,42 @@ Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL
 
 ---
 
+### 6️⃣ [CS Fundamentals](Fundamentals/)
+- **10 Concept Notes** an interviewer probes - OS, concurrency, networking, DB internals, hashing, security, OOP, memory, estimation
+- **"Explain in 2 min" boxes** at the top of every note for the spoken answer
+- **[core] / [advanced] depth tags** so you can prioritize must-know first
+- **Cross-linked** to System Design deep-dives and the Q&A Bank (no duplication)
+
+**Quick Links:**
+- 📖 [Fundamentals Index](Fundamentals/README.md) - all concepts + concept→Q&A map
+- 🔑 [Hashing](Fundamentals/hashing.md) · 🧵 [Concurrency](Fundamentals/concurrency-and-parallelism.md) · 🗄️ [DB Internals](Fundamentals/databases-internals.md)
+
+---
+
+### 7️⃣ [Q&A Bank](QA-Bank/)
+- **~194 conceptual Q&A** - answer-first, with follow-ups and difficulty/company tags
+- **11 topic files** (OS, concurrency, networking, databases, hashing, caching, security, OOP, system design, Python) + rapid-fire drills
+- **Trade-off framed**, interview-length answers - not a LeetCode problem list
+- **Paired** with each Fundamentals concept for active drilling
+
+**Quick Links:**
+- 📖 [Q&A Bank Index](QA-Bank/README.md) - how to use + legend
+- ⚡ [Rapid Fire](QA-Bank/qa-rapid-fire.md) - 1-line "define X" drills
+
+---
+
+### 8️⃣ [Databases Deep-Dive](Databases/)
+- **SQL query patterns** interviewers ask (joins, window functions, nth-highest, dedup) + what each tests
+- **SQL theory Q&A** (normalization, keys, indexing, EXPLAIN, transactions)
+- **NoSQL types & modeling** (KV/document/column/graph, embed vs reference)
+- **SQL vs NoSQL decision + scaling** and a **12-problem query practice set**
+
+**Quick Links:**
+- 📖 [Databases Index](Databases/README.md) - SQL + NoSQL, queries + theory
+- 📝 [SQL Query Patterns](Databases/sql-query-patterns.md) · 🏋️ [Query Practice Set](Databases/query-practice-set.md)
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### For DSA Practice:
@@ -160,10 +196,13 @@ cat InterviewPrep/StudyPlan-8weeks.md
 | Category | Topics Covered | Difficulty | Completion |
 |----------|---------------|------------|------------|
 | **DSA** | 19 patterns, 50+ algorithms, 10 data structures | ⭐⭐⭐⭐⭐ | ✅ Complete |
-| **System Design** | 10 designs, 6 components, LLD, API patterns, distributed systems | ⭐⭐⭐⭐⭐ | ✅ Complete |
+| **System Design** | 21 designs, 6 components, LLD, API patterns, distributed systems | ⭐⭐⭐⭐⭐ | ✅ Complete |
 | **Behavioral** | STAR, 7 company guides, 16 Amazon LPs, salary negotiation, offer eval | ⭐⭐⭐⭐ | ✅ Complete |
 | **Interview Prep** | 8-week plan, India guide, company tips | ⭐⭐⭐ | ✅ Complete |
 | **India Resources** | Salaries, companies, cities, referrals, designs | ⭐⭐⭐⭐ | ✅ Complete |
+| **CS Fundamentals** | 10 concept notes (OS, concurrency, networking, DB, hashing, security, OOP, memory, estimation) | ⭐⭐⭐⭐⭐ | ✅ Complete |
+| **Q&A Bank** | ~194 conceptual Q&A across 11 topics, tagged by difficulty + company | ⭐⭐⭐⭐ | ✅ Complete |
+| **Databases** | SQL query patterns, theory Q&A, NoSQL modeling, SQL-vs-NoSQL, 12-problem practice | ⭐⭐⭐⭐ | ✅ Complete |
 
 ---
 
@@ -204,7 +243,18 @@ tech-interview-master/
 │   │   ├── netflix.md               # Streaming platform with recommendations
 │   │   ├── distributed-cache.md     # Cache design patterns
 │   │   ├── payment-gateway.md       # 🇮🇳 Razorpay/PhonePe-style with UPI
-│   │   └── food-delivery.md         # 🇮🇳 Swiggy/Zomato architecture
+│   │   ├── food-delivery.md         # 🇮🇳 Swiggy/Zomato architecture
+│   │   ├── rate-limiter.md          # Token/leaky bucket, distributed limiting
+│   │   ├── key-value-store.md       # Dynamo-style: consistent hashing, quorum
+│   │   ├── unique-id-generator.md   # Snowflake 64-bit distributed IDs
+│   │   ├── web-crawler.md           # BFS frontier, politeness, dedup
+│   │   ├── notification-system.md   # Multi-channel push/SMS/email, fan-out
+│   │   ├── search-autocomplete.md   # Trie + precomputed top-k typeahead
+│   │   ├── google-drive-dropbox.md  # File sync: chunking, dedup, delta sync
+│   │   ├── distributed-message-queue.md # Kafka-style: partitions, replication
+│   │   ├── nearby-friends-proximity.md  # Geohash/quadtree, real-time location
+│   │   ├── ad-click-aggregation.md  # Streaming windowed aggregation (Xu Vol 2)
+│   │   └── stock-exchange.md        # Matching engine, order book, sequencer
 │   └── components/                  # Building blocks
 │       ├── load-balancer.md         # L4/L7 balancing strategies
 │       ├── caching.md               # Cache strategies & eviction
@@ -214,7 +264,7 @@ tech-interview-master/
 │       └── monitoring.md            # Metrics, logs, traces, alerting
 │
 ├── 💼 Behavioral/
-│   ├── BehavioralGuide.md           # STAR method framework
+│   ├── BehavioralGuide.md           # STAR method + top-tech SDE-2 behavioral prep
 │   ├── STAR-stories.md              # Template for 15-20 stories
 │   ├── leadership-principles.md     # Amazon's 16 Leadership Principles
 │   ├── MockPracticeFramework.md     # Self & peer practice protocols
@@ -236,6 +286,37 @@ tech-interview-master/
 │   ├── India-Specific.md            # 🇮🇳 Salaries, companies, cities, referrals
 │   └── MockInterviewQuestions.md    # Practice questions
 │
+├── 🧠 Fundamentals/                 # CS concept notes (10) + index
+│   ├── README.md                    # Index + concept→Q&A map + depth tags
+│   ├── operating-systems.md         # process/thread, scheduling, virtual memory
+│   ├── concurrency-and-parallelism.md # locks, races, deadlock, GIL, Amdahl
+│   ├── networking.md                # TCP/UDP, HTTP, TLS, DNS, URL→page
+│   ├── databases-internals.md       # ACID, isolation, indexing, CAP, MVCC
+│   ├── hashing.md                   # collisions, consistent hashing, bloom, HMAC
+│   ├── security-fundamentals.md     # authN/authZ, tokens, XSS/CSRF/SQLi/SSRF
+│   ├── oop-and-language-concepts.md # 4 pillars, SOLID, composition, generics
+│   ├── memory-and-runtime.md        # stack/heap, GC, Python runtime
+│   ├── latency-numbers-and-estimation.md # back-of-envelope, latency table
+│   ├── bloom-filters-and-probabilistic.md # bloom, count-min, HyperLogLog
+│   ├── serialization-and-schemas.md # JSON/Protobuf/Avro, schema evolution
+│   ├── idempotency-and-delivery-semantics.md # keys, at-least/exactly-once
+│   └── time-and-ordering.md         # clock skew, Lamport/vector clocks
+│
+├── ❓ QA-Bank/                       # ~194 conceptual Q&A + index
+│   ├── README.md                    # Index + difficulty/company legend
+│   ├── qa-operating-systems.md · qa-concurrency.md · qa-networking.md
+│   ├── qa-databases.md · qa-hashing.md · qa-caching.md · qa-security.md
+│   ├── qa-oop-design.md · qa-system-design-concepts.md · qa-language-python.md
+│   └── qa-rapid-fire.md             # 1-line "define X" drills
+│
+├── 🗄️ Databases/                    # SQL + NoSQL interview deep-dive
+│   ├── README.md                    # Index + how-to-use
+│   ├── sql-query-patterns.md        # joins, windows, nth-highest, dedup, pivot
+│   ├── sql-theory-qa.md             # normalization, keys, indexing, EXPLAIN
+│   ├── nosql-types-and-modeling.md  # KV/document/column/graph, embed vs ref
+│   ├── sql-vs-nosql-and-scaling.md  # which-DB decision, CAP, sharding
+│   └── query-practice-set.md        # 12 worked problems, easy→hard
+│
 └── README.md                        # You are here!
 ```
 
@@ -243,7 +324,7 @@ tech-interview-master/
 
 ## 🌟 Key Features
 
-✅ **Comprehensive Coverage** - DSA + System Design + Behavioral in one place  
+✅ **Comprehensive Coverage** - DSA + System Design + Behavioral + CS Fundamentals + Q&A Bank + Databases in one place  
 ✅ **Actionable Templates** - Ready-to-use code and story frameworks  
 ✅ **Company-Specific** - Tailored for Google, Meta, Amazon, Microsoft, Apple  
 ✅ **Complexity Analysis** - Time/Space for every pattern and algorithm  
@@ -270,14 +351,14 @@ tech-interview-master/
 If this repository helps you land your dream job:
 - **Star** ⭐ this repo
 - **Share** with friends preparing for interviews
-- **Contribute** — see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
-- **Report issues** — found a bug or outdated info? [Open an issue](../../issues)
+- **Contribute** - see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
+- **Report issues** - found a bug or outdated info? [Open an issue](../../issues)
 
 ---
 
 ## 📝 License
 
-This repository is licensed under the **MIT License** — free to use, modify, and share.
+This repository is licensed under the **MIT License** - free to use, modify, and share.
 
 See [LICENSE](LICENSE) for full terms.
 
@@ -328,5 +409,5 @@ This repository contains everything you need to succeed, but remember:
 ---
 
 **Last Updated:** March 2026  
-**Status:** ✅ Complete (Volume 1 — SDE-1/SDE-2)  
+**Status:** ✅ Complete (Volume 1 - SDE-1/SDE-2)  
 **Target:** SDE-1/2 at top tech companies (Global & India)

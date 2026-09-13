@@ -559,9 +559,3 @@ A:
 - Database: PostgreSQL (primary), Redis (cache)
 - Queue: Kafka (analytics events)
 - Load Balancer: NGINX
-
-**Cost (10B redirects/month):**
-- Compute: ₹20L/month
-- Database: ₹10L/month
-- Redis: ₹15L/month
-- **Total:** ~₹45L/month (~$55K USD)

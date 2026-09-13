@@ -126,7 +126,7 @@ Apple teams work in silos for confidentiality. You must:
 
 > **Situation**: Our mobile app crashed for 20% of users on iOS 15 after Apple released a new OS version. Our team didn't "officially" support iOS 15 yet (still in beta).
 >
-> **Task**: PM said we'd fix it in the next sprint (2 weeks). I disagreed—users were angry *now*.
+> **Task**: PM said we'd fix it in the next sprint (2 weeks). I disagreed-users were angry *now*.
 >
 > **Action**:
 > 1. **Took initiative**: I stayed late to debug the issue (even though it wasn't "my sprint").
@@ -178,7 +178,7 @@ Apple teams work in silos for confidentiality. You must:
 
 > **Situation**: I was building a real-time video streaming feature that required coordination between backend (me), mobile (iOS/Android), and design teams.
 >
-> **Task**: Each team had conflicting priorities—design wanted 4K quality, mobile wanted low battery usage, backend wanted cost efficiency.
+> **Task**: Each team had conflicting priorities-design wanted 4K quality, mobile wanted low battery usage, backend wanted cost efficiency.
 >
 > **Action**:
 > 1. **Aligned on goals**: I organized a kickoff meeting to define success metrics: "Highest quality at <10% battery drain and <$0.01/minute cost."
@@ -232,7 +232,7 @@ Apple teams work in silos for confidentiality. You must:
 
 > **Situation**: I led a 6-month project to rebuild our authentication system with biometric support (Face ID/Touch ID).
 >
-> **Task**: I wanted to build the "perfect" solution—support all edge cases, every device, backward compatibility.
+> **Task**: I wanted to build the "perfect" solution-support all edge cases, every device, backward compatibility.
 >
 > **Action**: I spent 4 months designing an overly complex system with 8 fallback mechanisms. When we started implementation, it was too complicated. The team struggled to understand it, testing was a nightmare, and we missed the deadline by 3 months.
 >
@@ -263,7 +263,7 @@ Apple teams work in silos for confidentiality. You must:
 
 You don't have to be a fanboy, but show you care about quality products.
 
-✅ "I love how AirPods seamlessly switch between devices—that kind of polish is what I want to build."  
+✅ "I love how AirPods seamlessly switch between devices-that kind of polish is what I want to build."  
 ❌ "I've never used an iPhone." (Bad idea at Apple)
 
 ---
@@ -375,7 +375,7 @@ Use STAR + **Quality/Craftsmanship**:
 >
 > [Result] Achieved buttery-smooth 60 FPS on all devices.
 >
-> [Craftsmanship] I wasn't satisfied with "good enough"—I wanted perfection. I spent an extra 2 days optimizing until it felt right, not just technically correct.
+> [Craftsmanship] I wasn't satisfied with "good enough"-I wanted perfection. I spent an extra 2 days optimizing until it felt right, not just technically correct.
 
 ---
 

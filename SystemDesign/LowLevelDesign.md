@@ -2,7 +2,7 @@
 
 ## 🎯 What is LLD?
 
-Low-Level Design focuses on the **code-level architecture** of a system — class diagrams, design patterns, interfaces, and object relationships. LLD interviews are common at SDE-1/2 level and test your ability to translate requirements into clean, extensible code.
+Low-Level Design focuses on the **code-level architecture** of a system - class diagrams, design patterns, interfaces, and object relationships. LLD interviews are common at SDE-1/2 level and test your ability to translate requirements into clean, extensible code.
 
 **LLD vs HLD:**
 | | High-Level Design | Low-Level Design |
@@ -32,7 +32,7 @@ Low-Level Design focuses on the **code-level architecture** of a system — clas
 
 ### Step 4: Apply Design Patterns (10 min)
 - Which patterns fit naturally?
-- Don't force patterns — use them when they solve a real problem
+- Don't force patterns - use them when they solve a real problem
 
 ### Step 5: Write Core Code (15 min)
 - Implement key classes
@@ -50,7 +50,7 @@ Low-Level Design focuses on the **code-level architecture** of a system — clas
 
 Every LLD answer should demonstrate SOLID awareness.
 
-### S — Single Responsibility Principle
+### S - Single Responsibility Principle
 > A class should have only one reason to change.
 
 ```python
@@ -85,7 +85,7 @@ class EmailService:
 
 ---
 
-### O — Open/Closed Principle
+### O - Open/Closed Principle
 > Open for extension, closed for modification.
 
 ```python
@@ -122,13 +122,13 @@ class UPIPayment(Payment):
     def execute(self): ...  # UPI logic
 
 
-class CryptoPayment(Payment):  # new type — no existing code changed
+class CryptoPayment(Payment):  # new type - no existing code changed
     def execute(self): ...  # crypto logic
 ```
 
 ---
 
-### L — Liskov Substitution Principle
+### L - Liskov Substitution Principle
 > Subtypes must be substitutable for their base types.
 
 ```python
@@ -171,7 +171,7 @@ class Square(Shape):
 
 ---
 
-### I — Interface Segregation Principle
+### I - Interface Segregation Principle
 > Clients should not be forced to depend on interfaces they don't use.
 
 ```python
@@ -225,7 +225,7 @@ class Dog(Animal, Swimmable):
 
 ---
 
-### D — Dependency Inversion Principle
+### D - Dependency Inversion Principle
 > Depend on abstractions, not concretions.
 
 ```python
@@ -335,47 +335,11 @@ notif.send("user@example.com", "Welcome!")
 #### Builder
 > Construct complex objects step by step.
 
+Each setter returns `self` so calls chain fluently, and a final `build()` produces the object:
 ```python
-class QueryBuilder:
-    def __init__(self):
-        self.query = {"table": "", "conditions": [], "fields": ["*"], "limit": None}
-
-    def from_(self, table):
-        self.query["table"] = table
-        return self  # enable chaining
-
-    def select(self, *fields):
-        self.query["fields"] = list(fields)
-        return self
-
-    def where(self, condition):
-        self.query["conditions"].append(condition)
-        return self
-
-    def limit_to(self, n):
-        self.query["limit"] = n
-        return self
-
-    def build(self):
-        sql = f"SELECT {', '.join(self.query['fields'])} FROM {self.query['table']}"
-        if self.query["conditions"]:
-            sql += " WHERE " + " AND ".join(self.query["conditions"])
-        if self.query["limit"]:
-            sql += f" LIMIT {self.query['limit']}"
-        return sql
-
-
-# Usage
-sql = (
-    QueryBuilder()
-    .from_("users")
-    .select("id", "name", "email")
-    .where("age > 18")
-    .where("active = true")
-    .limit_to(10)
-    .build()
-)
-# SELECT id, name, email FROM users WHERE age > 18 AND active = true LIMIT 10
+sql = (QueryBuilder().from_("users").select("id", "name")
+       .where("age > 18").limit_to(10).build())
+# each method sets a field on an internal dict and `return self`; build() assembles the result
 ```
 
 **Use when:** Object has many optional parameters (avoids telescoping constructors)
@@ -387,30 +351,14 @@ sql = (
 #### Adapter
 > Convert one interface to another that clients expect.
 
+Wrap the incompatible object and expose the interface your app wants; the adapter translates
+calls/return shapes internally:
 ```python
-# Old payment API
-class LegacyPaymentGateway:
-    def make_payment(self, card_number, amount, currency):
-        return {"status": "success", "transaction_id": "TXN123"}
-
-
-# New interface your app expects
-class PaymentAdapter:
-    def __init__(self, legacy_gateway):
-        self.gateway = legacy_gateway
-
-    # New interface: pay(card=..., amount=..., currency=...)
+class PaymentAdapter:            # app calls pay(...); legacy exposes make_payment(...)
+    def __init__(self, legacy): self.legacy = legacy
     def pay(self, card, amount, currency):
-        result = self.gateway.make_payment(card, amount, currency)
-        return {
-            "success": result["status"] == "success",
-            "id": result["transaction_id"],
-        }
-
-
-# Usage — app only knows the new interface
-adapter = PaymentAdapter(LegacyPaymentGateway())
-adapter.pay(card="4111...", amount=100, currency="INR")
+        r = self.legacy.make_payment(card, amount, currency)
+        return {"success": r["status"] == "success", "id": r["transaction_id"]}
 ```
 
 **Use when:** Integrating third-party libraries, legacy code migration
@@ -420,56 +368,15 @@ adapter.pay(card="4111...", amount=100, currency="INR")
 #### Decorator
 > Add behavior to objects dynamically without subclassing.
 
+Each decorator wraps a component sharing the same interface and augments its result, so you stack
+them at runtime:
 ```python
-class Coffee:
-    def cost(self):
-        return 50
+class MilkDecorator:                       # same interface as Coffee
+    def __init__(self, coffee): self.coffee = coffee
+    def cost(self): return self.coffee.cost() + 15
+    def description(self): return self.coffee.description() + ", milk"
 
-    def description(self):
-        return "Plain coffee"
-
-
-class MilkDecorator:
-    def __init__(self, coffee):
-        self.coffee = coffee
-
-    def cost(self):
-        return self.coffee.cost() + 15
-
-    def description(self):
-        return self.coffee.description() + ", milk"
-
-
-class SugarDecorator:
-    def __init__(self, coffee):
-        self.coffee = coffee
-
-    def cost(self):
-        return self.coffee.cost() + 5
-
-    def description(self):
-        return self.coffee.description() + ", sugar"
-
-
-class VanillaDecorator:
-    def __init__(self, coffee):
-        self.coffee = coffee
-
-    def cost(self):
-        return self.coffee.cost() + 20
-
-    def description(self):
-        return self.coffee.description() + ", vanilla"
-
-
-# Usage
-my_coffee = Coffee()
-my_coffee = MilkDecorator(my_coffee)
-my_coffee = SugarDecorator(my_coffee)
-my_coffee = VanillaDecorator(my_coffee)
-
-print(my_coffee.description())  # Plain coffee, milk, sugar, vanilla
-print(my_coffee.cost())         # 90
+coffee = MilkDecorator(SugarDecorator(Coffee()))   # wrap to add features
 ```
 
 **Use when:** Adding features to objects at runtime (logging, auth, caching middleware)
@@ -477,33 +384,15 @@ print(my_coffee.cost())         # 90
 ---
 
 #### Proxy
-> Control access to an object.
+> Control access to an object (same interface as the real object, adds a gate).
 
 ```python
-class ExpensiveService:
+class CachingProxy:                        # same interface as the real service
+    def __init__(self, service): self.service, self.cache = service, {}
     def fetch_data(self, key):
-        print(f"Fetching {key} from DB...")
-        return {"key": key, "data": "expensive result"}
-
-
-class CachingProxy:
-    def __init__(self, service):
-        self.service = service
-        self.cache = {}
-
-    def fetch_data(self, key):
-        if key in self.cache:
-            print(f"Cache hit for {key}")
-            return self.cache[key]
-        result = self.service.fetch_data(key)
-        self.cache[key] = result
-        return result
-
-
-# Usage — client doesn't know it's using a proxy
-service = CachingProxy(ExpensiveService())
-service.fetch_data("user:123")  # Fetching from DB
-service.fetch_data("user:123")  # Cache hit
+        if key not in self.cache:          # add caching / auth / lazy-init here
+            self.cache[key] = self.service.fetch_data(key)
+        return self.cache[key]
 ```
 
 **Use when:** Lazy loading, caching, access control, logging
@@ -607,64 +496,16 @@ sorter.sort([3, 1, 4, 1, 5])
 ---
 
 #### Command
-> Encapsulate a request as an object, enabling undo/redo.
+> Encapsulate a request as an object with `execute()` + `undo()`, enabling undo/redo.
 
+Each command knows how to do and reverse itself; an invoker keeps a history stack:
 ```python
-from abc import ABC, abstractmethod
+class InsertCommand:                       # each command stores what it needs to undo
+    def __init__(self, text): self.text = text
+    def execute(self, editor): editor.text += self.text
+    def undo(self, editor):    editor.text = editor.text[:-len(self.text)]
 
-
-class Command(ABC):
-    @abstractmethod
-    def execute(self, editor): ...
-    @abstractmethod
-    def undo(self, editor): ...
-
-
-class TextEditor:
-    def __init__(self):
-        self.text = ""
-        self.history = []
-
-    def execute(self, command: Command):
-        command.execute(self)
-        self.history.append(command)
-
-    def undo(self):
-        if self.history:
-            self.history.pop().undo(self)
-
-
-class InsertCommand(Command):
-    def __init__(self, text):
-        self.text = text
-
-    def execute(self, editor):
-        editor.text += self.text
-
-    def undo(self, editor):
-        editor.text = editor.text[: -len(self.text)]
-
-
-class DeleteCommand(Command):
-    def __init__(self, n):
-        self.n = n
-        self.deleted = ""
-
-    def execute(self, editor):
-        self.deleted = editor.text[-self.n:]
-        editor.text = editor.text[: -self.n]
-
-    def undo(self, editor):
-        editor.text += self.deleted
-
-
-# Usage
-editor = TextEditor()
-editor.execute(InsertCommand("Hello"))
-editor.execute(InsertCommand(" World"))
-print(editor.text)  # Hello World
-editor.undo()
-print(editor.text)  # Hello
+# Invoker: execute(cmd) runs it and pushes to history; undo() pops and calls cmd.undo()
 ```
 
 **Use when:** Undo/redo, transaction queues, macro recording
@@ -921,12 +762,12 @@ print(limiter.is_allowed("user1"))  # True
 
 ## 🎯 Interview Tips
 
-1. **Start with entities** — list all nouns from the problem
-2. **Draw the class diagram first** — relationships before code
-3. **Apply patterns naturally** — don't force them
-4. **Mention extensibility** — "If we add X later, we'd just..."
-5. **Talk about thread safety** — especially for Singleton, shared state
-6. **Keep it simple** — interviewers want clean code, not clever code
+1. **Start with entities** - list all nouns from the problem
+2. **Draw the class diagram first** - relationships before code
+3. **Apply patterns naturally** - don't force them
+4. **Mention extensibility** - "If we add X later, we'd just..."
+5. **Talk about thread safety** - especially for Singleton, shared state
+6. **Keep it simple** - interviewers want clean code, not clever code
 
 ---
 

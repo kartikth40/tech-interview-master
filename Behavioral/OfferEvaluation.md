@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-Evaluating a job offer is more than comparing base salaries. This framework helps you make a holistic, data-driven decision — especially when comparing multiple offers.
+Evaluating a job offer is more than comparing base salaries. This framework helps you make a holistic, data-driven decision - especially when comparing multiple offers.
 
 ---
 
@@ -164,7 +164,7 @@ Options:
 
 2. Accelerate Offer B:
    "I have a competing offer with a deadline of [date]. 
-   I'm very interested in your company — is there any way 
+   I'm very interested in your company - is there any way 
    to expedite the process?"
    Many companies will fast-track if you're a strong candidate.
 

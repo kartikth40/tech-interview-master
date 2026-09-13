@@ -2,7 +2,9 @@
 
 ## 🎯 Overview
 
-This plan prepares you for **SDE-1/SDE-2 interviews at MAANG** (Google, Meta, Amazon, Microsoft, Apple).
+This plan prepares you for **SDE-1/SDE-2 interviews at MAANG + top Indian unicorns** (Google, Meta, Amazon, Microsoft, Apple, Flipkart, Razorpay, CRED, Swiggy, Zomato, ...).
+
+> **SDE-2 note:** at the SDE-2 level, **system design and behavioral carry real weight alongside coding** - don't treat weeks 5-6 (system design) as optional. If you're SDE-1/new-grad, you can lighten the system-design load.
 
 > **Important Note❗: You should have already practiced problems related with the patterns in the [DSA Complete Guide](../DSA/DSACompleteGuide.md) before starting this plan. This plan focuses on applying those patterns to real interview questions, mastering system design, and polishing behavioral answers. In reality most candidates spend 4-6 months preparing, but this aggressive 8-week plan is designed for those who want to maximize their chances in a shorter timeframe.**
 
@@ -14,13 +16,13 @@ This plan prepares you for **SDE-1/SDE-2 interviews at MAANG** (Google, Meta, Am
 
 ## 📊 Weekly Breakdown
 
-| Week | Focus | DSA Problems | System Design | Behavioral | Hours/Week |
-|------|-------|--------------|---------------|------------|------------|
-| 1-2  | DSA Fundamentals | 40 (Easy/Medium) | - | 5 stories | 20-25 |
-| 3-4  | DSA Advanced | 40 (Medium/Hard) | 2 designs | 5 stories | 20-25 |
-| 5-6  | System Design | 10 (review) | 6 designs | 5 stories | 20-25 |
-| 7    | Behavioral + Review | 10 (hard) | 2 designs | 5 stories | 15-20 |
-| 8    | Mock Interviews | 10 (company-specific) | Mocks | Practice | 20-25 |
+| Week | Focus | DSA Problems | System Design | Behavioral | CS Fund + Q&A | Hours/Week |
+|------|-------|--------------|---------------|------------|---------------|------------|
+| 1-2  | DSA Fundamentals | 40 (Easy/Medium) | - | 5 stories | OS/concurrency/networking notes + Q&A | 20-25 |
+| 3-4  | DSA Advanced | 40 (Medium/Hard) | 2 designs | 5 stories | DB/hashing/caching + SQL practice | 20-25 |
+| 5-6  | System Design | 10 (review) | 6 designs | 5 stories | security/OOP/memory/estimation + Q&A | 20-25 |
+| 7    | Behavioral + Review | 10 (hard) | 2 designs | 5 stories | rapid-fire + weak clusters | 15-20 |
+| 8    | Mock Interviews | 10 (company-specific) | Mocks | Practice | rapid-fire review | 20-25 |
 
 ---
 
@@ -176,7 +178,8 @@ Weekend (2.5h/day = 5h):
 
 ### System Design (Week 3-4)
 
-> Note: System Design is not required for SDE-1 interviews, but it's good to get started early.
+> Note: For **SDE-2, system design is a core interview round** - treat it as first-class, not optional.
+> (It's lighter-weight for SDE-1/new-grad, where 1 round at most is common.) Start early either way.
 
 - [ ] Read [System Design Guide](../SystemDesign/SystemDesignGuide.md)
 - [ ] Study [URL Shortener](../SystemDesign/designs/url-shortener.md)
@@ -233,12 +236,12 @@ Weekend (2.5h/day = 5h):
   - Handle millions of concurrent users
   
 - [ ] **Day 3:** Rate Limiter
-  - Design API rate limiting
+  - Study [rate-limiter.md](../SystemDesign/designs/rate-limiter.md)
   - Token bucket vs leaky bucket
   - Distributed rate limiting
   
 - [ ] **Day 4:** Web Crawler
-  - Design multi-threaded crawler
+  - Study [web-crawler.md](../SystemDesign/designs/web-crawler.md)
   - Handle politeness (robots.txt)
   - Deduplication strategy
   
@@ -257,7 +260,7 @@ Pick 2 hard problems per day from these topics:
 - [ ] Graphs (2 hard)
 - [ ] Trees (2 hard)
 - [ ] Arrays (2 hard)
-- [ ] System Design (2 hard - e.g., LRU Cache, Design Search Autocomplete)
+- [ ] System Design (2 hard - e.g., LRU Cache, [Search Autocomplete](../SystemDesign/designs/search-autocomplete.md))
 
 ### Behavioral (Week 5-6)
 - [ ] Write 5 more stories (technical excellence, learning)
@@ -350,7 +353,7 @@ Choose top 2 companies, solve their tagged problems:
 - [ ] [Microsoft - 5 problems]
 
 ### Final Review Checklist
-- [ ] All 100 DSA problems solved and understood
+- [ ] All 110 DSA problems solved and understood
 - [ ] 8 system designs practiced
 - [ ] 15-20 STAR stories polished
 - [ ] "Tell me about yourself" perfected
@@ -376,9 +379,9 @@ Choose top 2 companies, solve their tagged problems:
 - [ ] Week 3-4: Read guide + 2 example designs
 - [ ] Week 5: 3 designs (URL Shortener, Twitter, Distributed Cache)
 - [ ] Week 6: 3 designs (Instagram, Rate Limiter, Web Crawler)
-- [ ] Week 7: Review 2 weak designs
+- [ ] Week 7: Review 2 weak designs + stretch designs (Key-Value Store, Unique ID Generator, Notification System, Search Autocomplete)
 - [ ] Week 8: 2 mock system design interviews
-- **Total: 8 designs practiced** ✅
+- **Total: 8+ designs practiced** ✅ (21 available in `SystemDesign/designs/`)
 
 **Behavioral:**
 - [ ] Week 1-2: 5 stories (Leadership, Conflict, Failure)
@@ -387,6 +390,14 @@ Choose top 2 companies, solve their tagged problems:
 - [ ] Week 7: Polish all 15-20 stories
 - [ ] Week 8: Mock behavioral interviews
 - **Total: 15-20 STAR stories** ✅
+
+**CS Fundamentals + Q&A (esp. important for SDE-2):**
+- [ ] Week 1-2: Read [Fundamentals](../Fundamentals/README.md) core notes (OS, concurrency, networking); drill matching [Q&A Bank](../QA-Bank/README.md) files
+- [ ] Week 3-4: Databases + hashing + caching notes; [Databases deep-dive](../Databases/README.md) SQL query patterns + practice set
+- [ ] Week 5-6: Security, OOP, memory, estimation notes + their Q&A; skim `[advanced]` notes
+- [ ] Week 7: [qa-rapid-fire.md](../QA-Bank/qa-rapid-fire.md) daily; re-drill weak Q&A clusters
+- [ ] Week 8: Rapid-fire review the morning of interviews
+- **Goal: fluent 2-min answers on every core concept** ✅
 
 ---
 
@@ -468,7 +479,7 @@ Choose top 2 companies, solve their tagged problems:
 
 **Remember:**
 - **Consistency > Intensity** - 3 hours/day for 8 weeks beats 24 hours once
-- **Quality > Quantity** - Understanding 100 problems beats memorizing 500
+- **Quality > Quantity** - Understanding 110 problems deeply beats memorizing 500
 - **Confidence = Preparation** - Do the work, trust the process
 
 **You've got this! 💪**
@@ -477,6 +488,7 @@ Start Week 1 today. Don't wait for "the perfect time." It doesn't exist.
 
 ---
 
-**Last Updated:** February 2026  
-**Success Rate:** 85%+ for those who complete the full plan  
-**Avg Time to Offer:** 2-4 weeks after completing Week 8
+**Last Updated:** February 2026
+
+> Note: this is a structured plan, not a guarantee. Timelines vary widely by starting point and target
+> company - many strong candidates spend 3-6 months. Adjust the pace to your situation.

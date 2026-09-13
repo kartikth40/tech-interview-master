@@ -4,11 +4,11 @@
 
 Asking good questions signals:
 - **Genuine interest** in the role and company
-- **Preparation** — you've done your homework
-- **Critical thinking** — you evaluate opportunities, not just accept them
-- **Seniority** — senior engineers ask better questions
+- **Preparation** - you've done your homework
+- **Critical thinking** - you evaluate opportunities, not just accept them
+- **Seniority** - senior engineers ask better questions
 
-Always prepare 4-5 questions. Some may get answered during the interview — have backups.
+Always prepare 4-5 questions. Some may get answered during the interview - have backups.
 
 **Rule:** Never ask about salary, vacation, or benefits in the interview. Save those for the recruiter.
 
@@ -54,7 +54,7 @@ Always prepare 4-5 questions. Some may get answered during the interview — hav
 → Reveals engineering culture, quality bar
 
 "What's the team's on-call rotation like?"
-→ Practical — understand operational burden
+→ Practical - understand operational burden
 
 "How does the team celebrate wins and handle failures?"
 → Reveals culture around recognition and blamelessness
@@ -202,12 +202,12 @@ Always prepare 4-5 questions. Some may get answered during the interview — hav
 
 ## 💡 Pro Tips
 
-1. **Listen actively** — the best follow-up questions come from what they say
-2. **Take notes** — shows you're engaged, helps you compare offers later
-3. **Ask about their experience** — "What do YOU enjoy most about working here?"
-4. **One question per topic** — don't rapid-fire 10 questions
-5. **Save 2-3 questions** — even if some get answered during the interview
-6. **Tailor to the interviewer** — ask engineers about tech, managers about culture, PMs about product
+1. **Listen actively** - the best follow-up questions come from what they say
+2. **Take notes** - shows you're engaged, helps you compare offers later
+3. **Ask about their experience** - "What do YOU enjoy most about working here?"
+4. **One question per topic** - don't rapid-fire 10 questions
+5. **Save 2-3 questions** - even if some get answered during the interview
+6. **Tailor to the interviewer** - ask engineers about tech, managers about culture, PMs about product
 
 ---
 

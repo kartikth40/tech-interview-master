@@ -70,6 +70,16 @@ Microservices architecture splits a monolithic application into small, independe
 
 ---
 
+## Service Boundaries — Where to Split
+
+The hardest part of microservices isn't the tech, it's deciding **where the seams go**.
+
+- **Split by business capability / DDD bounded context.** Each service should own one cohesive area of the domain (e.g., Payments, Inventory, Notifications) and its data. A good boundary changes for one business reason and rarely needs to be edited alongside another service.
+- **High cohesion, low coupling.** Things that change together belong together. If a "feature" constantly requires coordinated edits across three services, the boundary is wrong.
+- ⚠️ **Anti-pattern — the "distributed monolith":** services are split physically but remain tightly coupled (chatty synchronous calls, shared database, lock-step deploys). You pay all the operational cost of distribution with none of the independence. If services can't deploy independently, they aren't really separate.
+
+---
+
 ## 2️⃣ Microservices Communication Patterns
 
 ### **Pattern 1: Synchronous (HTTP/REST, gRPC)**
@@ -241,218 +251,43 @@ END FUNCTION
 
 ### **C. Load Balancer**
 
-Distributes traffic across multiple service instances.
+Distributes traffic across multiple service instances. Common strategies: Round Robin, Least Connections, Weighted Round Robin, IP Hash, Random.
 
-```text
-# Client-side load balancing with Round Robin
-
-CLASS LoadBalancer
-    FUNCTION init(services)
-        this.services = services   # list of service base URLs
-        this.currentIndex = 0
-    END FUNCTION
-
-    FUNCTION getNextService()
-        service = this.services[this.currentIndex]
-        this.currentIndex = (this.currentIndex + 1) MOD LENGTH(this.services)
-        RETURN service
-    END FUNCTION
-
-    FUNCTION request(path, data)
-        service = this.getNextService()
-        RETURN HTTP_POST(service + path, data)
-    END FUNCTION
-END CLASS
-
-lb = new LoadBalancer([
-    "http://payment-service-1:3000",
-    "http://payment-service-2:3000",
-    "http://payment-service-3:3000"
-])
-
-# Usage
-lb.request("/charge", { amount: 100 })
-```
-
-**Load Balancing Strategies:**
-- Round Robin
-- Least Connections
-- Weighted Round Robin
-- IP Hash
-- Random
+> 📌 See **components/load-balancer.md** for load balancing algorithms and trade-offs.
 
 ---
 
 ### **D. Circuit Breaker**
 
-Prevents cascading failures when downstream service is failing.
+Prevents cascading failures when a downstream service is failing. The breaker wraps calls to a dependency and tracks failures. It has three states:
 
-```text
-CLASS CircuitBreaker
-    FUNCTION init(serviceCall, options = {})
-        this.serviceCall = serviceCall
-        this.failureThreshold = options.failureThreshold OR 5
-        this.timeout = options.timeout OR 60000
-        this.state = "CLOSED"          # CLOSED, OPEN, HALF_OPEN
-        this.failureCount = 0
-        this.nextAttempt = NOW()
-    END FUNCTION
+- **CLOSED**: normal operation, requests pass through and failures are counted.
+- **OPEN**: after N consecutive failures the breaker trips; requests fail fast (no wait) and a fallback is served, giving the downstream time to recover.
+- **HALF-OPEN**: after a cooldown, a few trial requests are allowed. Success → CLOSED; failure → back to OPEN.
 
-    FUNCTION execute(args...)
-        IF this.state == "OPEN" THEN
-            IF NOW() < this.nextAttempt THEN
-                THROW Error("Circuit breaker is OPEN")
-            END IF
-            this.state = "HALF_OPEN"
-        END IF
-
-        TRY
-            result = this.serviceCall(args...)
-            this.onSuccess()
-            RETURN result
-        CATCH error
-            this.onFailure()
-            THROW error
-        END TRY
-    END FUNCTION
-
-    FUNCTION onSuccess()
-        this.failureCount = 0
-        this.state = "CLOSED"
-    END FUNCTION
-
-    FUNCTION onFailure()
-        this.failureCount = this.failureCount + 1
-        IF this.failureCount >= this.failureThreshold THEN
-            this.state = "OPEN"
-            this.nextAttempt = NOW() + this.timeout
-        END IF
-    END FUNCTION
-END CLASS
-
-# Usage
-paymentServiceCall = FUNCTION(data) RETURN HTTP_POST("http://payment-service/charge", data) END
-breaker = new CircuitBreaker(paymentServiceCall, { failureThreshold: 3 })
-
-TRY
-    result = breaker.execute({ amount: 100 })
-CATCH error
-    # Fallback logic
-    PRINT "Payment service unavailable, using fallback"
-END TRY
-```
-
-**States:**
-- **CLOSED**: Normal operation, requests pass through
-- **OPEN**: Service failing, requests immediately fail (fast fail)
-- **HALF_OPEN**: Testing if service recovered, limited requests allowed
+**Trade-off:** protects the system from wasting resources on a dead dependency and stops failure from spreading, at the cost of tuning thresholds/timeouts (too sensitive = false trips, too lax = slow to protect).
 
 ---
 
 ### **E. Saga Pattern (Distributed Transactions)**
 
-Handle transactions across multiple services without 2-phase commit.
+Handle transactions across multiple services without 2-phase commit. A saga is a sequence of local transactions; if one step fails, earlier steps are undone by **compensating transactions** (e.g., refund a charge, release a reservation). There are two coordination styles.
+
+**Choreography (event-driven):** each service reacts to events and emits its own, no central coordinator.
 
 ```text
-# Choreography-based Saga (event-driven)
-
-# Order Service
-FUNCTION createOrder(orderData)
-    order = DB_CREATE("orders", MERGE(orderData, { status: "PENDING" }))
-
-    PUBLISH("order.created", {
-        orderId: order.id,
-        userId: orderData.userId,
-        items: orderData.items,
-        total: orderData.total
-    })
-END FUNCTION
-
-# Payment Service
-ON EVENT("order.created") AS event
-    TRY
-        chargeUser(event.userId, event.total)
-        PUBLISH("payment.success", { orderId: event.orderId })
-    CATCH error
-        PUBLISH("payment.failed", { orderId: event.orderId, reason: error.message })
-    END TRY
-END ON
-
-# Inventory Service
-ON EVENT("payment.success") AS event
-    TRY
-        reserveItems(event.orderId)
-        PUBLISH("inventory.reserved", { orderId: event.orderId })
-    CATCH error
-        # Compensating transaction: refund payment
-        PUBLISH("inventory.reservation.failed", { orderId: event.orderId })
-    END TRY
-END ON
-
-# Payment Service (compensating transaction)
-ON EVENT("inventory.reservation.failed") AS event
-    refundUser(event.orderId)
-    PUBLISH("payment.refunded", { orderId: event.orderId })
-END ON
-
-# Order Service (update final status)
-ON EVENT("inventory.reserved") AS event
-    DB_UPDATE("orders", event.orderId, { status: "CONFIRMED" })
-END ON
-
-ON EVENT("payment.refunded") AS event
-    DB_UPDATE("orders", event.orderId, { status: "CANCELLED" })
-END ON
+# Each service listens and reacts, publishing the next event
+Order      → PUBLISH order.created
+Payment    → ON order.created → charge → PUBLISH payment.success | payment.failed
+Inventory  → ON payment.success → reserve → PUBLISH inventory.reserved | inventory.failed
+Payment    → ON inventory.failed → refund (compensating) → PUBLISH payment.refunded
+Order      → ON inventory.reserved → status = CONFIRMED
+           → ON payment.refunded  → status = CANCELLED
 ```
 
-**Alternative: Orchestration-based Saga**
+**Orchestration:** a central orchestrator drives the steps explicitly — call payment, then inventory, then shipping — and on any failure it invokes the compensations in reverse order. The flow lives in one place instead of being spread across event handlers.
 
-```text
-# Order Orchestrator coordinates the saga
-
-CLASS OrderSaga
-    FUNCTION execute(orderData)
-        order = DB_CREATE("orders", MERGE(orderData, { status: "PENDING" }))
-
-        TRY
-            # Step 1: Charge payment
-            paymentService.charge({
-                userId: orderData.userId,
-                amount: orderData.total
-            })
-
-            # Step 2: Reserve inventory
-            inventoryService.reserve({
-                orderId: order.id,
-                items: orderData.items
-            })
-
-            # Step 3: Ship order
-            shippingService.scheduleShipment({
-                orderId: order.id,
-                address: orderData.address
-            })
-
-            # Success
-            DB_UPDATE("orders", order.id, { status: "CONFIRMED" })
-            RETURN { success: true, orderId: order.id }
-
-        CATCH error
-            # Compensate (rollback)
-            this.compensate(order.id)
-            THROW error
-        END TRY
-    END FUNCTION
-
-    FUNCTION compensate(orderId)
-        # Reverse in opposite order
-        shippingService.cancelShipment(orderId)
-        inventoryService.releaseReservation(orderId)
-        paymentService.refund(orderId)
-        DB_UPDATE("orders", orderId, { status: "CANCELLED" })
-    END FUNCTION
-END CLASS
-```
+**Trade-off:** choreography is **decoupled** (services don't know about each other) but the end-to-end flow is **hard to trace and reason about** — no single place shows the whole saga. Orchestration gives **central visibility and control** but the coordinator is a **single point of failure** and a source of coupling.
 
 ---
 
@@ -490,85 +325,21 @@ Each microservice owns its database.
 
 ### **Event Sourcing**
 
-Store all changes as immutable events instead of current state.
+Instead of storing current state, store the full sequence of immutable events that led to it (e.g., `AccountCreated`, `MoneyDeposited`, `MoneyWithdrawn`). Current state is derived by replaying events; snapshots avoid replaying from the beginning every time.
 
-```text
-# Traditional approach: Store current state
-DB_UPDATE("accounts", accountId, { balance: 500 })
+> **Note:** gives a complete audit trail, time-travel, and the ability to replay with corrected logic — but querying "current state" now requires a projection.
 
-# Event Sourcing: Store all events
-EVENT_STORE_APPEND("account-123", [
-    { type: "AccountCreated", balance: 0, timestamp: "2024-01-01" },
-    { type: "MoneyDeposited", amount: 1000, timestamp: "2024-01-02" },
-    { type: "MoneyWithdrawn", amount: 500, timestamp: "2024-01-03" }
-])
-
-# Rebuild current state by replaying events
-FUNCTION getCurrentBalance(events)
-    balance = 0
-    FOR EACH event IN events
-        SWITCH event.type
-            CASE "AccountCreated":  balance = event.balance
-            CASE "MoneyDeposited":  balance = balance + event.amount
-            CASE "MoneyWithdrawn":  balance = balance - event.amount
-            DEFAULT:                # no change
-        END SWITCH
-    END FOR
-    RETURN balance
-END FUNCTION
-
-events = EVENT_STORE_GET("account-123")
-currentBalance = getCurrentBalance(events)   # 500
-```
-
-**Benefits:**
-- ✅ Complete audit trail
-- ✅ Time travel (rebuild state at any point in time)
-- ✅ Event replay (fix bugs by replaying with corrected logic)
+> ⚠️ **Caution:** Event Sourcing is advanced and often over-engineering. Reach for it only when an immutable audit trail or event replay is a real requirement (finance, ledgers, compliance) — not by default.
 
 ---
 
 ### **CQRS (Command Query Responsibility Segregation)**
 
-Separate read and write models.
+Separate the **write model** (commands that mutate state / emit events) from the **read model** (denormalized views optimized for queries). Reads and writes use different data models, often different stores, kept in sync via events. This lets you scale and optimize each side independently.
 
-```text
-# Write Model (Commands)
-CLASS OrderService
-    FUNCTION createOrder(orderData)
-        event = MERGE({
-            type: "OrderCreated",
-            orderId: GENERATE_UUID(),
-            timestamp: NOW()
-        }, orderData)
+> **Note:** frequently paired with Event Sourcing, but the two are independent choices.
 
-        EVENT_STORE_APPEND(event.orderId, [event])
-        PUBLISH("order.created", event)
-    END FUNCTION
-END CLASS
-
-# Read Model (Queries) - separate database optimized for reads
-ON EVENT("order.created") AS event
-    # Update read-optimized view
-    READ_DB_INSERT("orders", {
-        orderId: event.orderId,
-        userId: event.userId,
-        total: event.total,
-        status: "PENDING",
-        createdAt: event.timestamp
-    })
-END ON
-
-# Query from read model
-FUNCTION getOrderHistory(userId)
-    RETURN READ_DB_FIND("orders", { userId: userId }) SORTED BY createdAt DESCENDING
-END FUNCTION
-```
-
-**Benefits:**
-- ✅ Optimize read and write separately
-- ✅ Scale reads independently (read replicas)
-- ✅ Denormalize data for fast queries
+> ⚠️ **Caution:** CQRS adds eventual consistency and operational complexity. Use it only when read and write workloads are genuinely asymmetric (very high read volume, or complex query shapes the write model can't serve) — otherwise a single model is simpler and correct.
 
 ---
 
@@ -576,106 +347,15 @@ END FUNCTION
 
 ### **Container Orchestration (Kubernetes)**
 
-```yaml
-# deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: user-service
-spec:
-  replicas: 3  # Run 3 instances
-  selector:
-    matchLabels:
-      app: user-service
-  template:
-    metadata:
-      labels:
-        app: user-service
-    spec:
-      containers:
-      - name: user-service
-        image: myregistry/user-service:v1.2.3
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DB_HOST
-          value: postgres-service
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: user-service
-spec:
-  selector:
-    app: user-service
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
-  type: LoadBalancer
-```
-
-**Kubernetes Features:**
-- Auto-scaling (HPA - Horizontal Pod Autoscaler)
-- Self-healing (restart failed containers)
-- Load balancing
-- Service discovery
-- Rolling updates (zero downtime)
+Services are packaged as containers and deployed **declaratively** (desired state, not manual steps). The orchestrator runs N **replicas** behind a stable service address and uses **health checks** to restart or reschedule unhealthy instances. This gives auto-scaling (HPA), self-healing, service discovery, and rolling (zero-downtime) updates — the operational detail is out of scope for a design round.
 
 ---
 
 ## 6️⃣ Monitoring & Observability
 
-### **Distributed Tracing**
+Distributed systems need request-level visibility across service hops to find where latency and errors originate.
 
-Track requests across multiple services.
-
-```text
-# Distributed tracing (pseudocode)
-# tracer is scoped to the "order-service"
-
-FUNCTION createOrder(orderData)
-    # Start span
-    span = START_SPAN("createOrder")
-    SET_SPAN_ATTRIBUTE(span, "user.id", orderData.userId)
-    SET_SPAN_ATTRIBUTE(span, "order.total", orderData.total)
-
-    TRY
-        # Save order
-        order = DB_CREATE("orders", orderData)
-
-        # Call payment service (propagate trace context as a child span)
-        paymentSpan = START_SPAN("chargePayment", parent = span)
-        paymentService.charge({ orderId: order.id, amount: order.total })
-        END_SPAN(paymentSpan)
-
-        SET_SPAN_STATUS(span, OK)
-        RETURN order
-    CATCH error
-        SET_SPAN_STATUS(span, ERROR, error.message)
-        THROW error
-    FINALLY
-        END_SPAN(span)
-    END TRY
-END FUNCTION
-```
-
-**Visualize with Jaeger:**
-```
-createOrder [200ms]
-  ├─ db.orders.create [50ms]
-  ├─ chargePayment [120ms]
-  │   ├─ db.payments.create [30ms]
-  │   └─ stripe.charge [80ms]
-  └─ eventBus.publish [10ms]
-```
+> 📌 See **Distributed Tracing** in **components/monitoring.md** (canonical home for tracing, metrics, and logging).
 
 ---
 

@@ -2,9 +2,9 @@
 
 ## 🎯 Overview
 
-Amazon's **16 Leadership Principles** are not just values—they are **used to evaluate every candidate** in behavioral interviews. Every question maps to 1-2 principles.
+Amazon's **16 Leadership Principles** are not just values-they are **used to evaluate every candidate** in behavioral interviews. Every question maps to 1-2 principles.
 
-**Critical:** Prepare 2-3 STAR stories for EACH principle (32-48 stories total for Amazon).
+**Critical:** You do NOT need a unique story per principle. Prepare **12-15 strong stories, each mapping to 2-3 principles** - that covers all 16 LPs without 48 separate stories.
 
 ---
 
@@ -133,7 +133,7 @@ Leaders raise the performance bar with every hire and promotion. They recognize 
 ### 7. **Insist on the Highest Standards**
 
 **Principle:**  
-Leaders have relentlessly high standards — many people may think these standards are unreasonably high. Leaders are continually raising the bar and drive their teams to deliver high quality products, services, and processes.
+Leaders have relentlessly high standards - many people may think these standards are unreasonably high. Leaders are continually raising the bar and drive their teams to deliver high quality products, services, and processes.
 
 **Interview Questions:**
 - "Tell me about a time you refused to compromise on quality"
@@ -368,16 +368,15 @@ Leaders focus on the key inputs for their business and deliver them with the rig
 
 ## 🎯 Story Coverage Checklist
 
-Ensure you have stories covering:
-- [ ] 2x Customer Obsession
-- [ ] 2x Ownership
-- [ ] 2x Invent and Simplify
-- [ ] 2x Deliver Results
-- [ ] 1x each for remaining 12 principles
-- [ ] **Total: 20+ stories**
+Aim for **12-15 strong stories, each tagged to 2-3 principles** (not one story per LP). Make sure the
+set collectively covers all 16, with extra depth on the most-tested ones:
+- [ ] 2-3 stories that hit **Customer Obsession** / **Ownership** / **Deliver Results** (the heavy hitters)
+- [ ] At least one story each mapping to the remaining principles
+- [ ] 2-3 genuine **failure** stories (Earn Trust, Learn and Be Curious)
+- [ ] Every story quantified and drilled for follow-ups
 
 ---
 
-**Remember:** At Amazon, these aren't just interview questions—they're the company's DNA. Show genuine alignment with these principles.
+**Remember:** At Amazon, these aren't just interview questions-they're the company's DNA. Show genuine alignment with these principles.
 
 Good luck with your Amazon interview! 🚀

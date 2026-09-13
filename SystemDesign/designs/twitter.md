@@ -1,6 +1,10 @@
 # Twitter System Design
 > **SDE-2 Interview Ready** | 45-minute format
 
+> **Also covers "Design a News Feed."** The news-feed problem is the timeline/fan-out core of this
+> design — see **Deep Dive 1: Timeline Generation (Fanout)** below for push vs pull vs hybrid
+> fan-out and the celebrity problem.
+
 ## 🎯 Problem Statement
 
 Design a microblogging platform like Twitter (X) that allows:
@@ -593,5 +597,3 @@ A: ML model - consider user engagement, recency, author popularity
 - Search: Elasticsearch
 - Queue: Kafka
 - Storage: S3 + CloudFront
-
-**Cost (200M DAU/month):** ~₹200Cr/month (~$25M USD)

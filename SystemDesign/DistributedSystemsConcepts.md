@@ -2,7 +2,7 @@
 
 ## 🎯 Why This Matters
 
-Every system design interview at SDE-2 level will probe your understanding of distributed systems. These concepts come up in almost every design — knowing them deeply separates good answers from great ones.
+Every system design interview at SDE-2 level will probe your understanding of distributed systems. These concepts come up in almost every design - knowing them deeply separates good answers from great ones.
 
 ---
 
@@ -32,7 +32,7 @@ CAP only covers partition scenarios. PACELC adds the normal case:
 ```
 If Partition (P):
   Choose between Availability (A) or Consistency (C)
-Else (E — normal operation):
+Else (E - normal operation):
   Choose between Latency (L) or Consistency (C)
 
 Examples:
@@ -255,48 +255,15 @@ Orchestration: Central saga orchestrator tells each service what to do
 
 ## 6️⃣ Distributed Caching
 
-### Cache Consistency Strategies
+Caching strategies (cache-aside, write-through, write-behind), eviction policies (LRU/LFU/TTL),
+cache stampede, hot keys, and **consistent hashing** for distributing keys across cache nodes are
+covered in depth in the dedicated component doc:
 
-```text
-# Strategy 1: Cache-Aside (most common)
-FUNCTION get(key)
-    cached = CACHE_GET(key)
-    IF cached EXISTS THEN RETURN cached
+➡️ **[components/caching.md](components/caching.md)**
 
-    data = DB_GET(key)
-    CACHE_SET(key, data, TTL)
-    RETURN data
-END FUNCTION
-
-# Strategy 2: Write-Through
-FUNCTION set(key, value)
-    DB_SET(key, value)
-    CACHE_SET(key, value, TTL)
-END FUNCTION
-
-# Strategy 3: Write-Behind (async)
-FUNCTION set(key, value)
-    CACHE_SET(key, value, TTL)
-    QUEUE_ENQUEUE({ key, value })   # DB write happens async
-END FUNCTION
-```
-
-### Consistent Hashing (for distributed cache)
-
-```
-Problem: Adding/removing cache nodes invalidates most keys with simple modulo hashing.
-
-Solution: Consistent hashing — only ~K/N keys remapped when node added/removed.
-
-Ring:
-  Hash space: 0 to 2^32
-  Nodes placed at hash(node_id) positions on ring
-  Key → find first node clockwise on ring
-
-Virtual nodes:
-  Each physical node has 150 virtual nodes
-  Ensures even distribution even with heterogeneous nodes
-```
+Two distributed-systems points worth remembering here:
+- **Consistent hashing** remaps only ~K/N keys when a node is added/removed (vs `hash(key) % N`, which remaps almost everything). Virtual nodes even out the distribution.
+- **Cache + DB consistency** is a write-strategy trade-off: write-through (consistent, slower writes) vs write-behind (fast writes, risk of loss) vs cache-aside + invalidation (simple, brief staleness).
 
 ---
 
@@ -500,7 +467,7 @@ result = withRetry(FUNCTION() RETURN externalAPI.getData() END, 3, 200)
 ### Bulkhead Pattern
 
 ```
-Isolate failures — don't let one service take down everything.
+Isolate failures - don't let one service take down everything.
 
 Example: Separate thread pools for different services
   - Payment service: 20 threads

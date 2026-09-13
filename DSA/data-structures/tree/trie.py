@@ -31,6 +31,7 @@ class TrieNode:
     def __init__(self) -> None:
         self.children: dict[str, "TrieNode"] = {}
         self.is_end = False
+        self.word: str | None = None  # used by find_words (Word Search II) to stash the full word
 
 
 class Trie:
@@ -62,6 +63,45 @@ class Trie:
         return True
 
 
+# === WORD SEARCH II (LC 212): trie + grid DFS ===
+# Classic Google problem combining two structures already here. Build a trie of all words, then DFS
+# the grid following only paths that exist in the trie (prunes dead branches early). Storing the full
+# word on the terminal node avoids rebuilding strings during DFS.
+def find_words(board: list[list[str]], words: list[str]) -> list[str]:
+    root = TrieNode()
+    for word in words:
+        node = root
+        for ch in word:
+            node = node.children.setdefault(ch, TrieNode())
+        node.is_end = True
+        node.word = word  # stash the word on the terminal node
+
+    rows, cols = len(board), len(board[0])
+    found: list[str] = []
+
+    def dfs(r: int, c: int, node: TrieNode) -> None:
+        ch = board[r][c]
+        if ch not in node.children:
+            return
+        nxt = node.children[ch]
+        if nxt.is_end:
+            found.append(nxt.word)
+            nxt.is_end = False  # dedupe: don't report the same word twice
+
+        board[r][c] = "#"  # mark visited
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] != "#":
+                dfs(nr, nc, nxt)
+        board[r][c] = ch  # restore
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(r, c, root)
+
+    return found
+
+
 # Examples (only run when executed directly)
 if __name__ == "__main__":
     trie = Trie()
@@ -75,3 +115,12 @@ if __name__ == "__main__":
     print(trie.starts_with("ap"))    # True
     print(trie.starts_with("ban"))   # True
     print(trie.starts_with("cat"))   # False
+
+    # Word Search II
+    board = [
+        ["o", "a", "a", "n"],
+        ["e", "t", "a", "e"],
+        ["i", "h", "k", "r"],
+        ["i", "f", "l", "v"],
+    ]
+    print(sorted(find_words(board, ["oath", "pea", "eat", "rain"])))  # ['eat', 'oath']

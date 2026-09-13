@@ -296,42 +296,14 @@ DNS returns different IP based on:
 
 ---
 
-## 🔧 Configuration Example (NGINX)
+## 🔧 Configuration (conceptual)
 
-```nginx
-# Layer 7 Load Balancer with Weighted Round Robin
-upstream backend {
-    # Weighted round robin
-    server 10.0.0.1:8080 weight=3;
-    server 10.0.0.2:8080 weight=2;
-    server 10.0.0.3:8080 weight=1;
-    
-    # Health checks
-    server 10.0.0.4:8080 backup;  # Only used if others fail
-}
+A Layer-7 balancer (NGINX/HAProxy/Envoy) is configured with:
+- An **upstream pool** of backend servers, each with an optional **weight** (higher weight = more traffic) and **backup** servers used only when the primaries fail.
+- **Content-based routing** by path (`/api/*` → API pool, `/static/*` → CDN/static pool) or header.
+- A lightweight **health-check endpoint** the balancer polls to decide which backends are in rotation.
 
-server {
-    listen 80;
-    server_name example.com;
-    
-    # Content-based routing
-    location /api/ {
-        proxy_pass http://backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-    
-    location /static/ {
-        proxy_pass http://cdn_backend;
-    }
-    
-    # Health check endpoint
-    location /health {
-        access_log off;
-        return 200 "healthy\n";
-    }
-}
-```
+(Exact vendor config syntax isn't what an interview tests - the routing + health-check + weighting concepts are.)
 
 ---
 
@@ -362,16 +334,9 @@ server {
 ## 🚀 Advanced Features
 
 ### 1. **Rate Limiting**
-```nginx
-limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;
-
-server {
-    location /api/ {
-        limit_req zone=one burst=20;
-        proxy_pass http://backend;
-    }
-}
-```
+The balancer can rate-limit per client (e.g. keyed by source IP) - a sustained rate (e.g. 10 req/s)
+with a small **burst** allowance - before requests ever reach the backends. (See token-bucket vs
+sliding-window in [SystemDesignGuide.md](../SystemDesignGuide.md).)
 
 ### 2. **Request Routing**
 ```

@@ -1,6 +1,6 @@
 ---
 name: Content Request
-about: Request new content — algorithm, design, company guide, etc.
+about: Request new content - algorithm, design, company guide, etc.
 title: '[REQUEST] '
 labels: enhancement
 ---

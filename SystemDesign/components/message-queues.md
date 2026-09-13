@@ -120,25 +120,7 @@ Client -> [Request Queue] -> Server
 - Useful for distributed RPC
 ```
 
-```text
-# Client
-FUNCTION callRemoteService(request)
-    correlationId = GENERATE_UUID()
-    replyQueue = "reply-" + correlationId
-
-    # Send request
-    QUEUE_SEND("service-requests", {
-        data: request,
-        replyTo: replyQueue,
-        correlationId: correlationId
-    })
-
-    # Wait for response on the reply queue matching this correlationId
-    WAIT FOR message ON QUEUE(replyQueue) WHERE message.correlationId == correlationId
-    ACK(message)
-    RETURN message.data
-END FUNCTION
-```
+Client sends the request with a `correlationId` and a `replyTo` queue, then blocks waiting for the matching reply. The server processes the request and posts the response to the reply queue keyed by the same `correlationId`.
 
 ---
 
@@ -152,11 +134,7 @@ Normal Priority Messages ->
 - Example: VIP customer orders, alerts
 ```
 
-```text
-QUEUE_SEND("order-processing", orderData, {
-    priority: IF order.isVIP THEN "high" ELSE "normal"
-})
-```
+Tag each message with a priority (e.g. high for VIP orders) so the broker dequeues higher-priority messages first. Watch for starvation of low-priority messages under sustained high-priority load.
 
 ---
 
@@ -196,48 +174,7 @@ END ON
 
 **Best for**: Traditional message queuing, complex routing
 
-```text
-# RabbitMQ-style message queue (pseudocode)
-
-# Producer
-FUNCTION sendMessage()
-    connection = CONNECT_TO_BROKER("localhost")
-    channel = connection.createChannel()
-
-    queue = "tasks"
-    DECLARE_QUEUE(channel, queue, durable = true)
-
-    PUBLISH_TO_QUEUE(channel, queue, serialize({
-        task: "resize-image",
-        imageUrl: "https://..."
-    }), persistent = true)   # persistent = survive broker restart
-
-    PRINT "Message sent"
-    channel.close()
-    connection.close()
-END FUNCTION
-
-# Consumer
-FUNCTION consumeMessages()
-    connection = CONNECT_TO_BROKER("localhost")
-    channel = connection.createChannel()
-
-    queue = "tasks"
-    DECLARE_QUEUE(channel, queue, durable = true)
-    SET_PREFETCH(channel, 1)   # Process one message at a time
-
-    ON QUEUE_MESSAGE(channel, queue) AS message
-        task = deserialize(message.content)
-        PRINT "Processing: " + task
-
-        # Simulate work
-        processTask(task)
-
-        # Acknowledge (manual ack mode)
-        ACK(channel, message)
-    END ON
-END FUNCTION
-```
+Broker-based AMQP queue: producers publish to an exchange that routes to durable queues; consumers pull with a prefetch limit and manually ACK. A message is redelivered if the consumer dies before ACKing.
 
 **RabbitMQ Features:**
 - ✅ AMQP protocol (standard)
@@ -253,42 +190,7 @@ END FUNCTION
 
 **Best for**: High-throughput event streaming, real-time analytics
 
-```text
-# Kafka event streaming (pseudocode)
-# Configure client with brokers: ["kafka1:9092", "kafka2:9092"]
-
-# Producer
-FUNCTION produceEvent()
-    producer = KAFKA_PRODUCER(brokers = ["kafka1:9092", "kafka2:9092"])
-    CONNECT(producer)
-
-    PUBLISH producer TO topic "user-events" WITH
-        key   = "user-123"           # Partitioning key
-        value = serialize({
-            event: "page_view",
-            userId: "123",
-            page: "/products",
-            timestamp: NOW()
-        })
-
-    DISCONNECT(producer)
-END FUNCTION
-
-# Consumer
-FUNCTION consumeEvents()
-    consumer = KAFKA_CONSUMER(groupId = "analytics-service")
-    CONNECT(consumer)
-    SUBSCRIBE(consumer, topic = "user-events", fromBeginning = false)
-
-    FOR EACH message CONSUMED FROM consumer
-        event = deserialize(message.value)
-        PRINT "Event: " + event
-
-        # Process event
-        trackAnalytics(event)
-    END FOR
-END FUNCTION
-```
+Append-only partitioned log: producers write records keyed for partitioning; consumers in a group each own a subset of partitions and track their own offset (messages are retained, not deleted on read, so they can be replayed). Ordering is guaranteed only *per partition*, and partitions are distributed across consumer-group members for parallelism.
 
 **Kafka Features:**
 - ✅ Extreme throughput (1M+ msg/sec)
@@ -305,36 +207,7 @@ END FUNCTION
 
 **Best for**: AWS-native, serverless queuing
 
-```text
-# Managed cloud queue (SQS-style, pseudocode)
-QUEUE_URL = "https://queue-service/123456/my-queue"
-
-# Send message
-FUNCTION sendMessage()
-    QUEUE_SEND(QUEUE_URL,
-        body = serialize({ orderId: "123", userId: "456" }),
-        delaySeconds = 0)
-END FUNCTION
-
-# Receive and process
-FUNCTION pollMessages()
-    WHILE true
-        messages = QUEUE_RECEIVE(QUEUE_URL,
-            maxMessages = 10,
-            waitTimeSeconds = 20)   # Long polling
-
-        IF messages IS EMPTY THEN CONTINUE
-
-        FOR EACH message IN messages
-            data = deserialize(message.body)
-            processOrder(data)
-
-            # Delete message once processed
-            QUEUE_DELETE(QUEUE_URL, message.receiptHandle)
-        END FOR
-    END WHILE
-END FUNCTION
-```
+Fully managed queue: send a message, then long-poll to receive a batch; a received message is hidden by a visibility timeout and must be explicitly deleted once processed (otherwise it reappears for retry). Standard queues are at-least-once + best-effort order; FIFO queues add ordering + dedup at lower throughput.
 
 **SQS Features:**
 - ✅ Fully managed (no servers)
@@ -350,47 +223,7 @@ END FUNCTION
 
 **Best for**: Simple event streaming with Redis infrastructure
 
-```text
-# Stream-based queue (Redis Streams-style, pseudocode)
-
-# Producer
-FUNCTION addEvent()
-    STREAM_APPEND("user-events", id = AUTO, fields = {
-        event: "signup",
-        userId: "123",
-        timestamp: NOW()
-    })
-END FUNCTION
-
-# Consumer Group
-FUNCTION consumeEvents()
-    # Create consumer group (start from beginning, create stream if missing)
-    STREAM_CREATE_GROUP("user-events", group = "analytics-group", start = "0")
-
-    WHILE true
-        # Read new messages for this consumer, blocking up to 5000ms
-        results = STREAM_READ_GROUP(
-            group = "analytics-group",
-            consumer = "consumer-1",
-            count = 10,
-            blockMillis = 5000,
-            stream = "user-events",
-            from = "new-messages")
-
-        IF results IS EMPTY THEN CONTINUE
-
-        FOR EACH (stream, messages) IN results
-            FOR EACH (id, fields) IN messages
-                event = parseFields(fields)
-                processEvent(event)
-
-                # Acknowledge
-                STREAM_ACK("user-events", group = "analytics-group", id = id)
-            END FOR
-        END FOR
-    END WHILE
-END FUNCTION
-```
+Append-only stream in Redis: producers `XADD` entries; consumer groups let multiple consumers split the stream, each reading new entries (blocking) and `XACK`-ing them. In-memory so very fast, but bounded by a single instance and lacking true partitioning.
 
 **Redis Streams Features:**
 - ✅ Simple (if already using Redis)
@@ -413,6 +246,20 @@ END FUNCTION
 | **Ordering** | Per queue | Per partition | FIFO queues | ✅ |
 | **Use Case** | Task queues | Event streaming | Serverless | Simple streaming |
 | **Complexity** | Medium | High | Low | Low |
+
+---
+
+## 4️⃣.5 Delivery Semantics (Core Trade-off)
+
+How many times a consumer is guaranteed to see a message. This is the central reliability trade-off when choosing/configuring a queue:
+
+| Semantic | Guarantee | Cost / Mechanism | When to use |
+|----------|-----------|------------------|-------------|
+| **At-most-once** | 0 or 1 delivery; may lose messages | Fire-and-forget, ACK before processing | Metrics, logs where loss is tolerable |
+| **At-least-once** ⭐ | ≥1 delivery; may duplicate | ACK after processing + retries; consumer must be **idempotent** | Default for most systems |
+| **Exactly-once** | Exactly 1 effective processing | Expensive: dedup + transactional offset/state commit | Financial/critical flows |
+
+Key caveat: Kafka's "exactly-once" is **exactly-once processing *within* Kafka** (consume → transform → produce, with transactional offset commits). It does **not** extend end-to-end to external systems — the moment you write to a database, call a third-party API, or send an email, you're back to at-least-once and need idempotency/dedup on your side. In interviews, default to **at-least-once + idempotent consumers**; only claim exactly-once when you can describe the dedup/transaction mechanism.
 
 ---
 
@@ -446,30 +293,7 @@ END FUNCTION
 
 ### **2. Message Deduplication**
 
-Prevent duplicate messages from being processed.
-
-```text
-processedMessages = new Set()
-
-FUNCTION processMessage(message)
-    messageId = message.id
-
-    # Check if already processed
-    IF processedMessages.contains(messageId) THEN
-        PRINT "Duplicate message, skipping"
-        RETURN
-    END IF
-
-    # Process
-    handleMessage(message)
-
-    # Mark as processed
-    processedMessages.add(messageId)
-
-    # Store in cache with TTL (garbage collect old IDs)
-    CACHE_SET("processed:" + messageId, "1", TTL = 86400)
-END FUNCTION
-```
+Prevent duplicate messages from being processed. Give each message a stable ID and record processed IDs in a shared store (e.g. Redis with a TTL). On receipt, skip the message if its ID is already present, otherwise process it and record the ID. The TTL bounds the dedup window and garbage-collects old IDs. This is the mechanism behind idempotent consumers under at-least-once delivery.
 
 ---
 
@@ -499,205 +323,39 @@ END FUNCTION
 
 ### **4. Message Batching**
 
-Process multiple messages together for efficiency.
-
-```text
-FUNCTION batchProcessor()
-    batch = []
-    BATCH_SIZE = 100
-    BATCH_TIMEOUT = 5000
-
-    # Flush the batch whenever the timeout elapses
-    timer = START_TIMER(BATCH_TIMEOUT, THEN processBatch(batch))
-
-    ON QUEUE_MESSAGE("events") AS message
-        batch.append(message)
-
-        IF LENGTH(batch) >= BATCH_SIZE THEN
-            CANCEL_TIMER(timer)
-            processBatch(batch)
-            batch = []
-            timer = START_TIMER(BATCH_TIMEOUT, THEN processBatch(batch))
-        END IF
-    END ON
-END FUNCTION
-
-FUNCTION processBatch(messages)
-    IF LENGTH(messages) == 0 THEN RETURN
-
-    # Process all messages in one database transaction
-    BEGIN TRANSACTION tx
-        FOR EACH msg IN messages
-            DB_QUERY(tx, "INSERT INTO events VALUES (?)", msg.data)
-        END FOR
-    COMMIT TRANSACTION
-
-    # Acknowledge all
-    FOR EACH msg IN messages
-        ACK(msg)
-    END FOR
-END FUNCTION
-```
+Process multiple messages together for efficiency. Accumulate incoming messages into a buffer and flush when either a size threshold (e.g. 100 messages) or a time threshold (e.g. 5s) is hit, whichever comes first. The whole batch is written in one DB transaction and ACKed together. This amortizes per-message overhead (round-trips, commits) and boosts throughput, at the cost of a little added latency — the classic throughput-vs-latency trade-off.
 
 ---
 
 ### **5. Circuit Breaker**
 
-Protect downstream services from cascading failures.
-
-```text
-CLASS CircuitBreaker
-    FUNCTION init()
-        this.state = "CLOSED"      # CLOSED, OPEN, HALF_OPEN
-        this.failureCount = 0
-        this.threshold = 5
-        this.timeout = 60000       # 1 minute
-    END FUNCTION
-
-    FUNCTION execute(fn)
-        IF this.state == "OPEN" THEN
-            THROW Error("Circuit breaker is OPEN")
-        END IF
-
-        TRY
-            result = fn()
-            this.onSuccess()
-            RETURN result
-        CATCH error
-            this.onFailure()
-            THROW error
-        END TRY
-    END FUNCTION
-
-    FUNCTION onSuccess()
-        this.failureCount = 0
-        this.state = "CLOSED"
-    END FUNCTION
-
-    FUNCTION onFailure()
-        this.failureCount = this.failureCount + 1
-        IF this.failureCount >= this.threshold THEN
-            this.state = "OPEN"
-            AFTER this.timeout DO
-                this.state = "HALF_OPEN"
-                this.failureCount = 0
-            END AFTER
-        END IF
-    END FUNCTION
-END CLASS
-
-# Usage
-breaker = new CircuitBreaker()
-
-ON QUEUE_MESSAGE("orders") AS message
-    TRY
-        breaker.execute(FUNCTION() processOrder(message.data) END)
-        ACK(message)
-    CATCH error
-        NACK(message)   # Requeue
-    END TRY
-END ON
-```
+Protect downstream services from cascading failures by tripping OPEN after repeated failures and short-circuiting calls until a cooldown elapses. See Circuit Breaker in [components/microservices.md](microservices.md) for the full pattern (canonical location).
 
 ---
 
 ## 6️⃣ Real-World Example: Video Processing Pipeline
 
-```text
-# Use case: User uploads video, needs transcoding to multiple formats
+Use case: user uploads a video that must be transcoded into multiple formats.
 
-# 1. Upload service publishes event
-FUNCTION handleVideoUpload(request)
-    videoId = GENERATE_UUID()
-
-    # Upload to object storage
-    OBJECT_STORE_UPLOAD(request.file, "videos/raw/" + videoId + ".mp4")
-
-    # Publish to event stream
-    PUBLISH TO topic "video-uploaded" WITH
-        key   = videoId
-        value = serialize({
-            videoId: videoId,
-            userId: request.user.id,
-            originalUrl: "store://videos/raw/" + videoId + ".mp4",
-            timestamp: NOW()
-        })
-
-    RETURN { videoId: videoId, status: "Processing" }
-END FUNCTION
-
-# 2. Transcoding workers consume from stream
-ON EVENT("video-uploaded") AS message
-    videoId = message.value.videoId
-    originalUrl = message.value.originalUrl
-
-    qualities = ["360p", "720p", "1080p"]
-
-    FOR EACH quality IN qualities
-        # Add to work queue (for task distribution)
-        QUEUE_SEND("transcoding-tasks", {
-            videoId: videoId,
-            inputUrl: originalUrl,
-            outputQuality: quality,
-            outputUrl: "store://videos/" + quality + "/" + videoId + ".mp4"
-        }, priority = IF quality == "360p" THEN 10 ELSE 5)  # Prioritize low quality (quick preview)
-    END FOR
-END ON
-
-# 3. Workers process transcoding
-ON QUEUE_MESSAGE("transcoding-tasks") AS message
-    videoId       = message.data.videoId
-    inputUrl      = message.data.inputUrl
-    outputQuality = message.data.outputQuality
-    outputUrl     = message.data.outputUrl
-
-    TRY
-        # Download from object storage
-        inputFile = OBJECT_STORE_DOWNLOAD(inputUrl)
-
-        # Transcode to the target quality
-        outputFile = TRANSCODE(inputFile, quality = outputQuality)
-
-        # Upload result
-        OBJECT_STORE_UPLOAD(outputFile, outputUrl)
-
-        # Publish completion event
-        PUBLISH TO topic "video-transcoded" WITH
-            value = serialize({
-                videoId: videoId,
-                quality: outputQuality,
-                url: outputUrl,
-                timestamp: NOW()
-            })
-
-        ACK(message)
-    CATCH error
-        PRINT_ERROR "Transcoding failed: " + error
-
-        IF message.retryCount < 3 THEN
-            NACK(message)   # Retry
-        ELSE
-            QUEUE_SEND("failed-transcoding", message)
-            ACK(message)
-        END IF
-    END TRY
-END ON
-
-# 4. Notification service notifies user
-ON EVENT("video-transcoded") AS message
-    videoId = message.value.videoId
-    quality = message.value.quality
-
-    # Check if all qualities done
-    SET_ADD("video:" + videoId + ":completed", quality)
-    total = SET_SIZE("video:" + videoId + ":completed")
-
-    IF total == 3 THEN
-        # All done, notify user
-        sendPushNotification(userId, "Your video is ready!")
-    END IF
-END ON
 ```
+Upload API ──"video-uploaded"──▶ Fan-out ──▶ [transcoding-tasks queue]
+                                               │  360p task
+                                               │  720p task
+                                               │  1080p task
+                                               ▼
+                                     Transcode worker pool (N workers)
+                                               │
+                                          "video-transcoded"
+                                               ▼
+                                     Notification service (all done? notify)
+```
+
+Fan-out concept:
+- **Publish once, expand to many**: one `video-uploaded` event is fanned out into one transcode task per target quality (360p/720p/1080p), pushed onto a shared work queue.
+- **Parallel workers**: a pool of interchangeable workers pulls tasks and transcodes independently, so throughput scales by adding workers (point-to-point work queue).
+- **Prioritize**: give the low-res task higher priority so a quick preview is ready first.
+- **Per-task resilience**: retry a failed task a few times, then route it to a DLQ instead of blocking the batch.
+- **Completion tracking**: each worker emits `video-transcoded`; a collector counts completed qualities and notifies the user once all are done.
 
 ---
 

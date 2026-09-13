@@ -47,15 +47,8 @@ Use: Distribute data across multiple servers
 ### 1. **Range-Based Sharding**
 
 ```text
-FUNCTION getShard(userId)
-    IF userId >= 1 AND userId <= 1000000 THEN RETURN "shard1"
-    IF userId >= 1000001 AND userId <= 2000000 THEN RETURN "shard2"
-    IF userId >= 2000001 AND userId <= 3000000 THEN RETURN "shard3"
-END FUNCTION
-
-# Query
-shard = getShard(userId)
-user = SHARD_QUERY(shard, "SELECT * FROM users WHERE id = ?", userId)
+# Map contiguous key ranges to shards: 1..1M -> shard1, 1M..2M -> shard2, ...
+getShard(userId): find the range that contains userId, return its shard
 ```
 
 **Pros:**
@@ -78,31 +71,11 @@ user = SHARD_QUERY(shard, "SELECT * FROM users WHERE id = ?", userId)
 ### 2. **Hash-Based Sharding** ⭐ Most Common
 
 ```text
-FUNCTION getShard(userId)
-    shardCount = 4
-    hash = HASH(toString(userId))
-    shardIndex = hash MOD shardCount
-
-    RETURN shards[shardIndex]
-END FUNCTION
-
-# Examples
-getShard(123)   -> shard2
-getShard(456)   -> shard0
-getShard(789)   -> shard3
+# shardIndex = hash(shardKey) MOD shardCount, then route to shards[shardIndex]
+getShard(userId): return shards[ hash(userId) MOD shardCount ]
 ```
 
-**Hash Function:**
-```text
-FUNCTION hash(str)
-    h = 0
-    FOR EACH char IN str
-        h = (h << 5) - h + charCode(char)
-        h = h AS 32-bit integer
-    END FOR
-    RETURN ABS(h)
-END FUNCTION
-```
+Use a well-distributed hash (MD5/MurmurHash), not a hand-rolled one, to avoid clustering.
 
 **Pros:**
 - ✅ Even data distribution
@@ -124,63 +97,15 @@ END FUNCTION
 ### 3. **Consistent Hashing** ⭐ Best for Dynamic Shards
 
 ```text
-CLASS ConsistentHash
-    FUNCTION init(shards = [], virtualNodes = 150)
-        this.ring = empty map          # hash -> shard
-        this.virtualNodes = virtualNodes
-        FOR EACH shard IN shards
-            this.addShard(shard)
-        END FOR
-    END FUNCTION
-
-    FUNCTION addShard(shard)
-        # Add virtual nodes for even distribution
-        FOR i FROM 0 TO this.virtualNodes - 1
-            hash = this.hash(shard + ":" + i)
-            this.ring.put(hash, shard)
-        END FOR
-    END FUNCTION
-
-    FUNCTION removeShard(shard)
-        FOR i FROM 0 TO this.virtualNodes - 1
-            hash = this.hash(shard + ":" + i)
-            this.ring.remove(hash)
-        END FOR
-    END FUNCTION
-
-    FUNCTION getShard(key)
-        hash = this.hash(key)
-
-        # Find first shard clockwise on ring
-        sortedHashes = SORT_ASCENDING(this.ring.keys())
-        FOR EACH ringHash IN sortedHashes
-            IF ringHash >= hash THEN
-                RETURN this.ring.get(ringHash)
-            END IF
-        END FOR
-
-        # Wrap around
-        RETURN this.ring.get(sortedHashes[0])
-    END FUNCTION
-
-    FUNCTION hash(str)
-        h = 0
-        FOR EACH char IN str
-            h = (h << 5) - h + charCode(char)
-            h = h AS 32-bit integer
-        END FOR
-        RETURN ABS(h)
-    END FUNCTION
-END CLASS
-
-# Usage
-ch = new ConsistentHash(["shard1", "shard2", "shard3"])
-
-ch.getShard("user:123") -> shard2
-ch.getShard("user:456") -> shard1
-
-# Add new shard - only ~25% data needs to move
-ch.addShard("shard4")
+# Concept: hash both shards and keys onto a circular ring (0 .. 2^32).
+# To place a key: hash it, then walk clockwise to the first shard on the ring.
+# Adding/removing a shard only re-homes the keys between it and its neighbor
+#   (~1/N of data), instead of rehashing everything like plain hash MOD N.
+#
+# Virtual nodes: each physical shard is placed at MANY points on the ring
+#   (e.g. 150 "vnodes"). Without them, distribution is lopsided and removing
+#   a node dumps ALL of its load onto its single clockwise successor.
+# Real systems hash with MD5/MurmurHash, not a hand-rolled hash.
 ```
 
 **Pros:**
@@ -202,15 +127,8 @@ ch.addShard("shard4")
 ### 4. **Geographic Sharding**
 
 ```text
-FUNCTION getShard(userId)
-    userCountry = getUserCountry(userId)
-
-    IF userCountry IN ["US", "CA", "MX"] THEN RETURN "shard_americas"
-    IF userCountry IN ["UK", "FR", "DE", "IT"] THEN RETURN "shard_europe"
-    IF userCountry IN ["IN", "CN", "JP", "SG"] THEN RETURN "shard_asia"
-
-    RETURN "shard_global"
-END FUNCTION
+# Route by user's region: Americas -> shard_americas, Europe -> shard_europe, ...
+getShard(userId): map the user's country to its regional shard
 ```
 
 **Pros:**
@@ -233,20 +151,9 @@ END FUNCTION
 ### 5. **Directory-Based Sharding**
 
 ```text
-# Lookup table (can be in separate database or cache)
-directory = {
-    "user:123": "shard1",
-    "user:456": "shard2",
-    "user:789": "shard1"
-}
-
-FUNCTION getShard(userId)
-    key = "user:" + userId
-    RETURN directory[key] OR "shard_default"
-END FUNCTION
-
-# When user data grows too large, migrate to different shard
-directory["user:123"] = "shard3"
+# Keep an explicit key -> shard lookup table (in a DB or cache).
+getShard(userId): return directory["user:" + userId]
+# To rebalance a single record, just update its directory entry to a new shard.
 ```
 
 **Pros:**
@@ -399,36 +306,12 @@ WHERE users.id = 123;
 ### **Rebalancing Strategies:**
 
 #### 1. **Online Migration (Zero Downtime)**
-```text
-# Step 1: Start dual writes (write to both old and new shard)
-FUNCTION writeUser(userId, data)
-    oldShard = getOldShard(userId)
-    newShard = getNewShard(userId)
 
-    # Write to both shards in parallel
-    PARALLEL
-        SHARD_INSERT(oldShard, data)
-        SHARD_INSERT(newShard, data)
-    END PARALLEL
-END FUNCTION
-
-# Step 2: Background job migrates old data
-FUNCTION migrateData()
-    users = SHARD_QUERY(oldShard, "SELECT * FROM users WHERE id >= ? AND id < ?", start, end)
-
-    FOR EACH user IN users
-        SHARD_INSERT(newShard, user)
-    END FOR
-END FUNCTION
-
-# Step 3: Switch reads to new shard
-FUNCTION readUser(userId)
-    newShard = getNewShard(userId)
-    RETURN SHARD_QUERY(newShard, "SELECT * FROM users WHERE id = ?", userId)
-END FUNCTION
-
-# Step 4: Stop dual writes, delete old data
-```
+Four-step dual-write cutover:
+1. **Dual-write**: writes go to both the old and the new shard so they stay in sync.
+2. **Backfill**: a background job copies existing rows from old shard to new shard.
+3. **Switch reads**: once backfill is verified, point reads at the new shard.
+4. **Cut over**: stop dual-writes and drop the old data.
 
 #### 2. **Virtual Shards**
 ```text
@@ -486,76 +369,6 @@ Cons: Vendor-specific
 
 ---
 
-## 🛠️ Sharding Implementation Example
-
-```text
-CLASS ShardManager
-    FUNCTION init(shards)
-        this.shards = shards   # list of database connections
-    END FUNCTION
-
-    # Hash-based sharding
-    FUNCTION getShard(key)
-        hash = this.hash(key)
-        index = hash MOD LENGTH(this.shards)
-        RETURN this.shards[index]
-    END FUNCTION
-
-    FUNCTION hash(str)
-        h = 0
-        FOR EACH char IN str
-            h = (h << 5) - h + charCode(char)
-            h = h AS 32-bit integer
-        END FOR
-        RETURN ABS(h)
-    END FUNCTION
-
-    # Insert
-    FUNCTION insert(tableName, data)
-        shard = this.getShard(data.id)
-        RETURN SHARD_QUERY(shard, "INSERT INTO " + tableName + " SET ?", data)
-    END FUNCTION
-
-    # Get by ID (single shard)
-    FUNCTION getById(tableName, id)
-        shard = this.getShard(id)
-        results = SHARD_QUERY(shard, "SELECT * FROM " + tableName + " WHERE id = ?", id)
-        RETURN results[0]
-    END FUNCTION
-
-    # Scatter-gather query
-    FUNCTION getAll(tableName, condition)
-        results = []
-        FOR EACH shard IN this.shards IN PARALLEL
-            results.append(SHARD_QUERY(shard, "SELECT * FROM " + tableName + " WHERE " + condition))
-        END FOR
-        RETURN FLATTEN(results)
-    END FUNCTION
-
-    # Count (aggregate across shards)
-    FUNCTION count(tableName)
-        results = []
-        FOR EACH shard IN this.shards IN PARALLEL
-            results.append(SHARD_QUERY(shard, "SELECT COUNT(*) AS count FROM " + tableName))
-        END FOR
-        total = 0
-        FOR EACH result IN results
-            total = total + result[0].count
-        END FOR
-        RETURN total
-    END FUNCTION
-END CLASS
-
-# Usage
-shardManager = new ShardManager([shard1Connection, shard2Connection, shard3Connection])
-
-shardManager.insert("users", { id: 123, name: "Alice" })
-user = shardManager.getById("users", 123)
-totalUsers = shardManager.count("users")
-```
-
----
-
 ## ⚠️ Common Pitfalls
 
 | Problem | Solution |
@@ -566,6 +379,13 @@ totalUsers = shardManager.count("users")
 | **Auto-increment IDs** | Use globally unique IDs (UUID, Snowflake ID) |
 | **Transactions** | Avoid cross-shard transactions (use sagas) |
 | **Schema changes** | Apply to all shards simultaneously |
+
+### Hot Keys / Celebrity Partitions
+
+Even with perfect hashing, a single key can be disproportionately hot (a celebrity with millions of followers, a viral product). All of that traffic lands on one shard, so the shard becomes a bottleneck no matter how many shards you add. Mitigations:
+- **Key salting**: append a bucket suffix (`celebrityId#0..N`) so the key's writes/reads spread across N shards; the app fans out and merges.
+- **Split the hot entity**: model the celebrity's data as multiple sub-partitions (e.g. shard followers by follower_id, not by celebrity_id).
+- **Cache/replicate** the hot key in front of the shard to absorb read load.
 
 ---
 
@@ -589,60 +409,8 @@ userId = GENERATE_UUID()   # e.g. '550e8400-e29b-41d4-a716-446655440000'
 ```
 
 #### 2. **Twitter Snowflake (64-bit)** ⭐ Best
-```text
-CLASS SnowflakeID
-    FUNCTION init(datacenterId, workerId)
-        this.epoch = 1609459200000   # Custom epoch (Jan 1, 2021)
-        this.datacenterIdBits = 5
-        this.workerIdBits = 5
-        this.sequenceBits = 12
 
-        this.datacenterId = datacenterId
-        this.workerId = workerId
-        this.sequence = 0
-        this.lastTimestamp = -1
-    END FUNCTION
-
-    FUNCTION generate()
-        timestamp = CURRENT_TIME_MILLIS()
-
-        # Handle clock moving backwards
-        IF timestamp < this.lastTimestamp THEN
-            THROW Error("Clock moved backwards")
-        END IF
-
-        # Same millisecond
-        IF timestamp == this.lastTimestamp THEN
-            this.sequence = (this.sequence + 1) AND ((1 << this.sequenceBits) - 1)
-
-            IF this.sequence == 0 THEN
-                # Sequence overflow - wait for next millisecond
-                WHILE timestamp <= this.lastTimestamp
-                    timestamp = CURRENT_TIME_MILLIS()
-                END WHILE
-            END IF
-        ELSE
-            this.sequence = 0
-        END IF
-
-        this.lastTimestamp = timestamp
-
-        # Construct 64-bit ID by bit-shifting each component into place
-        id = ((timestamp - this.epoch) << (this.datacenterIdBits + this.workerIdBits + this.sequenceBits))
-             OR (this.datacenterId << (this.workerIdBits + this.sequenceBits))
-             OR (this.workerId << this.sequenceBits)
-             OR this.sequence
-
-        RETURN toString(id)
-    END FUNCTION
-END CLASS
-
-snowflake = new SnowflakeID(1, 1)
-id = snowflake.generate()   # e.g. '7234567890123456'
-
-# Pros: Time-sortable, 64-bit (fits in long), k-sorted
-# Cons: Requires coordination (datacenter + worker ID)
-```
+Compose a 64-bit ID from timestamp + machine bits + a per-ms sequence counter, so IDs are unique across shards without a central sequence. Requires coordination to assign each generator a distinct datacenter/worker ID.
 
 **Snowflake Structure:**
 ```
@@ -655,6 +423,8 @@ id = snowflake.generate()   # e.g. '7234567890123456'
 Capacity: 4096 IDs/ms per worker = 4M IDs/sec per worker
 ```
 
+Because the timestamp occupies the high bits, Snowflake IDs are time-sortable (k-sorted) → sequential inserts give good B-tree index locality, unlike random UUIDv4 which scatters writes across the index.
+
 ---
 
 ## 📊 When to Shard?
@@ -664,6 +434,10 @@ Capacity: 4096 IDs/ms per worker = 4M IDs/sec per worker
 - ✅ High traffic >10K QPS per database
 - ✅ Read/write bottleneck on single server
 - ✅ Need geographic data distribution
+
+**Quick capacity estimation (how many shards?):**
+- Total data / capacity per shard = shard count. E.g. 1 TB data ÷ 200 GB per shard = 5 shards → round up to **8** for headroom and clean power-of-2 rebalancing.
+- Sanity-check throughput too: total QPS ÷ per-shard QPS ceiling. Take the larger of the storage-driven and throughput-driven counts.
 
 **Don't shard if:**
 - ❌ Data <100GB (vertical scaling sufficient)

@@ -30,9 +30,11 @@
 # - Course Schedule II (LC 210)
 # - Find Eventual Safe States (LC 802)
 # - Alien Dictionary (LC 269)
-# - Network Delay Time (LC 743)
 
-import heapq
+# NOTE: This file is the PATTERN applied to a concrete problem (Course Schedule). For the bare
+# 3-color cycle-detection algorithm (set-based, generic graph), see
+# algorithms/graph/cycle_detection_directed.py. This version uses an int state[] array keyed by
+# course index — the same idea, shaped for the LC 207/210 input format.
 
 
 # EXAMPLE: Course Schedule - can all courses be finished (is the graph acyclic)?
@@ -63,28 +65,10 @@ def can_finish(num_courses: int, prerequisites: list[list[int]]) -> bool:
     return True
 
 
-# EXAMPLE: Network Delay Time (Dijkstra from source k over a directed weighted graph)
-def network_delay_time(times: list[list[int]], n: int, k: int) -> int:
-    graph: dict[int, list[tuple[int, int]]] = {i: [] for i in range(1, n + 1)}
-    for u, v, w in times:
-        graph[u].append((v, w))
-
-    dist: dict[int, int] = {}
-    pq: list[tuple[int, int]] = [(0, k)]  # (time, node)
-
-    while pq:
-        time, node = heapq.heappop(pq)
-        if node in dist:
-            continue
-        dist[node] = time
-        for nei, w in graph[node]:
-            if nei not in dist:
-                heapq.heappush(pq, (time + w, nei))
-
-    return max(dist.values()) if len(dist) == n else -1
+# (Network Delay Time / Dijkstra was moved out of this file — it's a shortest-path problem, not
+# cycle detection. See algorithms/graph/dijkstra.py for Dijkstra and its Network Delay Time variant.)
 
 
 if __name__ == "__main__":
     print(can_finish(2, [[1, 0]]))            # True
     print(can_finish(2, [[1, 0], [0, 1]]))    # False
-    print(network_delay_time([[2, 1, 1], [2, 3, 1], [3, 4, 1]], 4, 2))  # 2

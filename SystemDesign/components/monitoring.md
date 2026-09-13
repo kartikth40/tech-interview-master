@@ -53,73 +53,36 @@ User Request → [API Gateway] → [User Service] → [Database]
 
 ---
 
+### **Two Standard Recipes: RED and USE**
+
+Rather than inventing metrics ad hoc, use these well-known frameworks:
+
+- **RED method** (for **request-driven services**): **R**ate (requests/sec), **E**rrors (failed requests/sec), **D**uration (latency distribution). This is the service consumer's view - "is the service serving requests well?"
+- **USE method** (for **resources** like CPU, memory, disk, network): **U**tilization (% busy), **S**aturation (queued/waiting work), **E**rrors (device/op errors). This is the infra view - "is any resource maxed out?"
+
+Rule of thumb: RED for every service endpoint, USE for every resource behind it. Together they cover both symptoms (RED) and causes (USE).
+
+> ⚠️ **Pitfall - label cardinality explosion:** each unique combination of label values creates a separate time series. Putting high-cardinality values (user ID, request ID, raw URL with IDs) in labels can generate millions of series and overwhelm the metrics backend. Keep labels to bounded, low-cardinality dimensions (method, route template, status).
+
+---
+
 ### **Implementing Metrics**
 
+Instrumentation is typically a thin middleware/interceptor: define a **counter** for request totals and a **histogram** (with latency buckets) for durations, then record both on every request keyed by method/route/status. Metrics are exposed on a `/metrics` endpoint that a collector scrapes on an interval.
+
 ```text
-# Metrics instrumentation (pseudocode)
-
-# Register default metrics (CPU, memory, etc.)
-COLLECT_DEFAULT_METRICS()
-
-# Custom counter
-httpRequestsTotal = DEFINE_COUNTER(
-    name = "http_requests_total",
-    help = "Total number of HTTP requests",
-    labels = ["method", "route", "status"])
-
-# Custom histogram (for latency)
-httpRequestDuration = DEFINE_HISTOGRAM(
-    name = "http_request_duration_seconds",
-    help = "Duration of HTTP requests in seconds",
-    labels = ["method", "route", "status"],
-    buckets = [0.1, 0.5, 1, 2, 5])   # Buckets for latency ranges
-
-# Middleware to track metrics on every request
-ON REQUEST (request, response)
-    start = NOW()
-
-    ON RESPONSE_FINISHED
-        duration = (NOW() - start) / 1000
-
-        httpRequestsTotal.increment({
-            method: request.method,
-            route: request.route.path OR "unknown",
-            status: response.statusCode
-        })
-
-        httpRequestDuration.observe({
-            method: request.method,
-            route: request.route.path OR "unknown",
-            status: response.statusCode
-        }, duration)
-    END ON
-
-    CONTINUE
-END ON
-
-# Expose metrics endpoint
-ON GET "/metrics" (request, response)
-    SET_RESPONSE_HEADER(response, "Content-Type", METRICS_CONTENT_TYPE)
-    RETURN RENDER_METRICS()
-END ON
+counter   http_requests_total{method, route, status}          # increment per request
+histogram http_request_duration_seconds{...} buckets=[.1,.5,1,2,5]  # observe latency
+# middleware: on response-finished → counter.inc(labels); histogram.observe(labels, elapsed)
 ```
 
-**Prometheus scrapes `/metrics` endpoint:**
+**The scraped metric shape (Prometheus exposition format):**
 ```
-# HELP http_requests_total Total number of HTTP requests
-# TYPE http_requests_total counter
 http_requests_total{method="GET",route="/api/users",status="200"} 1523
-http_requests_total{method="POST",route="/api/orders",status="201"} 342
 http_requests_total{method="GET",route="/api/users",status="500"} 12
-
-# HELP http_request_duration_seconds Duration of HTTP requests in seconds
-# TYPE http_request_duration_seconds histogram
-http_request_duration_seconds_bucket{method="GET",route="/api/users",status="200",le="0.1"} 1200
-http_request_duration_seconds_bucket{method="GET",route="/api/users",status="200",le="0.5"} 1500
-http_request_duration_seconds_bucket{method="GET",route="/api/users",status="200",le="1"} 1520
-http_request_duration_seconds_sum{method="GET",route="/api/users",status="200"} 320.5
-http_request_duration_seconds_count{method="GET",route="/api/users",status="200"} 1523
+http_request_duration_seconds_bucket{route="/api/users",le="0.5"} 1500
 ```
+Each line is `name{labels} value` - a time series identified by its label set.
 
 ---
 
@@ -143,41 +106,7 @@ avg(node_cpu_usage) by (instance)
 
 ### **Visualization (Grafana)**
 
-Create dashboards showing:
-- Request rate (line chart)
-- Error rate (line chart with threshold alerting)
-- Latency distribution (heatmap)
-- Resource usage (CPU, memory gauges)
-
-```json
-{
-  "dashboard": {
-    "title": "User Service Dashboard",
-    "panels": [
-      {
-        "title": "Request Rate",
-        "targets": [
-          {
-            "expr": "rate(http_requests_total{service='user-service'}[5m])"
-          }
-        ],
-        "type": "graph"
-      },
-      {
-        "title": "Error Rate",
-        "targets": [
-          {
-            "expr": "sum(rate(http_requests_total{status=~'5..'}[5m])) / sum(rate(http_requests_total[5m]))"
-          }
-        ],
-        "alert": {
-          "conditions": [{ "evaluator": { "type": "gt", "params": [0.01] } }]
-        }
-      }
-    ]
-  }
-}
-```
+Dashboards turn the scraped time series into charts - request rate (line), error rate (line with threshold), latency distribution (heatmap), and resource gauges. The concrete panel/dashboard config is a tooling detail, not a design-round topic.
 
 ---
 
@@ -312,7 +241,7 @@ END FUNCTION
 requestId:"abc-123-def"
 ```
 
-Returns logs from API Gateway, Order Service, Payment Service, etc. — complete flow!
+Returns logs from API Gateway, Order Service, Payment Service, etc. - complete flow!
 
 ---
 
@@ -412,14 +341,10 @@ END FUNCTION
 
 **Trace Headers (W3C Trace Context standard):**
 ```
-traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
-             ^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^ ^^
-             |  |                                |                   |
-             |  |                                |                   Flags (01 = sampled)
-             |  |                                Span ID (16 hex digits)
-             |  Trace ID (32 hex digits)
-             Version
+traceparent: 00-<trace-id (32 hex)>-<span-id (16 hex)>-01
+             version - trace ID - parent span ID - flags (01 = sampled)
 ```
+The **trace ID** stays constant across all services in one request; each hop adds a new **span ID** whose parent is the caller's span.
 
 ---
 
@@ -441,86 +366,13 @@ traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 
 ---
 
-### **Alert Configuration (Prometheus Alertmanager)**
+### **Alerting Principles**
 
-```yaml
-groups:
-- name: user-service
-  interval: 30s
-  rules:
-  
-  # High error rate
-  - alert: HighErrorRate
-    expr: |
-      sum(rate(http_requests_total{status=~"5..",service="user-service"}[5m])) 
-      / 
-      sum(rate(http_requests_total{service="user-service"}[5m])) 
-      > 0.01
-    for: 5m
-    labels:
-      severity: critical
-    annotations:
-      summary: "High error rate on user-service"
-      description: "Error rate is {{ $value | humanizePercentage }}"
-  
-  # High latency
-  - alert: HighLatency
-    expr: |
-      histogram_quantile(0.95, 
-        rate(http_request_duration_seconds_bucket{service="user-service"}[5m])
-      ) > 2
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High latency on user-service"
-      description: "P95 latency is {{ $value }}s"
-  
-  # Service down
-  - alert: ServiceDown
-    expr: up{service="user-service"} == 0
-    for: 1m
-    labels:
-      severity: critical
-    annotations:
-      summary: "user-service is down"
-```
+The concrete rule/routing config (Alertmanager YAML) is tooling detail. What matters in a design discussion:
 
----
-
-### **Alert Routing**
-
-```yaml
-# alertmanager.yml
-route:
-  receiver: 'team-slack'
-  group_by: ['alertname', 'service']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 4h
-  
-  routes:
-  # Critical alerts go to PagerDuty (wake up on-call engineer)
-  - match:
-      severity: critical
-    receiver: 'pagerduty'
-  
-  # Warnings go to Slack
-  - match:
-      severity: warning
-    receiver: 'team-slack'
-
-receivers:
-- name: 'team-slack'
-  slack_configs:
-  - api_url: 'https://hooks.slack.com/services/...'
-    channel: '#alerts'
-    text: '{{ range .Alerts }}{{ .Annotations.summary }}: {{ .Annotations.description }}{{ end }}'
-
-- name: 'pagerduty'
-  pagerduty_configs:
-  - service_key: 'xxx'
-```
+- **Alert on symptoms, not causes.** Page on user-visible pain (error rate, p95 latency, availability), not on every high-CPU blip. High CPU that doesn't hurt users isn't worth waking someone up.
+- **Route by severity.** `critical` → PagerDuty (wake the on-call), `warning` → Slack/ticket (handle in business hours). An alert with no clear owner or action is noise.
+- **Avoid alert fatigue.** Group related alerts, add `for:` durations so brief blips self-heal without paging, and delete alerts nobody acts on. If everything pages, on-call learns to ignore alerts.
 
 ---
 
@@ -562,34 +414,9 @@ END ON
 
 ---
 
-### **Kubernetes Health Check Config**
+### **Liveness vs Readiness**
 
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: user-service
-spec:
-  containers:
-  - name: user-service
-    image: user-service:v1
-    
-    livenessProbe:
-      httpGet:
-        path: /health/live
-        port: 3000
-      initialDelaySeconds: 30
-      periodSeconds: 10
-      failureThreshold: 3  # Restart after 3 failures
-    
-    readinessProbe:
-      httpGet:
-        path: /health/ready
-        port: 3000
-      initialDelaySeconds: 10
-      periodSeconds: 5
-      failureThreshold: 2  # Remove from load balancer after 2 failures
-```
+A **liveness** probe failing means the instance is broken and should be **restarted**; a **readiness** probe failing means the instance is temporarily unable to serve (e.g., a dependency is down or it's still warming up) and should be **pulled from the load balancer** without being killed. The orchestrator polls both on an interval with a failure threshold before acting.
 
 ---
 
@@ -691,6 +518,8 @@ From Google's SRE book:
 3. **Errors**: Rate of failed requests
 4. **Saturation**: How "full" your service is (CPU, memory, disk)
 
+**Watch tail latency (p99), not just the average.** Averages hide the slow requests that hurt real users. Tail latency matters because of **fan-out amplification**: when one request fans out to many services (or one service makes many parallel backend calls) and must wait for *all* of them, the overall latency is governed by the **slowest** response. If each of 100 backends is fast 99% of the time, the chance that *at least one* is slow on any given request is ~63% - so a rare per-call p99 becomes the *common* case at the top level. One slow dependency blows up the whole request's p99, which is why you optimize and alert on tails.
+
 ---
 
 ### **4. Set SLOs (Service Level Objectives)**
@@ -702,6 +531,8 @@ Error Rate SLO: < 0.1%
 ```
 
 Alert when SLO is at risk (don't wait for 100% breach).
+
+**Error budgets - the actionable half of an SLO.** A 99.9% availability SLO permits 0.1% failure; that 0.1% is your **error budget** for the period (~43 min/month). It turns reliability into a spendable number: if the budget is healthy, ship features fast; if it's nearly exhausted, freeze risky changes and focus on stability. It also depersonalizes the dev-vs-ops tension - the budget, not opinion, decides when to slow down.
 
 ---
 

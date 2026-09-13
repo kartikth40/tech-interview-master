@@ -43,6 +43,30 @@ Bandwidth Estimates:
 - Bandwidth = QPS × average request size
 ```
 
+**📌 Numbers to memorize (so your estimates sound credible):**
+
+| Operation | Approx latency |
+|-----------|----------------|
+| L1/L2 cache reference | ~1 ns |
+| Main memory (RAM) reference | ~100 ns |
+| Read 1 MB sequentially from RAM | ~250 µs |
+| SSD random read | ~100 µs |
+| Round trip within same datacenter | ~500 µs |
+| Read 1 MB sequentially from SSD | ~1 ms |
+| Disk (HDD) seek | ~10 ms |
+| Round trip CA ↔ Netherlands | ~150 ms |
+
+| Rule of thumb | Value |
+|---------------|-------|
+| Seconds in a day | ~86,400 (~10⁵) |
+| 1 M writes/day | ≈ 12 writes/sec (peak ×2-3) |
+| Single commodity server | ~1K QPS (varies with work per request) |
+| Single SQL DB | ~a few K QPS reads, fewer writes |
+| Redis / in-memory | ~100K+ ops/sec per node |
+| Char ≈ 1-2 bytes · UUID ≈ 16 B · timestamp ≈ 8 B | for storage math |
+
+Round aggressively - interviewers care about the *method* and the *order of magnitude*, not exact arithmetic.
+
 ### **Step 3: System Interface (API Design) (5 min)**
 Define core APIs:
 
@@ -274,6 +298,24 @@ Pick 2 out of 3:
 - Edge servers cache content close to users
 - Origin server serves as source of truth
 
+### **10. Rate Limiting**
+
+Protects services from abuse and overload by capping requests per client per time window. A classic
+standalone SDE-2 design question ("design a rate limiter"). Know the main algorithms:
+
+| Algorithm | How it works | Trade-off |
+|-----------|--------------|-----------|
+| **Token Bucket** | Bucket refills tokens at a fixed rate; each request consumes one; empty = reject | Allows bursts up to bucket size; simple, most common |
+| **Leaky Bucket** | Requests queue and drain at a fixed rate | Smooths bursts into a steady rate; adds queueing delay |
+| **Fixed Window** | Count requests per fixed clock window (e.g. per minute) | Simple, but allows 2× burst at window boundaries |
+| **Sliding Window Log** | Keep timestamps of recent requests; count those in the last window | Accurate, but memory grows with request rate |
+| **Sliding Window Counter** | Weighted blend of current + previous fixed window | Good accuracy/memory balance; common in practice |
+
+**Distributed rate limiting:** store counters in a shared store (e.g. Redis) so all app servers
+share the limit; use atomic increments and per-key TTLs. Where to enforce: API gateway / load
+balancer (coarse) and/or per-service (fine). Return HTTP **429 Too Many Requests** with a
+`Retry-After` header when limited.
+
 ---
 
 ## 📐 Common Design Patterns
@@ -350,7 +392,7 @@ For each component, think:
 └── Reads: CDN → cache → read replicas → denormalized views
 ```
 
-This shows interviewers you think about scalability proactively, not reactively. Practice this for every design you study — it builds the intuition MAANG looks for.
+This shows interviewers you think about scalability proactively, not reactively. Practice this for every design you study - it builds the intuition MAANG looks for.
 
 **Key questions to ask at each scale jump:**
 - Where's the bottleneck now?

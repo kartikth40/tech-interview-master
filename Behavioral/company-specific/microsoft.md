@@ -75,7 +75,7 @@ Microsoft heavily emphasizes creating inclusive environments:
 >
 > **Task**: I needed to lead the architecture redesign and migration plan.
 >
-> **Action**: I was overconfident and dove into implementation without proper planning. I didn't consult senior engineers or validate assumptions. After 6 weeks, we realized the approach was flawed—services were too granular, causing massive latency.
+> **Action**: I was overconfident and dove into implementation without proper planning. I didn't consult senior engineers or validate assumptions. After 6 weeks, we realized the approach was flawed-services were too granular, causing massive latency.
 >
 > **Result**: We had to roll back and restart. I learned that **my lack of humility** prevented me from seeking input. I should have:
 > 1. Consulted experienced engineers first
@@ -150,7 +150,7 @@ Microsoft heavily emphasizes creating inclusive environments:
 
 ✅ **GOOD Answer:**
 
-> **Situation**: I was working with a senior engineer who would shoot down ideas in code reviews without explanation—just "No, this is wrong."
+> **Situation**: I was working with a senior engineer who would shoot down ideas in code reviews without explanation-just "No, this is wrong."
 >
 > **Task**: I needed to improve our working relationship to ship the project on time.
 >
@@ -179,7 +179,7 @@ Microsoft heavily emphasizes creating inclusive environments:
 >
 > **Task**: The issue was triaged as "low priority" by our PM because it only affected 1 customer and was intermittent.
 >
-> **Action**: I felt this was wrong—it was a critical issue *for this customer*. I:
+> **Action**: I felt this was wrong-it was a critical issue *for this customer*. I:
 > 1. **Took ownership**: I debugged the issue on my own time after hours (no one asked me to).
 > 2. **Root cause**: Found a race condition in our caching layer that occurred under specific load patterns.
 > 3. **Quick fix**: Deployed a hotfix within 24 hours.
@@ -222,7 +222,7 @@ Microsoft heavily emphasizes creating inclusive environments:
 
 ## 3️⃣ Microsoft-Specific Tips
 
-### **Don't Just Say "I"—Say "We"**
+### **Don't Just Say "I"-Say "We"**
 
 Microsoft values collaboration. Balance individual contributions with team success.
 

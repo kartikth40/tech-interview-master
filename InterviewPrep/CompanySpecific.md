@@ -4,6 +4,10 @@
 
 Each top tech company has unique interview styles, focus areas, and cultures. This guide helps you tailor your preparation to specific companies.
 
+> ⚠️ **On the percentages below:** the DSA focus %, system-design/behavioral weights, and process
+> durations are **approximate, directional signals** based on commonly-reported candidate experience —
+> not official published data. Use them to bias your prep (e.g. "Meta leans trees/graphs"), not as exact truth.
+
 ---
 
 ## 🔍 Google
@@ -13,7 +17,7 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 - **Onsite:** 4-5 rounds (DSA coding + system design + Googleyness)
 - **Duration:** 6-8 weeks total
 
-### DSA Focus Areas (Weighted by Frequency)
+### DSA Focus Areas (approximate)
 1. **Arrays & Strings** (30%) - Heavy emphasis
 2. **Dynamic Programming** (25%) - Very important
 3. **Graphs** (20%) - BFS/DFS, shortest path
@@ -46,16 +50,12 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 - **Duration:** 45 min
 
 ### Behavioral (Googleyness)
-**What They Look For:**
-- Comfort with ambiguity
-- Intellectual humility (willing to be wrong)
-- Collaborative spirit
-- Learning mindset
+Googleyness (GCA, Leadership, RRK, and comfort-with-ambiguity / humility / collaboration) plus worked
+example questions and stories are covered in depth in the canonical guide:
+➡️ **[Behavioral/company-specific/google.md](../Behavioral/company-specific/google.md)**
 
-**Sample Questions:**
-- "Tell me about a time you had to learn something completely new"
-- "Describe a situation where you were wrong and someone corrected you"
-- "Tell me about working with someone very different from you"
+Quick sampler: "Tell me about a time you had to learn something completely new", "Describe a situation
+where you were wrong and someone corrected you".
 
 ### Pro Tips
 - 🎯 **Practice explaining** - Google values communication
@@ -120,18 +120,12 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 - Design Notification System
 
 ### Behavioral ("Jedi" Round)
-**Meta's Core Values:**
-- Move Fast
-- Be Bold
-- Focus on Impact
-- Be Open
-- Build Social Value
+Meta's core values (Move Fast, Be Bold, Focus on Impact, Be Open, Build Social Value) and worked
+example questions/stories are covered in depth in the canonical guide:
+➡️ **[Behavioral/company-specific/meta.md](../Behavioral/company-specific/meta.md)**
 
-**Sample Questions:**
-- "Tell me about a time you moved fast and broke things"
-- "Describe a bold decision you made"
-- "Tell me about maximizing impact with limited resources"
-- "Describe a time you gave/received difficult feedback"
+Quick sampler: "Describe a bold decision you made", "Tell me about maximizing impact with limited
+resources", "Describe a time you gave/received difficult feedback".
 
 ### Pro Tips
 - 🎯 **Write clean code fast** - Practice typing speed
@@ -197,7 +191,7 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 - Design Amazon Prime Video
 
 ### Behavioral (Leadership Principles)
-**Must prepare 2-3 stories for EACH of 16 principles** (see [leadership-principles.md](leadership-principles.md))
+**Prepare 12-15 strong stories, each mapping to 2-3 principles** (covers all 16). Full framework + how to tag stories: [leadership-principles.md](../Behavioral/leadership-principles.md) and [Amazon guide](../Behavioral/company-specific/amazon.md).
 
 **Top 5 Principles Tested:**
 1. Customer Obsession
@@ -367,10 +361,10 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 | **DSA Difficulty** | Medium-Hard | Medium | Medium | Easy-Medium | Easy-Medium |
 | **Top Focus** | DP, Graphs | Trees, Graphs | DP, Greedy | Trees | Arrays, Design |
 | **System Design Weight** | 20% | 20% | 25% | 20% | 15% |
-| **Behavioral Weight** | 15% | 20% | 40% | 20% | 25% |
+| **Behavioral Weight** | ~30% | ~30-35% | 40-50% | ~25% | ~25% |
 | **Interview Pressure** | High | High | Very High | Medium | Medium |
 | **Process Duration** | 6-8 weeks | 4-6 weeks | 6-10 weeks | 4-6 weeks | 6-8 weeks |
-| **Unique Aspect** | Googleyness | Move Fast | 14 Principles | Trees | Design Patterns |
+| **Unique Aspect** | Googleyness | Move Fast | 16 Leadership Principles | Trees | Design Patterns |
 
 ---
 

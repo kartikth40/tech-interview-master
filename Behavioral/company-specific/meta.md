@@ -414,14 +414,20 @@ Learning: Ownership = care about user experience, not just your code
 
 ## 💡 Pro Tips for Meta
 
+> ⚠️ **Use YOUR real numbers.** The metrics in the example stories above ($2M, 2B users, 500 TB/day)
+> are placeholders showing the *format* — not targets. Meta interviewers drill hard into follow-ups
+> ("how did you measure that? what was your specific part?"), so inflated or borrowed numbers collapse
+> fast. Use honest figures scoped to your actual contribution; a credible "cut p99 latency 40% for a
+> service handling 2M req/day" beats an unbelievable "$2M / 2 billion users."
+
 1. **Start with Impact (Reverse STAR)**
    - Meta loves results first
-   - "I increased revenue by $2M. Here's how..."
+   - "I cut checkout latency 30%, lifting conversion — here's how..." (use your real metric)
 
 2. **Metrics, metrics, metrics**
-   - Before/after numbers
-   - Scale (users impacted)
-   - Business impact (revenue, engagement)
+   - Before/after numbers (that you can defend under follow-up)
+   - Scale (users/requests you actually touched)
+   - Business impact (revenue, engagement) where you genuinely can attribute it
 
 3. **Show iteration mindset**
    - "V1 we shipped in 1 week, V2 added X, V3 improved Y"

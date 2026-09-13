@@ -50,10 +50,10 @@ Use this structure for EVERY behavioral answer:
 ### ✅ Good Answer (STAR):
 
 **Situation:**
-> "During my internship at XYZ Corp, I was on a team of 4 developers building a customer dashboard. We had a 6-week deadline for the MVP."
+> "On my team of 4 engineers, we had a 6-week deadline to ship a customer dashboard MVP that a launch depended on."
 
 **Task:**
-> "One teammate was consistently missing standup meetings and hadn't committed any code in 2 weeks, putting our sprint goals at risk. As the intern, I wasn't sure how to address this without seeming confrontational."
+> "A teammate was consistently missing standups and hadn't committed code in 2 weeks, putting the sprint at risk. I wasn't the lead, so I had to address it without overstepping or seeming confrontational."
 
 **Action:**
 > "First, I scheduled a 1-on-1 coffee chat to understand their perspective. I learned they were overwhelmed with unclear requirements and felt stuck. I suggested we pair program on their tickets to unblock them. We broke down their large task into smaller subtasks together. I also proposed adding a 'blocked' column to our Kanban board so the team could identify bottlenecks earlier. I shared this idea with our manager."
@@ -138,49 +138,83 @@ Use this structure for EVERY behavioral answer:
 
 ## 🎯 Company-Specific Frameworks
 
+Each top company weights behavioral signals differently - map your stories to the framework of whoever you're interviewing with.
+
 ### **Amazon - 16 Leadership Principles** ⭐
-Every question maps to 1-2 principles. Prepare stories for each:
+The most structured of any top company: every behavioral question maps to 1-2 principles, and the "Bar Raiser" round is dedicated to them. Prepare **12-15 strong stories, each mapping to 2-3 principles** (covers all 16 without needing a unique story each). Full list + stories: [Amazon Principles](company-specific/amazon.md) and [Leadership Principles guide](leadership-principles.md).
 
-1. **Customer Obsession** - Work backwards from customer needs
-2. **Ownership** - Act on behalf of entire company
-3. **Invent and Simplify** - Seek innovation
-4. **Are Right, A Lot** - Good judgment and instincts
-5. **Learn and Be Curious** - Continuously improve
-6. **Hire and Develop the Best** - Raise performance bar
-7. **Insist on Highest Standards** - Never settle
-8. **Think Big** - Bold direction inspires results
-9. **Bias for Action** - Speed matters
-10. **Frugality** - Do more with less
-11. **Earn Trust** - Listen, speak candidly, respect
-12. **Dive Deep** - Stay connected to details
-13. **Have Backbone; Disagree and Commit** - Challenge respectfully
-14. **Deliver Results** - Focus on key inputs, deliver quality
+Customer Obsession · Ownership · Invent and Simplify · Are Right, A Lot · Learn and Be Curious · Hire and Develop the Best · Insist on the Highest Standards · Think Big · Bias for Action · Frugality · Earn Trust · Dive Deep · Have Backbone; Disagree and Commit · Deliver Results · Strive to be Earth's Best Employer · Success and Scale Bring Broad Responsibility.
 
-**Example Question:** "Tell me about a time you failed" → Maps to **Learn and Be Curious**
-
-### **Google - Googleyness** ⭐
-- Comfort with ambiguity
-- Bias towards action
-- Collaborative nature
-- Intellectual humility (willing to be wrong)
+### **Google - "Googleyness & Leadership"** ⭐
+Google does **not** use rigid principle-mapping. It evaluates four axes: **GCA** (structured thinking), **Leadership** (especially emergent / lead-without-authority), **Role-Related Knowledge**, and **Googleyness** (ambiguity comfort, bias to action, collaboration, intellectual humility). See [Google Culture](company-specific/google.md).
 
 ### **Meta - Culture Fit** ⭐
-- Move fast
-- Be bold
-- Focus on impact
-- Be open
-- Build social value
+Move fast · Be bold · Focus on impact · Be open · Build social value. See [Meta Values](company-specific/meta.md).
+
+### **Indian Unicorns (Flipkart, Razorpay, CRED, Swiggy, Zomato, etc.)**
+Emphasis on ownership, scrappiness, and customer/impact focus - plus scale challenges specific to the Indian market. See [Indian Startups Guide](company-specific/indian-startups.md) and [India Behavioral Guide](company-specific/india-specific.md).
+
+---
+
+## 🔷 SDE-2 Behavioral: Extra Prep (all top companies)
+
+Beyond standard STAR stories, top-tech loops probe three things harder at the SDE-2 level - regardless of company:
+
+### 1. Hypothetical / situational questions
+Not all questions are retrospective. Be ready for in-the-moment scenarios (common at Google, Amazon, Meta, and unicorns alike):
+- "A teammate keeps pushing back on your design in review - how do you handle it?"
+- "You disagree with a decision, but the team commits to it anyway. What do you do?" (maps directly to Amazon's *Have Backbone; Disagree and Commit*)
+- "You're given an ambiguous, under-specified problem. Walk me through your first week."
+- "How do you decide what to work on when everything feels high priority?"
+
+Answer with a **principle + a concrete example**: state how you'd approach it, then ground it in something you've actually done. Show collaboration and humility, not just decisiveness.
+
+### 2. Surviving the "why did you make that trade-off?" drill
+Strong interviewers repeatedly drill into your decisions ("why that approach? what did you rule out? what would you do differently?") - Amazon's *Dive Deep* and Google's follow-up style both do this. For your top 5-6 stories, pre-load:
+- The **alternatives you considered** and why you rejected them
+- The **constraints** (time, data, team, tech) that shaped the call
+- What you'd **do differently** with hindsight (shows growth, not defensiveness)
+
+If you only remember *what* you did but not *why*, the story collapses under follow-ups.
+
+### 3. SDE-2 scope: leading without authority + cross-team
+The SDE-2 bar (vs SDE-1) is about **driving**, not just executing - this is universal across top companies. Prepare at least one story where you:
+- Drove alignment across **multiple teams or stakeholders** (not just your own team)
+- Owned an **ambiguous, larger-scope** problem end-to-end (scoping it yourself)
+- Influenced a technical direction **without being the manager/lead** (maps to Amazon *Ownership*, Google emergent Leadership)
+
+**Worked example (SDE-2 scale - note the seniority signal vs a junior "I fixed a bug" story):**
+```
+S: Two services (my team's API + the payments team's ledger) were double-charging ~0.5% of
+   retries. No single owner; each team blamed the other's retry logic. I wasn't lead on either.
+T: I took it on end-to-end - diagnose the root cause across both systems and drive a fix both
+   teams would commit to, without authority over the payments team.
+A:
+- Reproduced it with a shared trace, showing the double-charge was a missing idempotency key on
+  the retry path - a boundary problem, not either team's "fault" (defused the blame).
+- Wrote a one-page design proposing an idempotency-key contract at the API/ledger boundary;
+  circulated it and ran a 30-min review with both teams' leads.
+- Weighed two options openly: dedup in the ledger (payments team's preference) vs idempotency keys
+  from the caller (mine). Conceded the ledger should ALSO dedup as defense-in-depth - that concession
+  got their buy-in.
+- Split the work across both teams, tracked it to done, added an alert on duplicate charge attempts.
+R: Double-charges dropped to ~0; the idempotency-key contract became the standard for new endpoints.
+   Learning: at SDE-2, the leverage is in framing the problem and building alignment, not just the code.
+```
+This shows the SDE-2 markers interviewers look for: **cross-team**, **ambiguous ownership taken on
+voluntarily**, **influence without authority**, and a **trade-off conceded to reach commitment** -
+all under follow-up-proof specifics.
 
 ---
 
 ## 📋 Story Bank Template
 
-Create a document with 15-20 stories covering all categories:
+Create a document with 12-15 stories covering all categories (each mapping to 2-3 company principles):
 
 ```markdown
 ## Story #1: Project Turnaround
 **Category:** Leadership, Problem-Solving
-**Maps to:** Amazon's "Deliver Results", Google's "Bias for Action"
+**Maps to:** Google Leadership + Googleyness (bias to action); Amazon "Deliver Results" (if targeting Amazon)
 
 **Situation:** [2-3 sentences]
 **Task:** [1-2 sentences]
@@ -213,11 +247,11 @@ Structure:
 3. Future (30 sec) - Why this company/role excites you
 4. Close (15 sec) - Tie it all together
 
-Example:
-"I'm currently a software engineer at X where I [key achievement with numbers]. 
+Example (mid-level / SDE-2 framing - lead with recent impact, not education):
+"I'm a software engineer at X with ~N years' experience; most recently I [key project + quantified impact].
 
-Before this, I studied CS at Y and did internships at Z where I [1-2 key learnings]. 
-What drew me to tech was [authentic reason].
+Before that, at Y, I [1-2 achievements that show growth in scope/ownership].
+What draws me is [authentic reason tied to the kind of problems you want to work on].
 
 I'm excited about this role at [Company] because [specific reason tied to their mission]. 
 I particularly admire your work on [specific product/project].
@@ -300,11 +334,12 @@ better outcomes and healthier work-life balance."
 ## 📚 Next Steps
 
 1. Read [STAR Stories Template](STAR-stories.md) and fill out 15-20 stories
-2. Study [Amazon Leadership Principles](leadership-principles.md)
-3. Review company-specific guides:
+2. Study [Amazon Leadership Principles](leadership-principles.md) - the most structured framework
+3. Review company-specific guides for your targets:
    - [Google Culture](company-specific/google.md)
    - [Meta Values](company-specific/meta.md)
    - [Amazon Principles](company-specific/amazon.md)
+   - [Indian Startups](company-specific/indian-startups.md)
 4. Practice with a friend or use Pramp
 5. Record yourself and watch for filler words ("um", "like")
 

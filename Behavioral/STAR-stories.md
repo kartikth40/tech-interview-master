@@ -2,11 +2,17 @@
 
 ## 📝 Instructions
 
-1. Prepare **15-20 stories** covering different categories
+1. Prepare **12-15 stories** covering different categories (each can map to 2-3 company principles)
 2. Use the **STAR format** (Situation, Task, Action, Result)
 3. **Quantify results** wherever possible (numbers, %, $, time saved)
 4. **Practice each story** out loud 3+ times
 5. **Tag stories** with categories and company mappings
+
+> ⚠️ **Use YOUR OWN stories.** The examples throughout this repo (checkout redesign, PostgreSQL-vs-MongoDB,
+> the production-outage/missing-index story, "learned Kubernetes in 2 weeks") are **illustrative
+> templates showing the format** - they recur across the company guides on purpose. Do NOT memorize and
+> repeat them in a real loop: interviewers compare notes, and borrowed stories collapse under the
+> follow-up drilling ("what exactly did *you* do? why that trade-off?"). Swap in your real experiences.
 
 ---
 
@@ -33,15 +39,15 @@ Prepare at least:
 **Best for Companies:** Amazon, Meta, Microsoft  
 **Duration:** ~2.5 minutes
 
-### Situation (Context - 15%)
+### Situation (Context - ~10-15%)
 [Set the scene: When, where, who, what was happening?]
 - 
 
-### Task (Challenge - 15%)
+### Task (Challenge - ~10-15%)
 [What problem/goal? What was your responsibility?]
 - 
 
-### Action (What YOU did - 60%)
+### Action (What YOU did - ~50-60%)
 [Specific steps YOU took. Focus on "I" not "we"]
 1. 
 2. 
@@ -49,8 +55,8 @@ Prepare at least:
 4. 
 5. 
 
-### Result (Outcome - 10%)
-[Quantified impact and learning]
+### Result (Outcome - ~20-25%)
+[Quantified impact and learning - this is where you show impact + what you learned]
 - **Impact:** 
 - **Metrics:** 
 - **Learning:** 
@@ -92,7 +98,7 @@ Prepare at least:
 ### Result
 - **Impact:**: Reduced checkout abandonment from 30% → 15% (50% improvement)
 - **Metrics:** Increased revenue by $500K/quarter, improved NPS by 12 points
-- **Learning:** Leadership isn't about title—it's about taking ownership and rallying others around a shared goal
+- **Learning:** Leadership isn't about title-it's about taking ownership and rallying others around a shared goal
 
 **Keywords:** cross-functional, initiative, data-driven, stakeholder management  
 **Practice Count:** 0/3  
@@ -200,7 +206,7 @@ Prepare at least:
 ### Action (What went wrong)
 1. [Deployed directly to production during business hours without load testing on prod-scale data]
 2. [Index creation locked the table for 3 hours instead of expected 5 minutes]
-3. [This brought down the entire checkout service—$200K revenue lost]
+3. [This brought down the entire checkout service-$200K revenue lost]
 4. [Immediately rolled back, but damage was done]
 
 ### Action (How I fixed it)

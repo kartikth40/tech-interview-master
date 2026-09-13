@@ -2,17 +2,17 @@
 
 ## 🎯 Overview
 
-Choosing the right API style is a common system design discussion. This guide covers REST, GraphQL, and gRPC — when to use each, trade-offs, and interview-ready talking points.
+Choosing the right API style is a common system design discussion. This guide covers REST, GraphQL, and gRPC - when to use each, trade-offs, and interview-ready talking points.
 
 ---
 
 ## 1️⃣ REST (Representational State Transfer)
 
 ### Core Principles
-- **Stateless** — each request contains all info needed
-- **Resource-based** — URLs represent nouns, HTTP verbs represent actions
-- **Uniform interface** — standard HTTP methods
-- **Cacheable** — responses can be cached
+- **Stateless** - each request contains all info needed
+- **Resource-based** - URLs represent nouns, HTTP verbs represent actions
+- **Uniform interface** - standard HTTP methods
+- **Cacheable** - responses can be cached
 
 ### HTTP Methods
 | Method | Action | Idempotent | Safe |
@@ -26,7 +26,7 @@ Choosing the right API style is a common system design discussion. This guide co
 ### REST API Design Best Practices
 
 ```
-# Resource naming — use nouns, not verbs
+# Resource naming - use nouns, not verbs
 ✅ GET /users/123
 ❌ GET /getUser?id=123
 
@@ -42,16 +42,16 @@ GET /v1/users/123
 GET /v2/users/123
 
 # Status codes
-200 OK           — Success
-201 Created      — Resource created (POST)
-204 No Content   — Success, no body (DELETE)
-400 Bad Request  — Invalid input
-401 Unauthorized — Not authenticated
-403 Forbidden    — Authenticated but not authorized
-404 Not Found    — Resource doesn't exist
-409 Conflict     — Duplicate resource
-422 Unprocessable — Validation error
-429 Too Many Requests — Rate limited
+200 OK           - Success
+201 Created      - Resource created (POST)
+204 No Content   - Success, no body (DELETE)
+400 Bad Request  - Invalid input
+401 Unauthorized - Not authenticated
+403 Forbidden    - Authenticated but not authorized
+404 Not Found    - Resource doesn't exist
+409 Conflict     - Duplicate resource
+422 Unprocessable - Validation error
+429 Too Many Requests - Rate limited
 500 Internal Server Error
 ```
 
@@ -100,9 +100,9 @@ GET /v2/users/123
 ## 2️⃣ GraphQL
 
 ### Core Concepts
-- **Single endpoint** — `POST /graphql`
-- **Client specifies shape** — ask for exactly what you need
-- **Strongly typed schema** — self-documenting
+- **Single endpoint** - `POST /graphql`
+- **Client specifies shape** - ask for exactly what you need
+- **Strongly typed schema** - self-documenting
 - **Queries** (read), **Mutations** (write), **Subscriptions** (real-time)
 
 ### Schema Definition
@@ -180,62 +180,13 @@ subscription TrackOrder {
 }
 ```
 
-### Resolver Implementation
+### Resolvers & the N+1 Problem
 
-```text
-# GraphQL resolvers (pseudocode)
-resolvers = {
-
-    Query:
-        RESOLVER user(parent, args, context)
-            RETURN context.userAPI.getUser(args.id)
-        END
-
-        RESOLVER users(parent, args, context)
-            page  = args.page  OR 1
-            limit = args.limit OR 20
-            RETURN context.userAPI.getUsers({ page, limit })
-        END
-
-    Mutation:
-        RESOLVER createUser(parent, args, context)
-            RETURN context.userAPI.createUser({ name: args.name, email: args.email })
-        END
-
-    # Field-level resolver - runs when 'orders' field is requested
-    User:
-        RESOLVER orders(user, args, context)
-            RETURN context.orderAPI.getOrdersByUser(user.id)
-        END
-}
-```
-
-### N+1 Problem & DataLoader
-
-```text
-# Problem: 1 query for users + N queries for each user's orders
-# If 100 users -> 101 DB queries!
-
-# Solution: a batching loader collects keys and resolves them in one query
-orderLoader = BATCH_LOADER(FUNCTION(userIds)
-    # One query for ALL users' orders
-    orders = DB_QUERY("SELECT * FROM orders WHERE user_id IN (?)", userIds)
-
-    # Group by userId, preserving the order of the requested ids
-    ordersByUser = []
-    FOR EACH id IN userIds
-        ordersByUser.append(FILTER(orders WHERE order.user_id == id))
-    END FOR
-
-    RETURN ordersByUser
-END)
-
-# Now the User.orders resolver uses the loader
-RESOLVER User.orders(user, args, context)
-    RETURN context.loaders.order.load(user.id)
-END
-# 100 users -> 2 DB queries (1 for users, 1 batched for all orders)
-```
+Each field maps to a **resolver** function. A naive setup causes the **N+1 problem**: fetching N
+users, then one query per user for their orders (1 + N queries). The fix is a **DataLoader** - it
+batches the per-key requests within a single tick into one query (`SELECT ... WHERE user_id IN (...)`)
+and returns results in key order, turning 1 + N queries into 2. This is the single most important
+GraphQL performance talking point.
 
 ### GraphQL Pros & Cons
 | ✅ Pros | ❌ Cons |
@@ -251,10 +202,10 @@ END
 ## 3️⃣ gRPC (Google Remote Procedure Call)
 
 ### Core Concepts
-- **Protocol Buffers** — binary serialization (smaller, faster than JSON)
-- **HTTP/2** — multiplexing, bidirectional streaming
-- **Strongly typed** — `.proto` schema files
-- **4 communication patterns** — unary, server streaming, client streaming, bidirectional
+- **Protocol Buffers** - binary serialization (smaller, faster than JSON)
+- **HTTP/2** - multiplexing, bidirectional streaming
+- **Strongly typed** - `.proto` schema files
+- **4 communication patterns** - unary, server streaming, client streaming, bidirectional
 
 ### Proto Definition
 
@@ -267,10 +218,10 @@ service UserService {
   // Unary RPC
   rpc GetUser (GetUserRequest) returns (User);
 
-  // Server streaming — server sends multiple responses
+  // Server streaming - server sends multiple responses
   rpc ListUsers (ListUsersRequest) returns (stream User);
 
-  // Client streaming — client sends multiple requests
+  // Client streaming - client sends multiple requests
   rpc CreateUsers (stream CreateUserRequest) returns (CreateUsersResponse);
 
   // Bidirectional streaming
@@ -304,39 +255,9 @@ message CreateUsersResponse {
 }
 ```
 
-### gRPC Server (Node.js)
-
-```text
-# gRPC server (pseudocode)
-# Load the service definition from the .proto schema
-serviceDef = LOAD_PROTO("user.proto").UserService
-
-server = CREATE_RPC_SERVER()
-
-REGISTER_SERVICE(server, serviceDef, {
-
-    # Unary RPC
-    getUser: FUNCTION(call, callback)
-        id = call.request.id
-        user = DB_FIND_USER(id)
-        IF user IS null THEN
-            RETURN callback(ERROR(code = NOT_FOUND, message = "User not found"))
-        END IF
-        callback(null, user)
-    END,
-
-    # Server streaming RPC
-    listUsers: FUNCTION(call)
-        users = DB_GET_USERS(call.request)
-        FOR EACH user IN users
-            STREAM_WRITE(call, user)
-        END FOR
-        STREAM_END(call)
-    END
-})
-
-SERVER_LISTEN(server, "0.0.0.0:50051", credentials = INSECURE)
-```
+The server implements the RPCs declared in the `.proto` service (a code generator produces the
+typed stubs). For a unary RPC you return one response; for server streaming you write many responses
+then close the stream. The `.proto` file is the contract shared by client and server.
 
 ### gRPC Pros & Cons
 | ✅ Pros | ❌ Cons |
@@ -387,78 +308,11 @@ Need real-time?
 
 ## 5️⃣ API Security
 
-### Authentication & Authorization
-
-```text
-# Token-based authentication middleware
-FUNCTION authenticate(request, response, next)
-    token = EXTRACT_BEARER_TOKEN(request.headers.authorization)
-
-    IF token IS EMPTY THEN
-        RETURN RESPONSE(401, { error: "No token provided" })
-    END IF
-
-    TRY
-        decoded = VERIFY_TOKEN(token, SECRET_KEY)
-        request.user = decoded
-        next()
-    CATCH err
-        RETURN RESPONSE(401, { error: "Invalid token" })
-    END TRY
-END FUNCTION
-
-# Role-based authorization
-FUNCTION authorize(roles...)
-    RETURN FUNCTION(request, response, next)
-        IF request.user.role NOT IN roles THEN
-            RETURN RESPONSE(403, { error: "Insufficient permissions" })
-        END IF
-        next()
-    END
-END FUNCTION
-
-# Usage
-ROUTE GET "/admin/users" -> authenticate -> authorize("admin") -> getUsers
-ROUTE GET "/profile"     -> authenticate -> getProfile
-```
-
-### Rate Limiting
-
-```text
-# Global rate limit
-globalLimiter = RATE_LIMITER(
-    windowMs = 15 * 60 * 1000,   # 15 minutes
-    max = 100,                   # 100 requests per window
-    message = { error: "Too many requests, please try again later" })
-
-# Stricter limit for auth endpoints
-authLimiter = RATE_LIMITER(
-    windowMs = 15 * 60 * 1000,
-    max = 5,                     # Only 5 login attempts per 15 min
-    message = { error: "Too many login attempts" })
-
-APPLY globalLimiter TO "/api/"
-APPLY authLimiter TO "/api/auth/login"
-```
-
-### Input Validation
-
-```text
-# Declare validation rules for the incoming fields
-createUserValidation = [
-    VALIDATE field "email"    IS valid email, normalized,
-    VALIDATE field "name"     IS trimmed, length BETWEEN 2 AND 50,
-    VALIDATE field "password" IS length >= 8 AND matches /^(?=.*[A-Z])(?=.*[0-9])/
-]
-
-ON POST "/users" WITH createUserValidation (request, response)
-    errors = COLLECT_VALIDATION_ERRORS(request)
-    IF errors IS NOT EMPTY THEN
-        RETURN RESPONSE(422, { errors: errors })
-    END IF
-    # Proceed with creation
-END ON
-```
+- **Authentication** - verify identity via a bearer token (e.g. JWT) in the `Authorization` header; reject missing/invalid tokens with 401. Attach the decoded principal to the request.
+- **Authorization** - after authentication, check the principal's role/permissions for the resource; reject with 403 if insufficient. Keep authZ separate from authN.
+- **Rate limiting** - cap requests per client per window (see the token-bucket vs sliding-window discussion in [SystemDesignGuide.md](SystemDesignGuide.md)); use a stricter limit on auth endpoints (e.g. 5 login attempts / 15 min) to blunt brute-force.
+- **Input validation** - validate and normalize every field at the edge (type, length, format); reject with 422 and field-level error details. Never trust client input.
+- **Transport** - always TLS; never log secrets or tokens.
 
 ---
 
@@ -497,7 +351,7 @@ END ON
 > gRPC uses Protocol Buffers (binary, ~5x smaller than JSON) over HTTP/2 (multiplexed connections). For internal service-to-service calls doing thousands of RPC calls per second, this performance difference is significant. The strongly-typed schema also acts as a contract between services.
 
 **"How do you handle API versioning?"**
-> I prefer URL versioning (`/v1/`, `/v2/`) for public APIs because it's explicit and easy to test. For internal APIs, I use header versioning to keep URLs clean. The key is maintaining backward compatibility — never remove fields, only add them.
+> I prefer URL versioning (`/v1/`, `/v2/`) for public APIs because it's explicit and easy to test. For internal APIs, I use header versioning to keep URLs clean. The key is maintaining backward compatibility - never remove fields, only add them.
 
 ---
 
