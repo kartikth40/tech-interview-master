@@ -1,0 +1,209 @@
+site_name: Tech Interview Master
+site_description: SDE-1/SDE-2 interview prep — DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases
+site_url: https://kartikth40.github.io/tech-interview-master/
+repo_url: https://github.com/kartikth40/tech-interview-master
+repo_name: kartikth40/tech-interview-master
+edit_uri: edit/main/
+copyright: >
+  Tech Interview Master — MIT licensed. Built with MkDocs + Material.
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/kartikth40/tech-interview-master
+      name: GitHub repository
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+# Use the existing Markdown in place (no separate docs/ folder, no content duplication).
+# The same-dir plugin (below) allows docs_dir to be the repo root next to this config.
+docs_dir: .
+site_dir: site
+
+# Keep meta/config files and the nested leetcode repo out of the built site.
+exclude_docs: |
+  tasks.md
+  CONVERSION_PROGRESS.md
+  skeleton.md
+  CONTRIBUTING.md
+  CODE_OF_CONDUCT.md
+  requirements-docs.txt
+  site/
+  leetcode-companywise-interview-questions/
+  .github/
+  .kiro/
+  scripts/
+
+theme:
+  name: material
+  language: en
+  font:
+    text: Manrope
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.tooltips
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/school
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.snippets:
+      base_path: [.]
+      check_paths: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - same-dir
+  - gen-files:
+      scripts:
+        - scripts/gen_code_library.py
+  - search
+
+nav:
+  - Home: README.md
+  - DSA:
+      - Overview: DSA/DSACompleteGuide.md
+      - Quick Lookup: DSA/DSAQuickLookup.md
+      - Code Library:
+          - Patterns: DSA/code-library/patterns.md
+          - Algorithms: DSA/code-library/algorithms.md
+          - Data Structures: DSA/code-library/data-structures.md
+  - System Design:
+      - Guide: SystemDesign/SystemDesignGuide.md
+      - Low-Level Design: SystemDesign/LowLevelDesign.md
+      - API Design Patterns: SystemDesign/APIDesignPatterns.md
+      - Distributed Systems: SystemDesign/DistributedSystemsConcepts.md
+      - Designs:
+          - URL Shortener: SystemDesign/designs/url-shortener.md
+          - Twitter / News Feed: SystemDesign/designs/twitter.md
+          - Instagram: SystemDesign/designs/instagram.md
+          - YouTube: SystemDesign/designs/youtube.md
+          - Netflix: SystemDesign/designs/netflix.md
+          - WhatsApp: SystemDesign/designs/whatsapp.md
+          - Uber: SystemDesign/designs/uber.md
+          - Distributed Cache: SystemDesign/designs/distributed-cache.md
+          - Payment Gateway: SystemDesign/designs/payment-gateway.md
+          - Food Delivery: SystemDesign/designs/food-delivery.md
+          - Rate Limiter: SystemDesign/designs/rate-limiter.md
+          - Key-Value Store: SystemDesign/designs/key-value-store.md
+          - Unique ID Generator: SystemDesign/designs/unique-id-generator.md
+          - Web Crawler: SystemDesign/designs/web-crawler.md
+          - Notification System: SystemDesign/designs/notification-system.md
+          - Search Autocomplete: SystemDesign/designs/search-autocomplete.md
+          - Google Drive / Dropbox: SystemDesign/designs/google-drive-dropbox.md
+          - Distributed Message Queue: SystemDesign/designs/distributed-message-queue.md
+          - Nearby Friends: SystemDesign/designs/nearby-friends-proximity.md
+          - Ad Click Aggregation: SystemDesign/designs/ad-click-aggregation.md
+          - Stock Exchange: SystemDesign/designs/stock-exchange.md
+      - Components:
+          - Load Balancer: SystemDesign/components/load-balancer.md
+          - Caching: SystemDesign/components/caching.md
+          - Database Sharding: SystemDesign/components/database-sharding.md
+          - Message Queues: SystemDesign/components/message-queues.md
+          - Microservices: SystemDesign/components/microservices.md
+          - Monitoring: SystemDesign/components/monitoring.md
+  - Fundamentals:
+      - Overview: Fundamentals/README.md
+      - Operating Systems: Fundamentals/operating-systems.md
+      - Concurrency & Parallelism: Fundamentals/concurrency-and-parallelism.md
+      - Networking: Fundamentals/networking.md
+      - Database Internals: Fundamentals/databases-internals.md
+      - Hashing: Fundamentals/hashing.md
+      - Security: Fundamentals/security-fundamentals.md
+      - OOP & Language: Fundamentals/oop-and-language-concepts.md
+      - Memory & Runtime: Fundamentals/memory-and-runtime.md
+      - Latency & Estimation: Fundamentals/latency-numbers-and-estimation.md
+      - Bloom Filters & Probabilistic: Fundamentals/bloom-filters-and-probabilistic.md
+      - Serialization & Schemas: Fundamentals/serialization-and-schemas.md
+      - Idempotency & Delivery: Fundamentals/idempotency-and-delivery-semantics.md
+      - Time & Ordering: Fundamentals/time-and-ordering.md
+  - Q&A Bank:
+      - Overview: QA-Bank/README.md
+      - Operating Systems: QA-Bank/qa-operating-systems.md
+      - Concurrency: QA-Bank/qa-concurrency.md
+      - Networking: QA-Bank/qa-networking.md
+      - Databases: QA-Bank/qa-databases.md
+      - Hashing: QA-Bank/qa-hashing.md
+      - Caching: QA-Bank/qa-caching.md
+      - Security: QA-Bank/qa-security.md
+      - OOP & Design: QA-Bank/qa-oop-design.md
+      - System Design Concepts: QA-Bank/qa-system-design-concepts.md
+      - Python Language: QA-Bank/qa-language-python.md
+      - Rapid Fire: QA-Bank/qa-rapid-fire.md
+  - Databases:
+      - Overview: Databases/README.md
+      - SQL Query Patterns: Databases/sql-query-patterns.md
+      - SQL Theory Q&A: Databases/sql-theory-qa.md
+      - NoSQL Types & Modeling: Databases/nosql-types-and-modeling.md
+      - SQL vs NoSQL & Scaling: Databases/sql-vs-nosql-and-scaling.md
+      - Query Practice Set: Databases/query-practice-set.md
+  - Behavioral:
+      - Guide: Behavioral/BehavioralGuide.md
+      - STAR Stories: Behavioral/STAR-stories.md
+      - Leadership Principles: Behavioral/leadership-principles.md
+      - Mock Practice: Behavioral/MockPracticeFramework.md
+      - Salary Negotiation: Behavioral/SalaryNegotiation.md
+      - Questions to Ask: Behavioral/QuestionsToAsk.md
+      - Offer Evaluation: Behavioral/OfferEvaluation.md
+      - Company - Google: Behavioral/company-specific/google.md
+      - Company - Meta: Behavioral/company-specific/meta.md
+      - Company - Amazon: Behavioral/company-specific/amazon.md
+      - Company - Microsoft: Behavioral/company-specific/microsoft.md
+      - Company - Apple: Behavioral/company-specific/apple.md
+      - India-Specific: Behavioral/company-specific/india-specific.md
+      - Indian Startups: Behavioral/company-specific/indian-startups.md
+  - Interview Prep:
+      - 8-Week Study Plan: InterviewPrep/StudyPlan-8weeks.md
+      - Company-Specific: InterviewPrep/CompanySpecific.md
+      - India-Specific: InterviewPrep/India-Specific.md
+      - Mock Questions: InterviewPrep/MockInterviewQuestions.md

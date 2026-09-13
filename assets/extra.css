@@ -1,0 +1,181 @@
+/* ==========================================================================
+   Tech Interview Master — custom theme (green brand + readability polish)
+   Layered on top of Material for MkDocs. Uses Material's CSS custom properties.
+   ========================================================================== */
+
+/* ---- Brand green palette (hand-tuned, not the stock Material green) ------- */
+:root {
+  --tim-green:        #2e9e5b;   /* primary */
+  --tim-green-dark:   #1f7d45;
+  --tim-green-light:  #4cc47e;   /* accent */
+  --tim-green-050:    #e9f7ef;
+
+  /* Map Material's primary/accent to our greens */
+  --md-primary-fg-color:        var(--tim-green);
+  --md-primary-fg-color--light: var(--tim-green-light);
+  --md-primary-fg-color--dark:  var(--tim-green-dark);
+  --md-accent-fg-color:         var(--tim-green-dark);
+
+  /* Slightly larger base type + comfortable rhythm */
+  --md-typeset-font-size: 0.82rem;
+}
+
+/* Readable line length + line height for long-form study notes */
+.md-typeset {
+  line-height: 1.72;
+}
+.md-content__inner {
+  max-width: 52rem;      /* keep prose measure comfortable, not full-bleed */
+  margin-inline: auto;
+}
+
+/* ---- Headings: clearer hierarchy, green H1/H2 rule ------------------------ */
+.md-typeset h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--md-default-fg-color);
+}
+.md-typeset h2 {
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid var(--tim-green-050);
+}
+.md-typeset h3 {
+  font-weight: 700;
+}
+[data-md-color-scheme="slate"] .md-typeset h2 {
+  border-bottom-color: rgba(76, 196, 126, 0.18);
+}
+
+/* ---- Links: green with a subtle underline on hover ------------------------ */
+.md-typeset a {
+  color: var(--tim-green-dark);
+  text-decoration-color: transparent;
+  transition: text-decoration-color 120ms ease;
+}
+.md-typeset a:hover {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+[data-md-color-scheme="slate"] .md-typeset a {
+  color: var(--tim-green-light);
+}
+
+/* ---- Header + nav tabs: gradient bar, crisp active tab -------------------- */
+.md-header {
+  background: linear-gradient(90deg, var(--tim-green-dark), var(--tim-green));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.md-tabs {
+  background: transparent;
+}
+.md-tabs__link {
+  opacity: 0.85;
+  font-weight: 600;
+}
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  opacity: 1;
+}
+
+/* Active item in the left sidebar */
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active {
+  color: var(--tim-green-dark);
+  font-weight: 700;
+}
+[data-md-color-scheme="slate"] .md-nav__link--active {
+  color: var(--tim-green-light);
+}
+
+/* ---- Code blocks: rounded, bordered, monospaced ligatures ----------------- */
+.md-typeset pre > code {
+  border-radius: 8px;
+}
+.md-typeset .highlight > pre,
+.md-typeset pre {
+  border-radius: 10px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.md-typeset code {
+  font-feature-settings: "liga" 1, "calt" 1;
+  border-radius: 4px;
+}
+/* Inline code gets a faint green tint */
+.md-typeset :not(pre) > code {
+  background-color: var(--tim-green-050);
+  color: var(--tim-green-dark);
+}
+[data-md-color-scheme="slate"] .md-typeset :not(pre) > code {
+  background-color: rgba(76, 196, 126, 0.12);
+  color: var(--tim-green-light);
+}
+
+/* ---- Tables: zebra rows, green header, rounded frame ---------------------- */
+.md-typeset table:not([class]) {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.md-typeset table:not([class]) th {
+  background-color: var(--tim-green);
+  color: #fff;
+  font-weight: 700;
+}
+.md-typeset table:not([class]) tr:nth-child(even) {
+  background-color: var(--tim-green-050);
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:nth-child(even) {
+  background-color: rgba(76, 196, 126, 0.06);
+}
+
+/* ---- Blockquotes (used heavily for "Explain in 2 min" boxes) -------------- */
+.md-typeset blockquote {
+  border-left: 4px solid var(--tim-green);
+  background: var(--tim-green-050);
+  border-radius: 0 8px 8px 0;
+  padding: 0.6rem 1rem;
+  color: var(--md-default-fg-color);
+}
+[data-md-color-scheme="slate"] .md-typeset blockquote {
+  background: rgba(76, 196, 126, 0.08);
+}
+
+/* ---- Admonitions: tint the "note/tip" family green ------------------------ */
+.md-typeset .admonition.note,
+.md-typeset .admonition.tip,
+.md-typeset .admonition.success,
+.md-typeset details.note,
+.md-typeset details.tip {
+  border-color: var(--tim-green);
+}
+.md-typeset .note > .admonition-title,
+.md-typeset .tip > .admonition-title,
+.md-typeset .success > .admonition-title {
+  background-color: var(--tim-green-050);
+}
+
+/* ---- Search accent + focus ring ------------------------------------------ */
+.md-search__input:focus,
+.md-search__input:hover {
+  background-color: rgba(255, 255, 255, 0.28);
+}
+
+/* ---- Tables of contents: green active marker ------------------------------ */
+.md-nav__link:focus,
+.md-nav__link:hover {
+  color: var(--tim-green-dark);
+}
+
+/* ---- Footer: subtle green top border -------------------------------------- */
+.md-footer-meta {
+  border-top: 3px solid var(--tim-green);
+}
+
+/* ---- "Copy" button + buttons pick up the accent --------------------------- */
+.md-clipboard:hover {
+  color: var(--tim-green-light);
+}
