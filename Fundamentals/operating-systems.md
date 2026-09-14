@@ -24,7 +24,7 @@
 
 **Rule of thumb:** threads for shared-state, low-overhead concurrency within one program; processes
 for isolation and fault containment (a crash in one doesn't corrupt the others). In Python the GIL
-pushes CPU-bound work toward processes - see [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
+pushes CPU-bound work toward processes - see [Concurrency & Parallelism](concurrency-and-parallelism.md).
 
 ---
 
@@ -90,7 +90,7 @@ Break *any one* to prevent deadlock. Practical strategies:
 - **Detection & recovery** - let it happen, detect cycles, kill/restart a victim.
 
 Same conditions and fixes apply to lock deadlock in application code →
-[concurrency-and-parallelism.md](concurrency-and-parallelism.md).
+[Concurrency & Parallelism](concurrency-and-parallelism.md).
 
 ---
 
@@ -125,14 +125,14 @@ full hardware access. This boundary is what keeps a buggy program from crashing 
 - Saying threads are "always faster" - they're cheaper to switch, but shared state needs
   synchronization and a thread crash can kill the whole process.
 - Confusing concurrency (OS scheduling interleaving threads) with parallelism (multiple cores) -
-  see [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
+  see [Concurrency & Parallelism](concurrency-and-parallelism.md).
 - Forgetting virtual memory is about *isolation + overcommit*, not just "more memory."
 - Listing only some Coffman conditions - all four are required, and breaking one is enough.
 - Ignoring that syscalls and context switches are real costs in latency-sensitive code.
 
 ## Related
 
-- Q&A drills: [qa-operating-systems.md](../QA-Bank/qa-operating-systems.md)
-- Threads, locks, deadlock in app code → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)
-- GC, reference counting, Python runtime → [memory-and-runtime.md](memory-and-runtime.md)
-- Estimation / latency numbers → [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md)
+- Q&A drills: [Operating Systems Q&A](../QA-Bank/qa-operating-systems.md)
+- Threads, locks, deadlock in app code → [Concurrency & Parallelism](concurrency-and-parallelism.md)
+- GC, reference counting, Python runtime → [Memory & Runtime](memory-and-runtime.md)
+- Estimation / latency numbers → [System Design Guide](../SystemDesign/SystemDesignGuide.md)

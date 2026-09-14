@@ -310,7 +310,7 @@ Need real-time?
 
 - **Authentication** - verify identity via a bearer token (e.g. JWT) in the `Authorization` header; reject missing/invalid tokens with 401. Attach the decoded principal to the request.
 - **Authorization** - after authentication, check the principal's role/permissions for the resource; reject with 403 if insufficient. Keep authZ separate from authN.
-- **Rate limiting** - cap requests per client per window (see the token-bucket vs sliding-window discussion in [SystemDesignGuide.md](SystemDesignGuide.md)); use a stricter limit on auth endpoints (e.g. 5 login attempts / 15 min) to blunt brute-force.
+- **Rate limiting** - cap requests per client per window (see the token-bucket vs sliding-window discussion in [System Design Guide](SystemDesignGuide.md)); use a stricter limit on auth endpoints (e.g. 5 login attempts / 15 min) to blunt brute-force.
 - **Input validation** - validate and normalize every field at the edge (type, length, format); reject with 422 and field-level error details. Never trust client input.
 - **Transport** - always TLS; never log secrets or tokens.
 

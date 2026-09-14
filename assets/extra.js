@@ -106,10 +106,140 @@
     } catch (e) { /* non-fatal */ }
   }
 
+  // ---- .py link modal viewer ----------------------------------------------
+  // Intercept clicks on links to .py source files and show the code in a modal
+  // dialog (fetched from the raw file MkDocs already ships), instead of navigating
+  // away to raw text. Progressive enhancement: if JS/fetch fails, the raw link
+  // still opens. Modifier clicks (new tab) are left alone.
+  var dlg = null;
+
+  function buildDialog() {
+    if (dlg) return dlg;
+    dlg = document.createElement("dialog");
+    dlg.className = "tim-code-modal";
+    dlg.innerHTML =
+      '<div class="tim-code-modal__head">' +
+      '  <span class="tim-code-modal__file"></span>' +
+      '  <span class="tim-code-modal__actions">' +
+      '    <a class="tim-code-modal__raw" target="_blank" rel="noopener">view raw ↗</a>' +
+      '    <button class="tim-code-modal__copy" type="button">Copy</button>' +
+      '    <button class="tim-code-modal__close" type="button" aria-label="Close">✕</button>' +
+      '  </span>' +
+      '</div>' +
+      '<pre class="tim-code-modal__body"><code class="language-python"></code></pre>';
+    document.body.appendChild(dlg);
+
+    dlg.querySelector(".tim-code-modal__close").addEventListener("click", function () {
+      dlg.close();
+    });
+    // Backdrop click closes
+    dlg.addEventListener("click", function (e) {
+      if (e.target === dlg) dlg.close();
+    });
+    dlg.querySelector(".tim-code-modal__copy").addEventListener("click", function () {
+      var code = dlg.querySelector("code").textContent;
+      navigator.clipboard && navigator.clipboard.writeText(code);
+      var b = dlg.querySelector(".tim-code-modal__copy");
+      var old = b.textContent; b.textContent = "Copied!";
+      setTimeout(function () { b.textContent = old; }, 1200);
+    });
+    return dlg;
+  }
+
+  function openModal(url, filename) {
+    var d = buildDialog();
+    var codeEl = d.querySelector("code");
+    d.querySelector(".tim-code-modal__file").textContent = filename;
+    d.querySelector(".tim-code-modal__raw").setAttribute("href", url);
+    codeEl.textContent = "Loading…";
+    codeEl.removeAttribute("data-highlighted");
+    codeEl.className = "language-python";
+    if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", "");
+
+    fetch(url)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (text) {
+        codeEl.textContent = text;
+        // highlight.js colors the runtime-fetched source (Pygments is build-time only)
+        if (window.hljs && typeof window.hljs.highlightElement === "function") {
+          try { window.hljs.highlightElement(codeEl); } catch (e) { /* leave plain */ }
+        }
+      })
+      .catch(function () {
+        // Fetch failed → just navigate to the raw file as a fallback.
+        d.close();
+        window.location.href = url;
+      });
+  }
+
+  function pyModals() {
+    document.querySelectorAll('.md-content a[href$=".py"]').forEach(function (a) {
+      if (a.dataset.timPy) return;
+      a.dataset.timPy = "1";
+      a.addEventListener("click", function (e) {
+        // Respect new-tab / modified clicks and let them behave normally.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        var url = a.getAttribute("href");
+        var filename = url.split("/").pop();
+        openModal(a.href, filename);
+      });
+    });
+  }
+
+  // ---- Interactive, persistent task-list checkboxes ------------------------
+  // Material renders `- [ ]` checkboxes as disabled. Re-enable them, restore
+  // saved state from localStorage (keyed per page path + position), and persist
+  // on toggle so progress survives reloads and navigation. Completed items dim.
+  function interactiveCheckboxes() {
+    var boxes = document.querySelectorAll(".md-content .task-list-item input[type=checkbox]");
+    if (!boxes.length) return;
+    var pageKey = "tim:tasks:" + location.pathname;
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(pageKey) || "{}"); } catch (e) { saved = {}; }
+
+    boxes.forEach(function (box, i) {
+      box.disabled = false;
+      box.style.cursor = "pointer";
+      var li = box.closest(".task-list-item");
+      // restore
+      if (saved[i] === true) {
+        box.checked = true;
+        if (li) li.classList.add("tim-task-done");
+      }
+      if (box.dataset.timBound) return;
+      box.dataset.timBound = "1";
+
+      function persist() {
+        if (li) li.classList.toggle("tim-task-done", box.checked);
+        var cur = {};
+        try { cur = JSON.parse(localStorage.getItem(pageKey) || "{}"); } catch (e) { cur = {}; }
+        if (box.checked) cur[i] = true; else delete cur[i];
+        try { localStorage.setItem(pageKey, JSON.stringify(cur)); } catch (e) { /* storage full/blocked */ }
+      }
+      box.addEventListener("change", persist);
+
+      // Make the whole item's text clickable (label-style), but don't hijack
+      // clicks on the checkbox itself (avoids double toggle) or on real links.
+      if (li) {
+        li.style.cursor = "pointer";
+        li.addEventListener("click", function (e) {
+          if (e.target === box) return;                 // checkbox handles itself
+          if (e.target.closest("a")) return;             // let links work
+          if (window.getSelection && String(window.getSelection())) return; // don't toggle on text-select
+          box.checked = !box.checked;
+          persist();
+        });
+      }
+    });
+  }
+
   onPage(function () {
     tagPills();
     copyPulse();
     fadeIn();
     themeMermaid();
+    pyModals();
+    interactiveCheckboxes();
   });
 })();

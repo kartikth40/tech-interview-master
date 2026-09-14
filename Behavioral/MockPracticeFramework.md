@@ -4,10 +4,10 @@
 
 A structured way to **practice** behavioral interviews - solo, with a peer, and with a professional
 mock. This file is the *practice process*. For the underlying content, use the canonical guides:
-- **STAR method, question categories, common mistakes** → [BehavioralGuide.md](BehavioralGuide.md)
-- **Your story bank** → [STAR-stories.md](STAR-stories.md)
+- **STAR method, question categories, common mistakes** → [Behavioral Guide](BehavioralGuide.md)
+- **Your story bank** → [STAR Stories](STAR-stories.md)
 - **Company frameworks** → [company-specific/](company-specific/)
-- **Overall timeline** → [../InterviewPrep/StudyPlan-8weeks.md](../InterviewPrep/StudyPlan-8weeks.md)
+- **Overall timeline** → [10-Week Study Plan](../InterviewPrep/StudyPlan-10weeks.md)
 
 > This doc deliberately does **not** re-teach STAR or re-list the question bank - those live in the
 > guides above. It focuses on *how to practice and improve*.
@@ -103,11 +103,11 @@ Prep before next round: [weak story to rewrite, topic to review]
 
 ## Readiness Checklist
 
-- [ ] 12-15 polished STAR stories (see [STAR-stories.md](STAR-stories.md)), covering all categories
+- [ ] 12-15 polished STAR stories (see [STAR Stories](STAR-stories.md)), covering all categories
 - [ ] Each core story survives follow-up drilling (alternatives / constraints / hindsight ready)
 - [ ] Practiced out loud and recorded - not just in your head
 - [ ] 2-3 peer mocks + 1-2 professional mocks done, feedback iterated
 - [ ] Target company's framework reviewed ([company-specific/](company-specific/))
-- [ ] Questions ready to ask the interviewer ([QuestionsToAsk.md](QuestionsToAsk.md))
+- [ ] Questions ready to ask the interviewer ([Questions to Ask](QuestionsToAsk.md))
 
 **You're ready. Good luck!** 🚀

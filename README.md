@@ -9,7 +9,7 @@
 ![Target](https://img.shields.io/badge/Target-SDE--1%20%2F%20SDE--2-blue.svg)
 ![Companies](https://img.shields.io/badge/Companies-MAANG%20%2B%20Indian%20Unicorns-orange.svg)
 
-> Your complete guide to cracking SDE-1/2 interviews at top tech companies (Google, Meta, Amazon, Microsoft, Apple)
+> Your complete guide to cracking entry-level to mid-level software engineering interviews at top tech companies (Google, Meta, Amazon, Microsoft, Apple)
 
 ### Because preparation = confidence = success ✨
 
@@ -31,7 +31,7 @@
 ---
 
 ### 2️⃣ [System Design](SystemDesign/)
-- **21 Real System Designs** - All optimized for 45-min SDE-2 interviews
+- **21 Real System Designs** - All optimized for the 45-min interview format
 - **Interview-Ready Format** - Perfect for MAANG/Unicorn/Startup interviews
 - **India-Specific Designs** (Payment Gateway with UPI/Razorpay, Food Delivery like Swiggy/Zomato)
 - **Component Deep-Dives** (Load Balancers, Caching, DB Sharding, Message Queues, Microservices, Monitoring)
@@ -40,12 +40,12 @@
 - **Distributed Systems Concepts** - CAP theorem, consensus, replication, sagas, circuit breakers
 - **Trade-off Analysis** for scalability decisions
 
-**All Designs SDE-2 Optimized:**
+**All Designs Interview-Optimized:**
 Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL Shortener, Distributed Cache, Netflix, Rate Limiter, Key-Value Store, Unique ID Generator, Web Crawler, Notification System, Search Autocomplete, Google Drive/Dropbox, Distributed Message Queue, Nearby Friends, Ad Click Aggregation, Stock Exchange
 
 **Quick Links:**
 - 📖 [System Design Guide](SystemDesign/SystemDesignGuide.md) - Complete framework
-- 🏗️ [Design Examples](SystemDesign/designs/) - **SDE-2 optimized** designs
+- 🏗️ [Design Examples](SystemDesign/designs/) - **interview-optimized** designs
 - 🔧 [Components](SystemDesign/components/) - Building blocks explained in depth
 - 🧱 [Low-Level Design](SystemDesign/LowLevelDesign.md) - SOLID, design patterns, LLD problems
 - 🔌 [API Design Patterns](SystemDesign/APIDesignPatterns.md) - REST, GraphQL, gRPC
@@ -76,14 +76,14 @@ Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL
 ---
 
 ### 4️⃣ [Interview Prep](InterviewPrep/)
-- **8-Week Study Plan** with daily goals and milestones
+- **10-Week Study Plan** with phases, milestones, and spaced-repetition
 - **Company-Specific Tips** for MAANG interviews
 - **India-Specific Guide** with salaries, companies, office locations, referral strategies
 - **Mock Interview Questions** with detailed solutions
 - **Progress Tracking** templates
 
 **Quick Links:**
-- 📅 [8-Week Study Plan](InterviewPrep/StudyPlan-8weeks.md) - Structured learning path
+- 📅 [10-Week Study Plan](InterviewPrep/StudyPlan-10weeks.md) - Structured, pattern-first learning path
 - 🎯 [Company-Specific Tips](InterviewPrep/CompanySpecific.md) - MAANG focus areas
 - 🇮🇳 [India-Specific Guide](InterviewPrep/India-Specific.md) - Salaries, companies, cities, referrals
 - 🎤 [Mock Questions](InterviewPrep/MockInterviewQuestions.md) - Practice interviews
@@ -177,14 +177,14 @@ cat Behavioral/STAR-stories.md
 
 ### Follow the Study Plan:
 ```bash
-# 8-week structured preparation
-cat InterviewPrep/StudyPlan-8weeks.md
+# 10-week structured preparation
+cat InterviewPrep/StudyPlan-10weeks.md
 ```
 
 ---
 
 ## Target Audience
-- **SDE-1 / SDE-2** candidates preparing for top tech companies
+- **Entry-level to mid-level** software engineers preparing for top tech companies
 - **Self-learners** who want comprehensive, organized interview prep
 - **Career switchers** entering software engineering
 - Anyone targeting **Google, Meta, Amazon, Microsoft, Apple**
@@ -198,7 +198,7 @@ cat InterviewPrep/StudyPlan-8weeks.md
 | **DSA** | 19 patterns, 50+ algorithms, 10 data structures | ⭐⭐⭐⭐⭐ | ✅ Complete |
 | **System Design** | 21 designs, 6 components, LLD, API patterns, distributed systems | ⭐⭐⭐⭐⭐ | ✅ Complete |
 | **Behavioral** | STAR, 7 company guides, 16 Amazon LPs, salary negotiation, offer eval | ⭐⭐⭐⭐ | ✅ Complete |
-| **Interview Prep** | 8-week plan, India guide, company tips | ⭐⭐⭐ | ✅ Complete |
+| **Interview Prep** | 10-week plan, India guide, company tips | ⭐⭐⭐ | ✅ Complete |
 | **India Resources** | Salaries, companies, cities, referrals, designs | ⭐⭐⭐⭐ | ✅ Complete |
 | **CS Fundamentals** | 10 concept notes (OS, concurrency, networking, DB, hashing, security, OOP, memory, estimation) | ⭐⭐⭐⭐⭐ | ✅ Complete |
 | **Q&A Bank** | ~194 conceptual Q&A across 11 topics, tagged by difficulty + company | ⭐⭐⭐⭐ | ✅ Complete |
@@ -264,7 +264,7 @@ tech-interview-master/
 │       └── monitoring.md            # Metrics, logs, traces, alerting
 │
 ├── 💼 Behavioral/
-│   ├── BehavioralGuide.md           # STAR method + top-tech SDE-2 behavioral prep
+│   ├── BehavioralGuide.md           # STAR method + top-tech behavioral prep
 │   ├── STAR-stories.md              # Template for 15-20 stories
 │   ├── leadership-principles.md     # Amazon's 16 Leadership Principles
 │   ├── MockPracticeFramework.md     # Self & peer practice protocols
@@ -281,7 +281,7 @@ tech-interview-master/
 │       └── indian-startups.md       # 🇮🇳 Flipkart, Razorpay, CRED, Swiggy, Zomato
 │
 ├── 🎯 InterviewPrep/
-│   ├── StudyPlan-8weeks.md          # Day-by-day study plan
+│   ├── StudyPlan-10weeks.md         # Phase-based 10-week study plan
 │   ├── CompanySpecific.md           # MAANG focus areas
 │   ├── India-Specific.md            # 🇮🇳 Salaries, companies, cities, referrals
 │   └── MockInterviewQuestions.md    # Practice questions
@@ -351,7 +351,7 @@ tech-interview-master/
 If this repository helps you land your dream job:
 - **Star** ⭐ this repo
 - **Share** with friends preparing for interviews
-- **Contribute** - see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
+- **Contribute** - see [CONTRIBUTING](CONTRIBUTING.md) for guidelines
 - **Report issues** - found a bug or outdated info? [Open an issue](../../issues)
 
 ---
@@ -403,11 +403,11 @@ This repository contains everything you need to succeed, but remember:
 | **PhonePe** | ₹25-42 LPA | ₹42-75 LPA | Payments |
 | **Meesho** | ₹22-38 LPA | ₹38-62 LPA | Social Commerce |
 
-*Note: All figures in Lakhs Per Annum (LPA). Includes base + RSUs/ESOPs. Stock values vary. See [India-Specific.md](InterviewPrep/India-Specific.md) for detailed breakdown.*
+*Note: All figures in Lakhs Per Annum (LPA). Includes base + RSUs/ESOPs. Stock values vary. See [India-Specific Guide](InterviewPrep/India-Specific.md) for detailed breakdown.*
 
 
 ---
 
 **Last Updated:** March 2026  
-**Status:** ✅ Complete (Volume 1 - SDE-1/SDE-2)  
-**Target:** SDE-1/2 at top tech companies (Global & India)
+**Status:** ✅ Complete (Volume 1 - entry-level to mid-level)  
+**Target:** entry-level to mid-level software engineers at top tech companies (Global & India)

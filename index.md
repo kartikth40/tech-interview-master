@@ -1,6 +1,6 @@
 ---
 title: Tech Interview Master
-description: SDE-1/SDE-2 interview prep - DSA, System Design, Behavioral, CS Fundamentals, Q&A, and Databases, in one searchable place.
+description: Entry-level to mid-level software engineering interview prep - DSA, System Design, Behavioral, CS Fundamentals, Q&A, and Databases, in one searchable place.
 hide:
   - navigation
   - toc
@@ -8,11 +8,11 @@ hide:
 
 # Tech Interview Master
 
-**Everything to crack SDE-1 / SDE-2 interviews at top tech - MAANG and Indian unicorns.**
+**Everything to crack entry-level to mid-level software engineering interviews at top tech - MAANG and Indian unicorns.**
 Runnable DSA in Python, 21 real system designs, CS fundamentals, ~194 conceptual Q&A, a databases
 deep-dive, and behavioral prep - all cross-linked and searchable.
 
-[Start with the 8-Week Plan :material-arrow-right:](InterviewPrep/StudyPlan-8weeks.md){ .md-button .md-button--primary }
+[Start with the 10-Week Plan :material-arrow-right:](InterviewPrep/StudyPlan-10weeks.md){ .md-button .md-button--primary }
 [Browse the DSA Guide](DSA/DSACompleteGuide.md){ .md-button }
 
 ---
@@ -37,7 +37,7 @@ deep-dive, and behavioral prep - all cross-linked and searchable.
     ---
 
     A repeatable framework, estimation, 6 building-block components, and **21 real
-    designs** optimized for the 45-minute SDE-2 format.
+    designs** optimized for the 45-minute interview format.
 
     [:octicons-arrow-right-24: SD Guide](SystemDesign/SystemDesignGuide.md) ·
     [Designs](SystemDesign/designs/url-shortener.md) ·
@@ -86,10 +86,10 @@ deep-dive, and behavioral prep - all cross-linked and searchable.
 
     ---
 
-    An 8-week study plan with milestones, company-specific focus areas, and mock
+    A 10-week study plan with milestones, company-specific focus areas, and mock
     questions.
 
-    [:octicons-arrow-right-24: 8-Week Plan](InterviewPrep/StudyPlan-8weeks.md)
+    [:octicons-arrow-right-24: 10-Week Plan](InterviewPrep/StudyPlan-10weeks.md)
 
 -   :material-flag:{ .lg .middle } &nbsp; **India-Specific**
 
@@ -108,7 +108,7 @@ deep-dive, and behavioral prep - all cross-linked and searchable.
 ## How to use this site
 
 !!! tip "Suggested path"
-    New here? Start with the **[8-Week Study Plan](InterviewPrep/StudyPlan-8weeks.md)**, then drill
+    New here? Start with the **[10-Week Study Plan](InterviewPrep/StudyPlan-10weeks.md)**, then drill
     **[DSA patterns](DSA/DSAQuickLookup.md)** daily, read **[System Design](SystemDesign/SystemDesignGuide.md)**
     on weekends, and review **[Fundamentals](Fundamentals/README.md)** + **[Q&A](QA-Bank/README.md)**
     in between. Use the search (top bar) to jump straight to any concept.

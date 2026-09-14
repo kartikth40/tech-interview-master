@@ -65,7 +65,7 @@ storage. Index the columns you filter/join/sort on - not everything. A **composi
   append to memtables and flush sorted files, compacting later (write-optimized). Pick LSM for
   write-heavy ingest, B-tree for balanced/read-heavy.
 - See [DSA/data-structures/tree/](../DSA/data-structures/tree/) for tree/BST/segment-tree code and
-  [hashing.md](hashing.md) for hash-index intuition.
+  [Hashing](hashing.md) for hash-index intuition.
 
 ---
 
@@ -118,8 +118,8 @@ read it back" bugs - fix with read-your-writes routing.
 
 Splitting data *across* nodes so no single node holds it all - the key to write scaling. Strategies
 (range, hash, consistent hashing) and the rebalancing/hot-shard problems have a canonical home:
-👉 [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md).
-Consistent-hashing intuition is in [hashing.md](hashing.md).
+👉 [Database Sharding](../SystemDesign/components/database-sharding.md).
+Consistent-hashing intuition is in [Hashing](hashing.md).
 
 Replication and partitioning are orthogonal and usually combined: shard for size/writes, replicate
 each shard for availability/reads.
@@ -133,7 +133,7 @@ Once data is distributed, a network **partition (P)** forces a choice between **
 there's no partition) you still trade **latency (L)** vs **consistency (C)**.
 
 This is a system-design cornerstone with a full treatment (plus consensus, quorums, sagas) here:
-👉 [SystemDesign/DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
+👉 [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md).
 
 ---
 
@@ -142,7 +142,7 @@ This is a system-design cornerstone with a full treatment (plus consensus, quoru
 **Multi-Version Concurrency Control** lets readers and writers not block each other: each write
 creates a new *version* of a row, and each transaction reads a consistent snapshot. Used by Postgres
 and MySQL InnoDB. It's the optimistic-flavored counterpart to lock-based control -
-see optimistic vs pessimistic locking in [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
+see optimistic vs pessimistic locking in [Concurrency & Parallelism](concurrency-and-parallelism.md).
 
 Old versions accumulate and must be cleaned up (Postgres `VACUUM`) - a real operational gotcha.
 
@@ -169,7 +169,7 @@ resources.
 
 ## Related
 
-- Q&A drills: [qa-databases.md](../QA-Bank/qa-databases.md)
+- Q&A drills: [Databases Q&A](../QA-Bank/qa-databases.md)
 - [Sharding / partitioning deep-dive](../SystemDesign/components/database-sharding.md)
 - [CAP / replication / consensus](../SystemDesign/DistributedSystemsConcepts.md)
 - [Caching](../SystemDesign/components/caching.md) · [Hashing](hashing.md) · [Concurrency](concurrency-and-parallelism.md)

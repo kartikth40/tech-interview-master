@@ -1,9 +1,9 @@
 # ⚖️ SQL vs NoSQL & Scaling
 
 > The "which database would you pick and why" round, plus how you scale it and the follow-ups an
-> interviewer chains after your first answer. Trade-off internals: [databases-internals.md](../Fundamentals/databases-internals.md);
-> sharding: [database-sharding.md](../SystemDesign/components/database-sharding.md); CAP/replication:
-> [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
+> interviewer chains after your first answer. Trade-off internals: [Database Internals](../Fundamentals/databases-internals.md);
+> sharding: [Database Sharding](../SystemDesign/components/database-sharding.md); CAP/replication:
+> [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md).
 
 ---
 
@@ -45,9 +45,9 @@ The usual ladder (do the cheap thing first):
 1. **Indexes + query tuning** - fix the slow queries before adding hardware.
 2. **Vertical scale** - bigger box (simple, but a ceiling + SPOF).
 3. **Read replicas** - offload reads; introduces replication lag (stale reads).
-4. **Caching** - Redis in front for hot reads (see [caching.md](../SystemDesign/components/caching.md)).
+4. **Caching** - Redis in front for hot reads (see [Caching](../SystemDesign/components/caching.md)).
 5. **Sharding** - split writes across nodes when one can't keep up (last resort - adds cross-shard
-   pain). See [database-sharding.md](../SystemDesign/components/database-sharding.md).
+   pain). See [Database Sharding](../SystemDesign/components/database-sharding.md).
 
 *Follow-up hook:* what breaks when you shard? (cross-shard joins/transactions, rebalancing, hot
 shards → use sagas, denormalization, good shard key.)
@@ -62,7 +62,7 @@ The single most important scaling decision. A good key:
 - **Matches your access pattern** so common queries hit one partition (avoid scatter-gather).
 - Is **immutable** (changing a shard key means moving data).
 
-Consistent hashing minimizes reshuffling when nodes change - see [hashing.md](../Fundamentals/hashing.md).
+Consistent hashing minimizes reshuffling when nodes change - see [Hashing](../Fundamentals/hashing.md).
 *Follow-up hook:* a celebrity/hot key overloads one shard - fix? (sub-shard the key, cache, or
 replicate it.)
 
@@ -75,7 +75,7 @@ partition, and PACELC adds latency-vs-consistency otherwise. Map it to the domai
 - **Strong consistency:** payments, inventory-at-checkout, unique usernames.
 - **Eventual consistency:** feeds, view counts, product catalogs, recommendations.
 
-Choose per data type, not globally. Full treatment: [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
+Choose per data type, not globally. Full treatment: [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md).
 
 ---
 
@@ -100,7 +100,7 @@ Interviewers rarely stop at "which DB." Be ready for:
 
 ## Related
 
-- Internals & SQL-vs-NoSQL trade-offs → [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
-- Sharding deep-dive → [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md)
-- CAP / replication → [SystemDesign/DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md)
-- NoSQL modeling → [nosql-types-and-modeling.md](nosql-types-and-modeling.md)
+- Internals & SQL-vs-NoSQL trade-offs → [Database Internals](../Fundamentals/databases-internals.md)
+- Sharding deep-dive → [Database Sharding](../SystemDesign/components/database-sharding.md)
+- CAP / replication → [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md)
+- NoSQL modeling → [NoSQL Types & Modeling](nosql-types-and-modeling.md)

@@ -23,7 +23,7 @@
 | Failure | stack overflow (deep recursion) | out-of-memory, fragmentation, leaks |
 
 Each thread has its own stack; the heap is shared across threads (hence the need for synchronization
-- see [concurrency-and-parallelism.md](concurrency-and-parallelism.md)).
+- see [Concurrency & Parallelism](concurrency-and-parallelism.md)).
 
 ---
 
@@ -71,7 +71,7 @@ Practically:
 - Immutable arguments (int, str, tuple) appear value-like because you can't mutate them in place.
 
 This is a top source of "why did my list change?" bugs - see value/reference semantics in
-[oop-and-language-concepts.md](oop-and-language-concepts.md).
+[OOP & Language Concepts](oop-and-language-concepts.md).
 
 ---
 
@@ -81,7 +81,7 @@ Frequently probed for Python roles:
 
 - **GIL** - one thread runs Python bytecode at a time, so threads don't parallelize CPU-bound work;
   use processes for CPU, threads/async for I/O. Full treatment in
-  [concurrency-and-parallelism.md](concurrency-and-parallelism.md).
+  [Concurrency & Parallelism](concurrency-and-parallelism.md).
 - **Memory model** - reference counting for immediate reclamation + a generational cycle collector
   for reference cycles.
 - **Mutability** - `list`/`dict`/`set` mutable; `int`/`str`/`tuple`/`frozenset` immutable. Never use
@@ -106,7 +106,7 @@ Frequently probed for Python roles:
 
 ## Related
 
-- Q&A drills: [qa-language-python.md](../QA-Bank/qa-language-python.md)
-- Stack/heap sharing across threads, GIL → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)
-- Value vs reference semantics, immutability → [oop-and-language-concepts.md](oop-and-language-concepts.md)
-- Process/thread memory isolation, virtual memory → [operating-systems.md](operating-systems.md)
+- Q&A drills: [Python Language Q&A](../QA-Bank/qa-language-python.md)
+- Stack/heap sharing across threads, GIL → [Concurrency & Parallelism](concurrency-and-parallelism.md)
+- Value vs reference semantics, immutability → [OOP & Language Concepts](oop-and-language-concepts.md)
+- Process/thread memory isolation, virtual memory → [Operating Systems](operating-systems.md)

@@ -1,8 +1,8 @@
 # 🧠 SQL Theory - Q&A
 
 > The conceptual SQL questions interviewers ask, answer-first. Deeper internals (ACID, isolation,
-> MVCC, index structures) live in [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
-> - this links there rather than repeating. Query practice: [sql-query-patterns.md](sql-query-patterns.md).
+> MVCC, index structures) live in [Database Internals](../Fundamentals/databases-internals.md)
+> - this links there rather than repeating. Query practice: [SQL Query Patterns](sql-query-patterns.md).
 
 ---
 
@@ -16,7 +16,7 @@
 > **Q2. Normalization vs denormalization - the trade-off?**
 > Normalized: less redundancy, fewer update anomalies, but reads need joins. Denormalized: duplicate
 > data for join-free fast reads, but writes must keep copies in sync. Normalize for write-heavy OLTP;
-> denormalize for read-heavy/OLAP and NoSQL. See [databases-internals.md](../Fundamentals/databases-internals.md).
+> denormalize for read-heavy/OLAP and NoSQL. See [Database Internals](../Fundamentals/databases-internals.md).
 > *Follow-ups:* How do you keep denormalized copies consistent? (app logic, triggers, async updates.)
 
 > **Q3. Primary vs foreign vs composite vs candidate key?**
@@ -53,13 +53,13 @@
 > **Q8. What is a transaction and the ACID properties?**
 > A group of operations that commit all-or-nothing. **A**tomicity (all or none), **C**onsistency
 > (constraints stay valid), **I**solation (concurrent txns don't corrupt each other), **D**urability
-> (committed survives crashes). Details: [databases-internals.md](../Fundamentals/databases-internals.md).
+> (committed survives crashes). Details: [Database Internals](../Fundamentals/databases-internals.md).
 > *Follow-ups:* How is atomicity/durability implemented? (write-ahead log.)
 
 > **Q9. Explain isolation levels and their anomalies.**
 > Read Uncommitted (allows dirty reads), Read Committed (no dirty), Repeatable Read (no
 > non-repeatable), Serializable (no phantoms). Higher = fewer anomalies, less concurrency. Full table
-> in [databases-internals.md](../Fundamentals/databases-internals.md).
+> in [Database Internals](../Fundamentals/databases-internals.md).
 > *Follow-ups:* What's a phantom read? (a range re-query returns new/removed rows.)
 
 > **Q10. ACID consistency vs CAP consistency?**
@@ -86,7 +86,7 @@
 > **Q14. What is a deadlock in a database and how do you avoid it?**
 > Two transactions each hold a lock the other needs, waiting forever. The DB detects it and kills a
 > victim. Avoid by acquiring locks in a consistent order and keeping transactions short. See
-> [concurrency-and-parallelism.md](../Fundamentals/concurrency-and-parallelism.md).
+> [Concurrency & Parallelism](../Fundamentals/concurrency-and-parallelism.md).
 > *Follow-ups:* Optimistic vs pessimistic locking? (version-check-and-retry vs lock up front.)
 
 > **Q15. When would you use a materialized view?**
@@ -99,7 +99,7 @@
 
 ## Related
 
-- Internals (ACID, isolation, MVCC, indexing) → [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
-- Query patterns → [sql-query-patterns.md](sql-query-patterns.md)
-- Short Q&A → [QA-Bank/qa-databases.md](../QA-Bank/qa-databases.md)
-- SQL vs NoSQL + scaling → [sql-vs-nosql-and-scaling.md](sql-vs-nosql-and-scaling.md)
+- Internals (ACID, isolation, MVCC, indexing) → [Database Internals](../Fundamentals/databases-internals.md)
+- Query patterns → [SQL Query Patterns](sql-query-patterns.md)
+- Short Q&A → [Databases Q&A](../QA-Bank/qa-databases.md)
+- SQL vs NoSQL + scaling → [SQL vs NoSQL & Scaling](sql-vs-nosql-and-scaling.md)

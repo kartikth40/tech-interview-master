@@ -1,5 +1,5 @@
 # Search Autocomplete / Typeahead System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -68,7 +68,7 @@ FUNCTION autocomplete(prefix):
     RETURN node.topK               # O(1) - precomputed
 ```
 
-See the trie implementation: [DSA/data-structures/tree/trie.py](../../DSA/data-structures/tree/trie.py).
+See the trie implementation: [Trie](../../DSA/data-structures/tree/trie.py).
 
 ---
 
@@ -116,7 +116,7 @@ read at runtime. Replication is simplest given the read-heavy, write-offline pat
 ### Deep Dive 4: Caching and CDN
 Popular prefixes are extremely cacheable. Cache `prefix → top-k` in Redis and even at the CDN/edge
 with a short TTL. Debounce on the client (wait ~100ms between keystrokes) to cut request volume. See
-[caching.md](../components/caching.md).
+[Caching](../components/caching.md).
 
 ### Deep Dive 5: Freshness vs latency
 Suggestions don't need to be real-time. A rebuild every hour keeps trends current while keeping the
@@ -157,6 +157,6 @@ sooner.
 3. ✅ **Read-only trie replicated** + heavy **caching/CDN** + client debounce.
 4. ✅ Freshness is **near-real-time (hourly)**, prioritizing read latency.
 
-**Related:** [DSA/data-structures/tree/trie.py](../../DSA/data-structures/tree/trie.py) ·
-[caching.md](../components/caching.md) ·
-[qa-system-design-concepts.md](../../QA-Bank/qa-system-design-concepts.md)
+**Related:** [Trie](../../DSA/data-structures/tree/trie.py) ·
+[Caching](../components/caching.md) ·
+[System Design Concepts Q&A](../../QA-Bank/qa-system-design-concepts.md)

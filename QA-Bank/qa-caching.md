@@ -1,7 +1,7 @@
 # ❓ Caching - Q&A
 
-> Pairs with [SystemDesign/components/caching.md](../SystemDesign/components/caching.md). Format and
-> tag legend: [QA-Bank/README.md](README.md).
+> Pairs with [Caching](../SystemDesign/components/caching.md). Format and
+> tag legend: [Overview](README.md).
 
 ---
 
@@ -22,7 +22,7 @@
 > **Q3. Write-through vs write-back vs write-around?**
 > Write-through writes cache + DB synchronously (consistent, slower writes). Write-back writes cache
 > first and DB later (fast, risk of loss on crash). Write-around writes only the DB (avoids caching
-> write-once data, but first read misses). See [caching.md](../SystemDesign/components/caching.md).
+> write-once data, but first read misses). See [Caching](../SystemDesign/components/caching.md).
 > *Follow-ups:* Which risks data loss and why? (write-back - unflushed data lost on crash.)
 > `Hard` · `Amazon`
 
@@ -62,7 +62,7 @@
 > **Q9. How do you distribute keys across cache nodes?**
 > Consistent hashing, so adding/removing a node only remaps ~K/N keys instead of nearly all (which
 > `mod N` would). Virtual nodes even out the distribution. See
-> [hashing.md](../Fundamentals/hashing.md).
+> [Hashing](../Fundamentals/hashing.md).
 > *Follow-ups:* What breaks if you use plain modulo hashing? (mass misses on scale change.)
 > `Med` · `Amazon`
 
@@ -89,6 +89,6 @@
 
 ---
 
-**Related:** [SystemDesign/components/caching.md](../SystemDesign/components/caching.md) ·
-[qa-hashing.md](qa-hashing.md) · [qa-databases.md](qa-databases.md) ·
-[qa-system-design-concepts.md](qa-system-design-concepts.md)
+**Related:** [Caching](../SystemDesign/components/caching.md) ·
+[Hashing Q&A](qa-hashing.md) · [Databases Q&A](qa-databases.md) ·
+[System Design Concepts Q&A](qa-system-design-concepts.md)

@@ -52,7 +52,7 @@ Each top tech company has unique interview styles, focus areas, and cultures. Th
 ### Behavioral (Googleyness)
 Googleyness (GCA, Leadership, RRK, and comfort-with-ambiguity / humility / collaboration) plus worked
 example questions and stories are covered in depth in the canonical guide:
-➡️ **[Behavioral/company-specific/google.md](../Behavioral/company-specific/google.md)**
+➡️ **[google](../Behavioral/company-specific/google.md)**
 
 Quick sampler: "Tell me about a time you had to learn something completely new", "Describe a situation
 where you were wrong and someone corrected you".
@@ -122,7 +122,7 @@ where you were wrong and someone corrected you".
 ### Behavioral ("Jedi" Round)
 Meta's core values (Move Fast, Be Bold, Focus on Impact, Be Open, Build Social Value) and worked
 example questions/stories are covered in depth in the canonical guide:
-➡️ **[Behavioral/company-specific/meta.md](../Behavioral/company-specific/meta.md)**
+➡️ **[meta](../Behavioral/company-specific/meta.md)**
 
 Quick sampler: "Describe a bold decision you made", "Tell me about maximizing impact with limited
 resources", "Describe a time you gave/received difficult feedback".
@@ -191,7 +191,7 @@ resources", "Describe a time you gave/received difficult feedback".
 - Design Amazon Prime Video
 
 ### Behavioral (Leadership Principles)
-**Prepare 12-15 strong stories, each mapping to 2-3 principles** (covers all 16). Full framework + how to tag stories: [leadership-principles.md](../Behavioral/leadership-principles.md) and [Amazon guide](../Behavioral/company-specific/amazon.md).
+**Prepare 12-15 strong stories, each mapping to 2-3 principles** (covers all 16). Full framework + how to tag stories: [Leadership Principles](../Behavioral/leadership-principles.md) and [Amazon guide](../Behavioral/company-specific/amazon.md).
 
 **Top 5 Principles Tested:**
 1. Customer Obsession

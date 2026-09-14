@@ -382,9 +382,9 @@ Choose Your Pattern:
 
 ---
 
-## Top-Tech SDE-2 Must-Knows (high frequency - prioritize these)
+## Top-Tech Must-Knows (high frequency - prioritize these)
 
-These come up again and again in real SDE-2 loops across MAANG and top Indian unicorns. Be fluent, not just familiar.
+These come up again and again in real interview loops across MAANG and top Indian unicorns. Be fluent, not just familiar.
 
 **Monotonic Deque** - Sliding window min/max in O(n) (all top companies)  
 **Union-Find** - Connectivity, grouping, cycle detection (Redundant Connection, Accounts Merge)  
@@ -396,17 +396,17 @@ These come up again and again in real SDE-2 loops across MAANG and top Indian un
 
 ---
 
-## Advanced / Rarely Asked at SDE-2 (study last, or skip)
+## Advanced / Rarely Asked (study last, or skip)
 
-These appear in the repo for completeness, but are **low-yield for a typical SDE-2 coding round** (MAANG
+These appear in the repo for completeness, but are **low-yield for a typical coding round** (MAANG
 or top unicorns) - they are mostly competitive-programming territory. Don't spend core prep time here
 until the must-knows above are solid. Know that they exist and what problem they solve; deep
 memorization is rarely rewarded.
 
-**Segment Tree / Fenwick (BIT)** - range query + update. Rare at SDE-2; only if the JD hints at it.  
-**Bitmask DP / TSP** - constraint-based state compression. Edge case at SDE-2.  
+**Segment Tree / Fenwick (BIT)** - range query + update. Rarely asked; only if the JD hints at it.  
+**Bitmask DP / TSP** - constraint-based state compression. Edge case.  
 **Manacher's Algorithm** - O(n) longest palindrome. Center-expansion (O(n²)) is the accepted answer.  
 **Suffix Trie / Suffix Array + LCP** - distinct substrings. Competitive-programming topic.  
 **KMP / Rabin-Karp / Z-Algorithm** - the failure-function / rolling-hash derivations are seldom required.  
-**Kosaraju's / Tarjan's SCC** - strongly connected components. Uncommon at SDE-2.  
+**Kosaraju's / Tarjan's SCC** - strongly connected components. Uncommon.  
 **Rerooting DP / Floyd-Warshall** - niche; know the idea, not the code from memory.

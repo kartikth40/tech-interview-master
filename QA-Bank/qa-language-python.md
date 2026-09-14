@@ -1,8 +1,8 @@
 # ❓ Python Language - Q&A
 
-> Pairs with [Fundamentals/memory-and-runtime.md](../Fundamentals/memory-and-runtime.md) and
-> [oop-and-language-concepts.md](../Fundamentals/oop-and-language-concepts.md). Format and tag
-> legend: [QA-Bank/README.md](README.md).
+> Pairs with [Memory & Runtime](../Fundamentals/memory-and-runtime.md) and
+> [OOP & Language Concepts](../Fundamentals/oop-and-language-concepts.md). Format and tag
+> legend: [Overview](README.md).
 
 ---
 
@@ -93,5 +93,5 @@
 
 ---
 
-**Related:** [Fundamentals/memory-and-runtime.md](../Fundamentals/memory-and-runtime.md) ·
-[qa-concurrency.md](qa-concurrency.md) · [qa-oop-design.md](qa-oop-design.md)
+**Related:** [Memory & Runtime](../Fundamentals/memory-and-runtime.md) ·
+[Concurrency Q&A](qa-concurrency.md) · [OOP & Design Q&A](qa-oop-design.md)

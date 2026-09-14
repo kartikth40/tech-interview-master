@@ -20,7 +20,7 @@ within milliseconds-to-tens-of-ms, and it can jump the clock forward or **backwa
   event on a faster-drifting clock.
 - Last-write-wins by timestamp can **silently lose data** when clocks disagree.
 - IDs/tokens that assume a monotonic clock can break when the clock goes backward (see the Snowflake
-  clock-skew issue in [unique-id-generator.md](../SystemDesign/designs/unique-id-generator.md)).
+  clock-skew issue in [Unique ID Generator](../SystemDesign/designs/unique-id-generator.md)).
 
 So for correctness we track **causality**, not physical time.
 
@@ -61,7 +61,7 @@ Compare two vectors:
 - Neither dominates → **concurrent** (a genuine conflict).
 
 This is why Dynamo-style stores use vector clocks to tell "this write supersedes that one" from "two
-writes conflict, ask the app to merge" - see [key-value-store.md](../SystemDesign/designs/key-value-store.md).
+writes conflict, ask the app to merge" - see [Key-Value Store](../SystemDesign/designs/key-value-store.md).
 Cost: the vector grows with the number of nodes (truncate stale entries).
 
 ---
@@ -76,7 +76,7 @@ Cost: the vector grows with the number of nodes (truncate stale entries).
 | Strong global ordering across nodes | consensus (Raft/Paxos) - see below |
 
 For a strict, agreed-upon order (a replicated log, leader election), you need **consensus**
-(Raft/Paxos), covered in [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
+(Raft/Paxos), covered in [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md).
 Some systems (Google Spanner) use tightly-bounded physical clocks (TrueTime) to order globally - the
 exception that proves how hard clock-based ordering is.
 
@@ -92,7 +92,7 @@ exception that proves how hard clock-based ordering is.
 
 ## Related
 
-- Q&A drills: [qa-databases.md](../QA-Bank/qa-databases.md) · [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
-- Consensus, replication, CAP → [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md)
-- Vector clocks in a KV store → [key-value-store.md](../SystemDesign/designs/key-value-store.md)
-- Snowflake clock skew → [unique-id-generator.md](../SystemDesign/designs/unique-id-generator.md)
+- Q&A drills: [Databases Q&A](../QA-Bank/qa-databases.md) · [System Design Concepts Q&A](../QA-Bank/qa-system-design-concepts.md)
+- Consensus, replication, CAP → [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md)
+- Vector clocks in a KV store → [Key-Value Store](../SystemDesign/designs/key-value-store.md)
+- Snowflake clock skew → [Unique ID Generator](../SystemDesign/designs/unique-id-generator.md)

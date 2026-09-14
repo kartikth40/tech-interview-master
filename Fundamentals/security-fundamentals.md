@@ -50,7 +50,7 @@ Argon2** - deliberately expensive to brute-force.
 - **Work factor** should scale up over time as hardware gets faster.
 
 This is the "third category" of hashing - see the hash-vs-crypto-vs-password breakdown in
-[hashing.md](hashing.md).
+[Hashing](hashing.md).
 
 ---
 
@@ -88,7 +88,7 @@ Caps how often a client can act - protects against brute-force, scraping, and ab
 backpressure. Common algorithms: **token bucket** (allows bursts), **leaky bucket** (smooths),
 **fixed/sliding window** (counts per interval). Usually keyed by IP, API key, or user, backed by
 Redis for a distributed counter. Return `429 Too Many Requests` with a `Retry-After` header.
-System-design context: [SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
+System-design context: [System Design Guide](../SystemDesign/SystemDesignGuide.md).
 
 ---
 
@@ -122,7 +122,7 @@ AWS Secrets Manager, KMS-encrypted config), inject at runtime via env vars or mo
 
 ## Related
 
-- Q&A drills: [qa-security.md](../QA-Bank/qa-security.md)
-- Password hashing, HMAC, crypto-vs-table hash → [hashing.md](hashing.md)
-- TLS handshake, HTTPS → [networking.md](networking.md)
-- Rate limiting in system design → [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md)
+- Q&A drills: [Security Q&A](../QA-Bank/qa-security.md)
+- Password hashing, HMAC, crypto-vs-table hash → [Hashing](hashing.md)
+- TLS handshake, HTTPS → [Networking](networking.md)
+- Rate limiting in system design → [System Design Guide](../SystemDesign/SystemDesignGuide.md)

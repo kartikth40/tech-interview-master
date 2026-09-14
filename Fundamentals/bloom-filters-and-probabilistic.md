@@ -29,9 +29,9 @@ contains(x): FOR i in 1..k: IF bits[h_i(x) % m] == 0: RETURN "no"
   **counting bloom filter** uses small counters instead of bits to allow deletion.
 
 **When to use:** a cheap gate before an expensive operation. Examples: LSM-tree/SSTable "does this
-key exist here?" (skip the disk read if not) - see [databases-internals.md](databases-internals.md);
+key exist here?" (skip the disk read if not) - see [Database Internals](databases-internals.md);
 "have I seen this URL?" in a [web crawler](../SystemDesign/designs/web-crawler.md); "is this username
-taken?" pre-check. Built on hash functions - see [hashing.md](hashing.md).
+taken?" pre-check. Built on hash functions - see [Hashing](hashing.md).
 
 ---
 
@@ -80,7 +80,7 @@ known error bound beats an out-of-memory failure.
 
 ## Related
 
-- Q&A drills: [qa-hashing.md](../QA-Bank/qa-hashing.md)
-- Hash functions (the building block) → [hashing.md](hashing.md)
-- SSTable/LSM use of bloom filters → [databases-internals.md](databases-internals.md)
-- Web crawler "seen URL" filter → [SystemDesign/designs/web-crawler.md](../SystemDesign/designs/web-crawler.md)
+- Q&A drills: [Hashing Q&A](../QA-Bank/qa-hashing.md)
+- Hash functions (the building block) → [Hashing](hashing.md)
+- SSTable/LSM use of bloom filters → [Database Internals](databases-internals.md)
+- Web crawler "seen URL" filter → [Web Crawler](../SystemDesign/designs/web-crawler.md)

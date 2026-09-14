@@ -1,5 +1,5 @@
 # Notification System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -145,7 +145,7 @@ Templates live in a template store (versioned) so content is separated from code
 Third-party providers are slow and rate-limited, and campaigns are bursty. A queue between the API
 and channel workers **decouples** producers from providers, **absorbs spikes** (buffer), and enables
 **retries/backpressure**. Producers return immediately after enqueuing. See
-[message-queues.md](../components/message-queues.md).
+[Message Queues](../components/message-queues.md).
 
 ### Deep Dive 2: Reliability - retries, idempotency, DLQ
 Delivery is **at-least-once**, so a message can be retried and delivered twice. Make it safe:
@@ -153,7 +153,7 @@ Delivery is **at-least-once**, so a message can be retried and delivered twice. 
 - **Retry with backoff** on transient provider errors; after N attempts move to a **dead-letter
   queue** for inspection.
 This is the delivery-semantics discussion - see
-[qa-concurrency.md](../../QA-Bank/qa-concurrency.md) (at-least/at-most/exactly-once).
+[Concurrency Q&A](../../QA-Bank/qa-concurrency.md) (at-least/at-most/exactly-once).
 
 ### Deep Dive 3: Fan-out for campaigns
 Sending to 10M users can't be one giant transaction. A fan-out service reads the audience, chunks it,
@@ -163,7 +163,7 @@ drain the queue.
 ### Deep Dive 4: User preferences, opt-outs, and rate limiting
 Before sending, check the user's channel prefs and opt-outs (legal requirement for marketing).
 Apply per-user rate limiting so a buggy producer can't spam one user (reuse the
-[rate-limiter](rate-limiter.md) design). Quiet hours / frequency caps live here too.
+[Rate Limiter](rate-limiter.md) design). Quiet hours / frequency caps live here too.
 
 ### Deep Dive 5: Delivery status tracking
 Providers send async delivery receipts (webhooks) - update the `deliveries` row from
@@ -206,6 +206,6 @@ decisions.
 3. ✅ **User prefs/opt-outs + per-user rate limiting**.
 4. ✅ **Fan-out service** for campaigns; priority separation from transactional sends.
 
-**Related:** [message-queues.md](../components/message-queues.md) ·
-[rate-limiter.md](rate-limiter.md) ·
-[qa-concurrency.md](../../QA-Bank/qa-concurrency.md)
+**Related:** [Message Queues](../components/message-queues.md) ·
+[Rate Limiter](rate-limiter.md) ·
+[Concurrency Q&A](../../QA-Bank/qa-concurrency.md)

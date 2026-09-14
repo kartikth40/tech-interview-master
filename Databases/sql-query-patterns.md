@@ -1,8 +1,8 @@
 # 📝 SQL Query Patterns
 
 > The query shapes interviewers ask again and again (LeetCode SQL 50 style). Each has a worked query
-> + **what it's testing**. Theory behind them: [sql-theory-qa.md](sql-theory-qa.md). Drill:
-> [query-practice-set.md](query-practice-set.md).
+> + **what it's testing**. Theory behind them: [SQL Theory Q&A](sql-theory-qa.md). Drill:
+> [Query Practice Set](query-practice-set.md).
 
 Sample schema used below:
 ```sql
@@ -76,7 +76,7 @@ for clarity; know both.
 
 ---
 
-## Window functions (the SDE-2 differentiator)
+## Window functions (the mid-level differentiator)
 
 ```sql
 -- Rank employees by salary within each department
@@ -173,6 +173,6 @@ questions.
 
 ## Related
 
-- Theory behind these → [sql-theory-qa.md](sql-theory-qa.md)
-- Timed practice → [query-practice-set.md](query-practice-set.md)
-- Q&A → [QA-Bank/qa-databases.md](../QA-Bank/qa-databases.md)
+- Theory behind these → [SQL Theory Q&A](sql-theory-qa.md)
+- Timed practice → [Query Practice Set](query-practice-set.md)
+- Q&A → [Databases Q&A](../QA-Bank/qa-databases.md)

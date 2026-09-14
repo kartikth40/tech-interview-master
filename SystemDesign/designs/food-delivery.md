@@ -1,5 +1,5 @@
 # Food Delivery System Design (Swiggy/Zomato)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 

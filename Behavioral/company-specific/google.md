@@ -337,7 +337,7 @@ Result: Next launch successful, team won company award
 
 2. **Show learning from everything**
    - Every STAR story should end with "I learned..."
-   - Growth mindset is critical (note: the Action section is still 50-60% of the answer and must be in "I" - see [BehavioralGuide.md](../BehavioralGuide.md))
+   - Growth mindset is critical (note: the Action section is still 50-60% of the answer and must be in "I" - see [Behavioral Guide](../BehavioralGuide.md))
 
 3. **Be comfortable saying "I don't know, but..."**
    - "I don't know, but I'd start by researching X and Y"

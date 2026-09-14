@@ -2,7 +2,7 @@
 
 > One-line definitions for warm-up or last-minute review. Cover the term, then check. For depth,
 > jump to the matching [Fundamentals](../Fundamentals/) note or the topic Q&A file. Format legend:
-> [QA-Bank/README.md](README.md).
+> [Overview](README.md).
 
 Each entry: **term** - a one-sentence answer you could say in an interview.
 
@@ -51,4 +51,4 @@ Each entry: **term** - a one-sentence answer you could say in an interview.
 ---
 
 **Related:** [QA-Bank index](README.md) · [Fundamentals](../Fundamentals/) ·
-[SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md)
+[System Design Guide](../SystemDesign/SystemDesignGuide.md)

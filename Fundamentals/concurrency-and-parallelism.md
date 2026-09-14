@@ -146,7 +146,7 @@ Quick decision guide:
   or timestamp). If it did, retry. Great when conflicts are rare; wasteful when they're frequent.
 
 This maps directly to database concurrency control (MVCC is optimistic-flavored) →
-[databases-internals.md](databases-internals.md).
+[Database Internals](databases-internals.md).
 
 ---
 
@@ -161,7 +161,7 @@ This maps directly to database concurrency control (MVCC is optimistic-flavored)
 
 ## Related
 
-- Q&A drills: [qa-concurrency.md](../QA-Bank/qa-concurrency.md)
-- Optimistic locking / MVCC → [databases-internals.md](databases-internals.md)
-- OS scheduling & context switches → [operating-systems.md](operating-systems.md)
-- Distributed coordination (consensus, sagas) → [SystemDesign/DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md)
+- Q&A drills: [Concurrency Q&A](../QA-Bank/qa-concurrency.md)
+- Optimistic locking / MVCC → [Database Internals](databases-internals.md)
+- OS scheduling & context switches → [Operating Systems](operating-systems.md)
+- Distributed coordination (consensus, sagas) → [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md)

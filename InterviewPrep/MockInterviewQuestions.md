@@ -593,5 +593,5 @@ Good luck! 🚀
 
 **Next Steps:**
 - Schedule first mock interview today
-- Review [8-Week Study Plan](StudyPlan-8weeks.md) for context
+- Review [10-Week Study Plan](StudyPlan-10weeks.md) for context
 - Prepare STAR stories from [Behavioral Guide](../Behavioral/BehavioralGuide.md)

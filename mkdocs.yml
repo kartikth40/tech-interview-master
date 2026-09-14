@@ -1,5 +1,5 @@
 site_name: Tech Interview Master
-site_description: SDE-1/SDE-2 interview prep - DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases. Runnable Python, 21 real system designs, ~194 conceptual Q&A.
+site_description: Interview prep - DSA, System Design, Behavioral, CS Fundamentals, Q&A, Databases. Runnable Python, 21 real system designs, ~194 conceptual Q&A.
 site_author: kartikth40
 site_url: https://kartikth40.github.io/tech-interview-master/
 repo_url: https://github.com/kartikth40/tech-interview-master
@@ -16,9 +16,13 @@ extra:
   generator: false
 
 extra_css:
+  # highlight.js theme - only applies inside the .py modal (the only place using .hljs)
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css
   - assets/extra.css
 
 extra_javascript:
+  # highlight.js core (bundles Python) - loads before extra.js so window.hljs exists
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js
   - assets/extra.js
 
 # Use the existing Markdown in place (no separate docs/ folder, no content duplication).
@@ -113,6 +117,8 @@ markdown_extensions:
       check_paths: true
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -235,7 +241,7 @@ nav:
       - India-Specific: Behavioral/company-specific/india-specific.md
       - Indian Startups: Behavioral/company-specific/indian-startups.md
   - Interview Prep:
-      - 8-Week Study Plan: InterviewPrep/StudyPlan-8weeks.md
+      - 10-Week Study Plan: InterviewPrep/StudyPlan-10weeks.md
       - Company-Specific: InterviewPrep/CompanySpecific.md
       - India-Specific: InterviewPrep/India-Specific.md
       - Mock Questions: InterviewPrep/MockInterviewQuestions.md

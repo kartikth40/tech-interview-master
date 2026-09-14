@@ -313,7 +313,7 @@ Learning: MVP mindset + parallelization = speed without sacrificing quality
 ### **Common Razorpay Interview Questions**
 
 1. **"How would you design a payment gateway?"** (System Design)
-   - See: [payment-gateway.md](../../SystemDesign/designs/payment-gateway.md)
+   - See: [Payment Gateway](../../SystemDesign/designs/payment-gateway.md)
 
 2. **"Tell me about handling PCI-DSS compliance"**
    - Focus: Security, compliance, attention to detail
@@ -595,7 +595,7 @@ Learning: In startups, "not my job" doesn't exist
 ### **Common Zepto Interview Questions**
 
 1. **"Design a 10-minute delivery system"** (System Design)
-   - See: [food-delivery.md](../../SystemDesign/designs/food-delivery.md)
+   - See: [Food Delivery](../../SystemDesign/designs/food-delivery.md)
 
 2. **"How do you prioritize when everything is urgent?"**
    - Hyper-growth = constant firefighting
@@ -982,5 +982,5 @@ Startups fail often. Show you can bounce back:
 
 **Good luck with Indian startup interviews! 🚀**
 
-For general India interview tips, see: [india-specific.md](india-specific.md)  
-For MAANG in India, see: [India-Specific.md](../../InterviewPrep/India-Specific.md)
+For general India interview tips, see: [India-Specific Guide](india-specific.md)  
+For MAANG in India, see: [India-Specific Guide](../../InterviewPrep/India-Specific.md)

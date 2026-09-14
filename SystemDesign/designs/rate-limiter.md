@@ -1,5 +1,5 @@
 # Rate Limiter System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -168,7 +168,7 @@ FUNCTION allowDistributed(clientId, limit, windowSec):
 Two servers reading a counter, both seeing "99 < 100", both allowing → 101 through. Fix by making
 the check-and-increment atomic: Redis `INCR` for windowed counters, or a Lua script that does the
 whole token-bucket update server-side. See
-[concurrency-and-parallelism.md](../../Fundamentals/concurrency-and-parallelism.md) for the
+[Concurrency & Parallelism](../../Fundamentals/concurrency-and-parallelism.md) for the
 underlying race.
 
 ### Deep Dive 2: Fail-open vs fail-closed
@@ -217,6 +217,6 @@ applies coarse per-IP limits; services apply per-user/per-endpoint limits. Retur
 3. ✅ Enforce at **gateway (coarse) + service (fine)**.
 4. ✅ Return **429 + Retry-After**; decide **fail-open vs fail-closed**.
 
-**Related:** [SystemDesignGuide.md](../SystemDesignGuide.md) ·
-[security-fundamentals.md](../../Fundamentals/security-fundamentals.md) ·
-[qa-system-design-concepts.md](../../QA-Bank/qa-system-design-concepts.md)
+**Related:** [System Design Guide](../SystemDesignGuide.md) ·
+[Security Fundamentals](../../Fundamentals/security-fundamentals.md) ·
+[System Design Concepts Q&A](../../QA-Bank/qa-system-design-concepts.md)

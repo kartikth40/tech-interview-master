@@ -1,7 +1,7 @@
 # ❓ Security - Q&A
 
-> Pairs with [Fundamentals/security-fundamentals.md](../Fundamentals/security-fundamentals.md).
-> Format and tag legend: [QA-Bank/README.md](README.md).
+> Pairs with [Security Fundamentals](../Fundamentals/security-fundamentals.md).
+> Format and tag legend: [Overview](README.md).
 
 ---
 
@@ -95,5 +95,5 @@
 
 ---
 
-**Related:** [Fundamentals/security-fundamentals.md](../Fundamentals/security-fundamentals.md) ·
-[qa-networking.md](qa-networking.md) · [qa-hashing.md](qa-hashing.md)
+**Related:** [Security Fundamentals](../Fundamentals/security-fundamentals.md) ·
+[Networking Q&A](qa-networking.md) · [Hashing Q&A](qa-hashing.md)

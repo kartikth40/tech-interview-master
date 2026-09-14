@@ -1,5 +1,5 @@
 # Distributed Key-Value Store System Design (Dynamo-style)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -114,8 +114,8 @@ node change remaps only ~K/N keys). ASCII ring + node view below.
 Place nodes and keys on a hash ring; a key's replicas are the next N nodes clockwise. Adding/removing
 a node only remaps ~K/N keys instead of nearly all (which `hash mod N` would). **Virtual nodes**
 (many ring positions per physical node) even out load and let you weight bigger nodes. Full treatment:
-[database-sharding.md](../components/database-sharding.md) and
-[hashing.md](../../Fundamentals/hashing.md).
+[Database Sharding](../components/database-sharding.md) and
+[Hashing](../../Fundamentals/hashing.md).
 
 ### Deep Dive 2: Replication + quorum (tunable consistency)
 Each key is replicated to N nodes. A write succeeds after **W** acks; a read waits for **R** responses.
@@ -126,7 +126,7 @@ If **W + R > N**, read and write sets overlap, guaranteeing a read sees the late
 - `W=quorum, R=quorum` → balanced (e.g. N=3, W=2, R=2).
 
 This is the CAP/PACELC dial in practice - see
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
+[Distributed Systems](../DistributedSystemsConcepts.md).
 
 ### Deep Dive 3: Versioning with vector clocks (conflict resolution)
 With multiple writable replicas, two clients can update the same key concurrently. A **vector clock**
@@ -145,7 +145,7 @@ supersedes another or they genuinely **conflict**. Conflicts are resolved by las
 ### Deep Dive 5: Storage engine
 Each node typically uses an **LSM-tree** (memtable + sorted SSTables + compaction) for fast writes,
 with a **bloom filter** per SSTable to skip files that can't contain a key. See indexing in
-[databases-internals.md](../../Fundamentals/databases-internals.md).
+[Database Internals](../../Fundamentals/databases-internals.md).
 
 ---
 
@@ -183,7 +183,7 @@ with a **bloom filter** per SSTable to skip files that can't contain a key. See 
 4. ✅ **Hinted handoff + read repair + Merkle anti-entropy** for failures.
 5. ✅ **LSM-tree + bloom filters** per node for write-heavy storage.
 
-**Related:** [DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md) ·
-[database-sharding.md](../components/database-sharding.md) ·
-[databases-internals.md](../../Fundamentals/databases-internals.md) ·
-[hashing.md](../../Fundamentals/hashing.md)
+**Related:** [Distributed Systems](../DistributedSystemsConcepts.md) ·
+[Database Sharding](../components/database-sharding.md) ·
+[Database Internals](../../Fundamentals/databases-internals.md) ·
+[Hashing](../../Fundamentals/hashing.md)

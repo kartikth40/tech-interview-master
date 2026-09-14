@@ -68,7 +68,7 @@ TLS runs on top of TCP to give **encryption, integrity, and server authenticatio
 4. Bulk data is encrypted with that fast symmetric key.
 
 The pattern - **asymmetric crypto to bootstrap, symmetric to transfer** - recurs everywhere. Deeper
-crypto detail lives in [security-fundamentals.md](security-fundamentals.md). TLS 1.3 cut the
+crypto detail lives in [Security Fundamentals](security-fundamentals.md). TLS 1.3 cut the
 handshake to one round trip (0-RTT for resumption).
 
 ---
@@ -94,7 +94,7 @@ The end-to-end walk that ties the stack together:
 6. **Server** processes (maybe hitting caches/CDN, load balancer, app, DB) and responds.
 7. **Browser** renders - parse HTML, fetch sub-resources (often multiplexed), run JS.
 
-Great answer hooks: CDN/cache at step 6, load balancing (→ [load-balancer](../SystemDesign/components/load-balancer.md)),
+Great answer hooks: CDN/cache at step 6, load balancing (→ [Load Balancer](../SystemDesign/components/load-balancer.md)),
 and connection reuse (keep-alive, HTTP/2).
 
 ---
@@ -146,8 +146,8 @@ dynamic responses briefly. Deeper treatment with caching strategies:
 
 ## Related
 
-- Q&A drills: [qa-networking.md](../QA-Bank/qa-networking.md)
-- TLS crypto, certs, attacks → [security-fundamentals.md](security-fundamentals.md)
-- Load balancing → [SystemDesign/components/load-balancer.md](../SystemDesign/components/load-balancer.md)
-- CDN / caching → [SystemDesign/components/caching.md](../SystemDesign/components/caching.md)
-- Latency numbers (RTT, cross-region) → [latency-numbers-and-estimation.md](latency-numbers-and-estimation.md)
+- Q&A drills: [Networking Q&A](../QA-Bank/qa-networking.md)
+- TLS crypto, certs, attacks → [Security Fundamentals](security-fundamentals.md)
+- Load balancing → [Load Balancer](../SystemDesign/components/load-balancer.md)
+- CDN / caching → [Caching](../SystemDesign/components/caching.md)
+- Latency numbers (RTT, cross-region) → [Latency Numbers & Estimation](latency-numbers-and-estimation.md)

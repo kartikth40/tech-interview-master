@@ -304,7 +304,7 @@ Pick 2 out of 3:
 ### **10. Rate Limiting**
 
 Protects services from abuse and overload by capping requests per client per time window. A classic
-standalone SDE-2 design question ("design a rate limiter"). Know the main algorithms:
+standalone design question ("design a rate limiter"). Know the main algorithms:
 
 | Algorithm | How it works | Trade-off |
 |-----------|--------------|-----------|

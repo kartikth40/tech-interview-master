@@ -2,7 +2,7 @@
 
 ## Why This Matters
 
-Every system design interview at SDE-2 level will probe your understanding of distributed systems. These concepts come up in almost every design - knowing them deeply separates good answers from great ones.
+Mid-level and up, every system design interview will probe your understanding of distributed systems. These concepts come up in almost every design - knowing them deeply separates good answers from great ones.
 
 ---
 
@@ -259,7 +259,7 @@ Caching strategies (cache-aside, write-through, write-behind), eviction policies
 cache stampede, hot keys, and **consistent hashing** for distributing keys across cache nodes are
 covered in depth in the dedicated component doc:
 
-➡️ **[components/caching.md](components/caching.md)**
+➡️ **[Caching](components/caching.md)**
 
 Two distributed-systems points worth remembering here:
 - **Consistent hashing** remaps only ~K/N keys when a node is added/removed (vs `hash(key) % N`, which remaps almost everything). Virtual nodes even out the distribution.

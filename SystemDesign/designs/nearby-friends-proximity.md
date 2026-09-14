@@ -1,5 +1,5 @@
 # Nearby Friends / Proximity Service System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -92,7 +92,7 @@ the map. On demand, `GET /nearby` reads friends' cached locations and filters by
 To answer "who/what is near this point," encode locations with a **geohash** (a string prefix where
 nearby points share prefixes) or a **quadtree** (recursively subdivided cells). Both let you query a
 cell + neighbors instead of scanning everything. Redis `GEO` commands (backed by geohash) give
-`GEOSEARCH ... BYRADIUS` out of the box. Uber uses similar grid indexing - see [uber.md](uber.md).
+`GEOSEARCH ... BYRADIUS` out of the box. Uber uses similar grid indexing - see [Uber](uber.md).
 
 ### Deep Dive 2: Handling the write storm
 2M updates/sec is the hard part. Mitigations: **adaptive update frequency** (send less often when
@@ -109,7 +109,7 @@ friends, batch updates over a short window to cut message volume.
 Location is sensitive: sharing is **opt-in and granular** (per friend / ghost mode / precise vs
 approximate). If a user goes invisible, stop publishing and drop their cached location. Never expose
 location to non-friends. This is a first-class requirement, not an afterthought - see
-[security-fundamentals.md](../../Fundamentals/security-fundamentals.md).
+[Security Fundamentals](../../Fundamentals/security-fundamentals.md).
 
 ### Deep Dive 5: Staleness & TTL
 Store current location with a short **TTL** so a user who goes offline simply disappears (their key
@@ -149,6 +149,6 @@ expires) rather than showing a stale position. Freshness beats history here.
 3. ✅ Handle the **write storm**: adaptive frequency, latest-only + TTL, shard by user.
 4. ✅ **Pub/sub + WebSocket** for real-time delivery; **privacy** (opt-in, ghost mode) first-class.
 
-**Related:** [uber.md](uber.md) ·
-[security-fundamentals.md](../../Fundamentals/security-fundamentals.md) ·
-[caching.md](../components/caching.md)
+**Related:** [Uber](uber.md) ·
+[Security Fundamentals](../../Fundamentals/security-fundamentals.md) ·
+[Caching](../components/caching.md)

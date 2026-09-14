@@ -1,5 +1,5 @@
 # Web Crawler System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -106,7 +106,7 @@ The frontier is essentially a two-level queue: prioritizer → per-host queues.
 Billions of URLs won't fit checking a DB per link. Use a **bloom filter** in memory as a cheap
 pre-check: "definitely not seen" → enqueue; "maybe seen" → confirm against the URL store. No false
 negatives means we never re-crawl by mistake. See
-[hashing.md](../../Fundamentals/hashing.md).
+[Hashing](../../Fundamentals/hashing.md).
 
 ### Deep Dive 3: Politeness via robots.txt
 Fetch and cache each host's `robots.txt`; honor `Disallow` rules and `Crawl-delay`. Identify with a
@@ -160,6 +160,6 @@ politeness correct without cross-node coordination and scales horizontally.
 3. ✅ Respect **robots.txt** + crawl-delay; distributed fetchers sharded by host.
 4. ✅ Handle **traps, freshness, DNS caching**.
 
-**Related:** [hashing.md](../../Fundamentals/hashing.md) ·
-[message-queues.md](../components/message-queues.md) ·
-[qa-system-design-concepts.md](../../QA-Bank/qa-system-design-concepts.md)
+**Related:** [Hashing](../../Fundamentals/hashing.md) ·
+[Message Queues](../components/message-queues.md) ·
+[System Design Concepts Q&A](../../QA-Bank/qa-system-design-concepts.md)

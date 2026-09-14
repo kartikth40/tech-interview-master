@@ -1,7 +1,7 @@
 # ❓ Hashing - Q&A
 
-> Pairs with [Fundamentals/hashing.md](../Fundamentals/hashing.md). Format and tag legend:
-> [QA-Bank/README.md](README.md).
+> Pairs with [Hashing](../Fundamentals/hashing.md). Format and tag legend:
+> [Overview](README.md).
 
 ---
 
@@ -36,7 +36,7 @@
 > **Q5. What problem does consistent hashing solve?**
 > Naive `hash(key) mod N` remaps almost every key when N changes - catastrophic for caches/sharding.
 > Consistent hashing puts nodes and keys on a ring so adding/removing a node only remaps ~K/N keys.
-> See [database-sharding.md](../SystemDesign/components/database-sharding.md).
+> See [Database Sharding](../SystemDesign/components/database-sharding.md).
 > *Follow-ups:* What do virtual nodes fix? (uneven distribution + weighting.)
 > `Hard` · `Amazon`
 
@@ -89,5 +89,5 @@
 
 ---
 
-**Related:** [Fundamentals/hashing.md](../Fundamentals/hashing.md) ·
-[qa-databases.md](qa-databases.md) · [qa-caching.md](qa-caching.md) · [qa-security.md](qa-security.md)
+**Related:** [Hashing](../Fundamentals/hashing.md) ·
+[Databases Q&A](qa-databases.md) · [Caching Q&A](qa-caching.md) · [Security Q&A](qa-security.md)

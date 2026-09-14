@@ -1,5 +1,5 @@
 # Ad Click Aggregation System Design (Streaming Analytics)
-> **SDE-2 Interview Ready** | 45-minute format · *advanced / Xu Vol 2*
+> **Interview Ready** | 45-minute format · *advanced / Xu Vol 2*
 
 ## Problem Statement
 
@@ -68,7 +68,7 @@ Events arrive late (network, mobile offline). Using **event time** (when the cli
 **processing time**, the processor holds a window open a little longer via a **watermark** before
 finalizing it, so late events still count. There's a lag-vs-completeness trade-off - how long do you
 wait? See time/ordering discussion in
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
+[Distributed Systems](../DistributedSystemsConcepts.md).
 
 ### Deep Dive 3: Exactly-once / no double-counting (billing)
 Advertisers are billed, so double-counting = overcharging. Achieve effective exactly-once with:
@@ -77,7 +77,7 @@ Advertisers are billed, so double-counting = overcharging. Achieve effective exa
 - **Checkpointed offsets + transactional output:** the processor commits its input offset and its
   aggregate output atomically, so a crash-and-replay doesn't recount.
 This is the at-least-once + idempotency pattern applied to aggregation - see
-[qa-concurrency.md](../../QA-Bank/qa-concurrency.md).
+[Concurrency Q&A](../../QA-Bank/qa-concurrency.md).
 
 ### Deep Dive 4: Lambda vs Kappa architecture
 - **Lambda:** a fast streaming path for near-real-time (approximate) + a batch path over the raw
@@ -125,6 +125,6 @@ overwhelm a single aggregator.
 3. ✅ **Idempotent dedup + checkpointing** for billing-grade correctness.
 4. ✅ **Lambda vs Kappa**; **hot-key sub-sharding** for skew.
 
-**Related:** [message-queues.md](../components/message-queues.md) ·
-[distributed-message-queue.md](distributed-message-queue.md) ·
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md)
+**Related:** [Message Queues](../components/message-queues.md) ·
+[Distributed Message Queue](distributed-message-queue.md) ·
+[Distributed Systems](../DistributedSystemsConcepts.md)

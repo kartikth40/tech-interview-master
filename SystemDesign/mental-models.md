@@ -74,7 +74,7 @@ flowchart LR
 
 Full method + the latency numbers to memorize:
 [Latency & Estimation](../Fundamentals/latency-numbers-and-estimation.md) ·
-[SystemDesignGuide](SystemDesignGuide.md).
+[System Design Guide](SystemDesignGuide.md).
 
 ---
 
@@ -195,8 +195,8 @@ Detail: [Distributed Systems (CAP/PACELC)](DistributedSystemsConcepts.md) ·
 
 ## Related
 
-- Detailed framework + numbers → [SystemDesignGuide.md](SystemDesignGuide.md)
+- Detailed framework + numbers → [System Design Guide](SystemDesignGuide.md)
 - Real designs → [designs/](designs/url-shortener.md)
-- Components → [caching](components/caching.md) · [sharding](components/database-sharding.md) · [load balancer](components/load-balancer.md)
-- Distributed concepts → [DistributedSystemsConcepts.md](DistributedSystemsConcepts.md)
+- Components → [Caching](components/caching.md) · [sharding](components/database-sharding.md) · [load balancer](components/load-balancer.md)
+- Distributed concepts → [Distributed Systems](DistributedSystemsConcepts.md)
 - DSA thinking layer → [DSA Mental Models](../DSA/mental-models.md)

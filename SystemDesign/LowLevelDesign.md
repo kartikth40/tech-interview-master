@@ -2,7 +2,7 @@
 
 ## What is LLD?
 
-Low-Level Design focuses on the **code-level architecture** of a system - class diagrams, design patterns, interfaces, and object relationships. LLD interviews are common at SDE-1/2 level and test your ability to translate requirements into clean, extensible code.
+Low-Level Design focuses on the **code-level architecture** of a system - class diagrams, design patterns, interfaces, and object relationships. LLD interviews are common at the entry-to-mid level and test your ability to translate requirements into clean, extensible code.
 
 > 🧭 Prefer the *visual* thinking layer - the modeling process as a flowchart, a "which pattern?"
 > decision tree, a SOLID-fix map, and a UML class-diagram example? See

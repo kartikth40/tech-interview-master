@@ -24,7 +24,7 @@
 
 **Rule of thumb:** JSON at the edge (public APIs, debuggability), binary + schema internally where
 volume and speed matter. gRPC's use of Protobuf is covered in
-[APIDesignPatterns.md](../SystemDesign/APIDesignPatterns.md) - this note is about the
+[API Design Patterns](../SystemDesign/APIDesignPatterns.md) - this note is about the
 *schema-evolution* angle, not re-explaining gRPC.
 
 ---
@@ -87,7 +87,7 @@ push a breaking change), which is how large event-driven systems avoid breaking 
 
 ## Related
 
-- Q&A drills: [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
-- gRPC / Protobuf in APIs → [SystemDesign/APIDesignPatterns.md](../SystemDesign/APIDesignPatterns.md)
-- Kafka event compatibility → [distributed-message-queue.md](../SystemDesign/designs/distributed-message-queue.md)
-- Idempotency & delivery (why event dedup matters) → [idempotency-and-delivery-semantics.md](idempotency-and-delivery-semantics.md)
+- Q&A drills: [System Design Concepts Q&A](../QA-Bank/qa-system-design-concepts.md)
+- gRPC / Protobuf in APIs → [API Design Patterns](../SystemDesign/APIDesignPatterns.md)
+- Kafka event compatibility → [Distributed Message Queue](../SystemDesign/designs/distributed-message-queue.md)
+- Idempotency & delivery (why event dedup matters) → [Idempotency & Delivery Semantics](idempotency-and-delivery-semantics.md)

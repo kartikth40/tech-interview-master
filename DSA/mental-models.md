@@ -99,7 +99,7 @@ When the flowchart isn't obvious, these phrase-level signals almost always point
 | "max/min/count ways", overlapping states | **Dynamic Programming** | memoize subproblems |
 | "min coins / max profit", local optimum works | **Greedy** | prove exchange argument |
 
-Full keyword table: [DSAQuickLookup.md](DSAQuickLookup.md).
+Full keyword table: [DSA Quick Lookup](DSAQuickLookup.md).
 
 ---
 
@@ -268,6 +268,6 @@ Watch the recognition process, not just the answer. In each, the **signal** does
 
 ## Related
 
-- Keyword → pattern table → [DSAQuickLookup.md](DSAQuickLookup.md)
-- Intuition + when-to-use per pattern → [DSACompleteGuide.md](DSACompleteGuide.md)
+- Keyword → pattern table → [DSA Quick Lookup](DSAQuickLookup.md)
+- Intuition + when-to-use per pattern → [DSA Complete Guide](DSACompleteGuide.md)
 - Runnable implementations → [Code Library](code-library/patterns.md)

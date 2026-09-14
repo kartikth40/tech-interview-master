@@ -1,5 +1,5 @@
 # Distributed Message Queue System Design (Kafka-style)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -7,7 +7,7 @@ Design a distributed message queue / streaming platform like Kafka: producers pu
 consumers read them, with durability, ordering, and horizontal scale.
 
 > This is the **design-level** treatment. For the "when to use a queue / queue vs pub-sub" concept
-> overview, see the component doc: [message-queues.md](../components/message-queues.md).
+> overview, see the component doc: [Message Queues](../components/message-queues.md).
 
 ---
 
@@ -93,7 +93,7 @@ consumers than partitions.)
 Each partition has a **leader** and N-1 **followers**. Producers can require acks from a quorum
 (in-sync replicas) before a write is considered committed - trading latency for durability. If a
 leader dies, a follower is promoted. This is leader-follower replication applied per partition. See
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
+[Distributed Systems](../DistributedSystemsConcepts.md).
 
 ### Deep Dive 4: Delivery semantics
 - **At-most-once:** commit offset before processing → crash loses the message.
@@ -142,6 +142,6 @@ its own offsets) - that's how one stream feeds many services.
 3. ✅ **Leader/follower replication** + in-sync-replica acks for durability.
 4. ✅ **Consumer groups** with rebalancing; at-least-once + idempotency for delivery.
 
-**Related:** [message-queues.md](../components/message-queues.md) ·
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md) ·
-[qa-system-design-concepts.md](../../QA-Bank/qa-system-design-concepts.md)
+**Related:** [Message Queues](../components/message-queues.md) ·
+[Distributed Systems](../DistributedSystemsConcepts.md) ·
+[System Design Concepts Q&A](../../QA-Bank/qa-system-design-concepts.md)

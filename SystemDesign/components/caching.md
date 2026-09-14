@@ -176,7 +176,7 @@ END EVERY
 
 Evict the entry that was accessed longest ago. Implemented with a hash map + doubly linked list
 (or an ordered map) for O(1) get/put - see the worked implementation in
-[DSA/data-structures/design/lru_cache.py](../../DSA/data-structures/design/lru_cache.py).
+[LRU Cache](../../DSA/data-structures/design/lru_cache.py).
 
 **Pros:** Evicts truly unused data  
 **Cons:** Doesn't account for access frequency  
@@ -419,7 +419,7 @@ Map both nodes and keys onto a hash ring; a key belongs to the first node clockw
 removing a node only remaps ~1/N of keys (vs `hash(key) % N`, which remaps almost everything).
 Use **virtual nodes** (e.g. 150 per physical node) for even distribution. Lookup is O(log N) via
 binary search over the sorted ring. See the worked pseudocode in
-[designs/distributed-cache.md](../designs/distributed-cache.md).
+[Distributed Cache](../designs/distributed-cache.md).
 
 ---
 

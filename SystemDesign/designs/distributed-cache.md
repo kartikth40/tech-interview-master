@@ -1,5 +1,5 @@
 # Distributed Cache System Design (Redis/Memcached)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 

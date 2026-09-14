@@ -1,7 +1,7 @@
 # ❓ Concurrency & Parallelism - Q&A
 
-> Pairs with [Fundamentals/concurrency-and-parallelism.md](../Fundamentals/concurrency-and-parallelism.md).
-> Format and tag legend: [QA-Bank/README.md](README.md).
+> Pairs with [Concurrency & Parallelism](../Fundamentals/concurrency-and-parallelism.md).
+> Format and tag legend: [Overview](README.md).
 
 ---
 
@@ -161,5 +161,5 @@
 
 ---
 
-**Related:** [Fundamentals/concurrency-and-parallelism.md](../Fundamentals/concurrency-and-parallelism.md) ·
-[qa-operating-systems.md](qa-operating-systems.md) · [qa-language-python.md](qa-language-python.md)
+**Related:** [Concurrency & Parallelism](../Fundamentals/concurrency-and-parallelism.md) ·
+[Operating Systems Q&A](qa-operating-systems.md) · [Python Language Q&A](qa-language-python.md)

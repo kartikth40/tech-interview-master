@@ -11,7 +11,7 @@
 
     This file is the **drilling companion**; the estimation *step* within the interview framework and
     the full memorized table live in
-    [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
+    [System Design Guide](../SystemDesign/SystemDesignGuide.md).
 
 ---
 
@@ -49,7 +49,7 @@ A compact recall set (approximate, orders of magnitude - that's the point):
 
 **Takeaways to say out loud:** memory is ~100,000× faster than a disk seek; a network round trip
 across regions dwarfs local compute; sequential beats random. This is *why* we cache, batch, and
-keep data local. Full table + context: [SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
+keep data local. Full table + context: [System Design Guide](../SystemDesign/SystemDesignGuide.md).
 
 ---
 
@@ -121,7 +121,7 @@ prompt states an SLA.
 
 ## Related
 
-- Q&A drills: [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
-- Estimation step in the interview framework + full latency table → [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md)
-- Caching (why hot-data caching works) → [SystemDesign/components/caching.md](../SystemDesign/components/caching.md)
-- Sharding (when storage/writes exceed one node) → [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md)
+- Q&A drills: [System Design Concepts Q&A](../QA-Bank/qa-system-design-concepts.md)
+- Estimation step in the interview framework + full latency table → [System Design Guide](../SystemDesign/SystemDesignGuide.md)
+- Caching (why hot-data caching works) → [Caching](../SystemDesign/components/caching.md)
+- Sharding (when storage/writes exceed one node) → [Database Sharding](../SystemDesign/components/database-sharding.md)

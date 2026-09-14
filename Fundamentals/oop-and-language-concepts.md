@@ -37,7 +37,7 @@ Five principles for maintainable OO design:
 - **D**ependency Inversion - depend on abstractions, not concretions.
 
 Full explanations with Python examples and GoF design patterns live in the canonical home:
-👉 [SystemDesign/LowLevelDesign.md](../SystemDesign/LowLevelDesign.md). Know them well enough to
+👉 [Low-Level Design](../SystemDesign/LowLevelDesign.md). Know them well enough to
 name a violation and its fix in an LLD round.
 
 ---
@@ -79,7 +79,7 @@ and mixins; the distinction still matters conceptually.)
 
 This is the source of countless bugs (mutating a shared list a caller still holds). In Python,
 everything is an object reference, but *immutable* types (int, str, tuple) behave value-like because
-you can't mutate them in place - see [memory-and-runtime.md](memory-and-runtime.md) for the
+you can't mutate them in place - see [Memory & Runtime](memory-and-runtime.md) for the
 pass-by-object-reference detail.
 
 ---
@@ -87,7 +87,7 @@ pass-by-object-reference detail.
 ## Immutability `[core]`
 
 An immutable object can't change after creation. Benefits: **thread-safe by default** (no races on
-read-only data - see [concurrency-and-parallelism.md](concurrency-and-parallelism.md)), safe to
+read-only data - see [Concurrency & Parallelism](concurrency-and-parallelism.md)), safe to
 share and cache, easier to reason about, usable as dict/set keys. Cost: creating modified copies
 instead of mutating. Favor immutability for shared/config/value objects; use mutability where in-place
 update genuinely matters for performance.
@@ -128,7 +128,7 @@ to hide them).
 
 ## Related
 
-- Q&A drills: [qa-oop-design.md](../QA-Bank/qa-oop-design.md)
-- SOLID + GoF patterns + LLD problems → [SystemDesign/LowLevelDesign.md](../SystemDesign/LowLevelDesign.md)
-- Value/reference, GC, Python runtime → [memory-and-runtime.md](memory-and-runtime.md)
-- Immutability & thread safety → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)
+- Q&A drills: [OOP & Design Q&A](../QA-Bank/qa-oop-design.md)
+- SOLID + GoF patterns + LLD problems → [Low-Level Design](../SystemDesign/LowLevelDesign.md)
+- Value/reference, GC, Python runtime → [Memory & Runtime](memory-and-runtime.md)
+- Immutability & thread safety → [Concurrency & Parallelism](concurrency-and-parallelism.md)

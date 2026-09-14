@@ -1,7 +1,7 @@
 # ❓ Operating Systems - Q&A
 
-> Pairs with [Fundamentals/operating-systems.md](../Fundamentals/operating-systems.md). Format and
-> tag legend: [QA-Bank/README.md](README.md).
+> Pairs with [Operating Systems](../Fundamentals/operating-systems.md). Format and
+> tag legend: [Overview](README.md).
 
 ---
 
@@ -131,5 +131,5 @@
 
 ---
 
-**Related:** [Fundamentals/operating-systems.md](../Fundamentals/operating-systems.md) ·
-[qa-concurrency.md](qa-concurrency.md) · [qa-language-python.md](qa-language-python.md)
+**Related:** [Operating Systems](../Fundamentals/operating-systems.md) ·
+[Concurrency Q&A](qa-concurrency.md) · [Python Language Q&A](qa-language-python.md)

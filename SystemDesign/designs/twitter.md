@@ -1,5 +1,5 @@
 # Twitter System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 > **Also covers "Design a News Feed."** The news-feed problem is the timeline/fan-out core of this
 > design - see **Deep Dive 1: Timeline Generation (Fanout)** below for push vs pull vs hybrid

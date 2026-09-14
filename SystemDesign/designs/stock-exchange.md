@@ -1,5 +1,5 @@
 # Stock Exchange / Matching Engine System Design
-> **SDE-2 Interview Ready** | 45-minute format · *advanced / low-frequency*
+> **Interview Ready** | 45-minute format · *advanced / low-frequency*
 
 ## Problem Statement
 
@@ -94,7 +94,7 @@ engines/cores, not by parallelizing one book.
 A **sequencer** assigns every incoming order a monotonic sequence number and appends it to a durable,
 replayable log **before** matching. This gives: a single source of truth for order arrival (fairness),
 crash recovery (replay the log to rebuild the book), and audit. It's the same append-only-log idea as
-a message queue - see [distributed-message-queue.md](distributed-message-queue.md).
+a message queue - see [Distributed Message Queue](distributed-message-queue.md).
 
 ### Deep Dive 3: Fault tolerance via replay
 The matching engine is deterministic, so recovery = replay the ordered log into a fresh engine to
@@ -147,6 +147,6 @@ can sync then follow deltas.
 3. ✅ **Hot standby** via deterministic replay; **shard by symbol** to scale.
 4. ✅ Persistence + market-data fan-out kept **off the hot path**.
 
-**Related:** [distributed-message-queue.md](distributed-message-queue.md) ·
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md) ·
-[qa-system-design-concepts.md](../../QA-Bank/qa-system-design-concepts.md)
+**Related:** [Distributed Message Queue](distributed-message-queue.md) ·
+[Distributed Systems](../DistributedSystemsConcepts.md) ·
+[System Design Concepts Q&A](../../QA-Bank/qa-system-design-concepts.md)

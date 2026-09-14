@@ -1,5 +1,5 @@
 # Google Drive / Dropbox System Design (File Storage & Sync)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -100,7 +100,7 @@ to the user's other devices, which pull the delta and download only new chunks.
 Hash each chunk (content hash). On edit, only chunks whose hash changed are uploaded. On another
 device, only those chunks are downloaded. This makes syncing a 1 GB file after a tiny edit cheap.
 Content hashing also enables **dedup** - identical chunks (even across users) are stored once. See
-[hashing.md](../../Fundamentals/hashing.md).
+[Hashing](../../Fundamentals/hashing.md).
 
 ### Deep Dive 2: Metadata vs block storage split
 Metadata is small, transactional, and queried constantly (sync); block data is huge and
@@ -158,6 +158,6 @@ number/vector.
 3. ✅ **Notification service** (push signal, pull delta) for cross-device sync.
 4. ✅ **Versioning + conflicted copies**; **replication/erasure coding** for durability.
 
-**Related:** [hashing.md](../../Fundamentals/hashing.md) ·
-[database-sharding.md](../components/database-sharding.md) ·
-[caching.md](../components/caching.md)
+**Related:** [Hashing](../../Fundamentals/hashing.md) ·
+[Database Sharding](../components/database-sharding.md) ·
+[Caching](../components/caching.md)

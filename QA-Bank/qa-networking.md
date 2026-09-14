@@ -1,7 +1,7 @@
 # ❓ Networking - Q&A
 
-> Pairs with [Fundamentals/networking.md](../Fundamentals/networking.md). Format and tag legend:
-> [QA-Bank/README.md](README.md).
+> Pairs with [Networking](../Fundamentals/networking.md). Format and tag legend:
+> [Overview](README.md).
 
 ---
 
@@ -135,5 +135,5 @@
 
 ---
 
-**Related:** [Fundamentals/networking.md](../Fundamentals/networking.md) ·
-[qa-security.md](qa-security.md) · [qa-system-design-concepts.md](qa-system-design-concepts.md)
+**Related:** [Networking](../Fundamentals/networking.md) ·
+[Security Q&A](qa-security.md) · [System Design Concepts Q&A](qa-system-design-concepts.md)

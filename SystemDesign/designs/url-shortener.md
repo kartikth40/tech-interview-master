@@ -1,5 +1,5 @@
 # URL Shortener System Design (bit.ly)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 

@@ -1109,8 +1109,8 @@ Best,
    - Fraud detection
 
 **Study:**
-- See: [payment-gateway.md](../SystemDesign/designs/payment-gateway.md)
-- See: [food-delivery.md](../SystemDesign/designs/food-delivery.md)
+- See: [Payment Gateway](../SystemDesign/designs/payment-gateway.md)
+- See: [Food Delivery](../SystemDesign/designs/food-delivery.md)
 
 ---
 
@@ -1214,4 +1214,4 @@ Shows you understand constraints of building in India (not just copying US syste
 
 **Good luck with your job search in India! 🇮🇳 🚀**
 
-For behavioral tips specific to India, see: [india-specific.md](../Behavioral/company-specific/india-specific.md)
+For behavioral tips specific to India, see: [India-Specific Guide](../Behavioral/company-specific/india-specific.md)

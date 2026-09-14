@@ -329,7 +329,7 @@ Process multiple messages together for efficiency. Accumulate incoming messages 
 
 ### **5. Circuit Breaker**
 
-Protect downstream services from cascading failures by tripping OPEN after repeated failures and short-circuiting calls until a cooldown elapses. See Circuit Breaker in [components/microservices.md](microservices.md) for the full pattern (canonical location).
+Protect downstream services from cascading failures by tripping OPEN after repeated failures and short-circuiting calls until a cooldown elapses. See Circuit Breaker in [Microservices](microservices.md) for the full pattern (canonical location).
 
 ---
 

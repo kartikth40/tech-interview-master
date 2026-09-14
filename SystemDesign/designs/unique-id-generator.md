@@ -1,5 +1,5 @@
 # Unique ID Generator System Design (Distributed IDs)
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -75,7 +75,7 @@ FUNCTION nextId():
 
 Because the timestamp is in the **high bits**, IDs are **time-sortable (k-sorted)** - sequential
 inserts give good B-tree index locality, unlike random UUIDv4 which scatters writes across the index.
-See indexing in [databases-internals.md](../../Fundamentals/databases-internals.md).
+See indexing in [Database Internals](../../Fundamentals/databases-internals.md).
 
 ---
 
@@ -108,7 +108,7 @@ timestamp it already used → potential duplicate. Handle it: if `currentMillis(
 wait until the clock catches up, or reject/alert. Never emit an ID with a timestamp earlier than the
 last one issued.
 *Follow-up hook:* logical clocks vs wall clocks - see
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md).
+[Distributed Systems](../DistributedSystemsConcepts.md).
 
 ### Deep Dive 2: Worker-ID assignment
 Two workers with the same (datacenter, worker) bits will collide. Assign the 10 bits via a
@@ -160,6 +160,6 @@ millisecond. If one worker needs more, add workers (parallelism) rather than wid
 3. ✅ **Worker IDs** assigned by ZooKeeper/etcd.
 4. ✅ Handle **clock skew** (never go backwards).
 
-**Related:** [database-sharding.md](../components/database-sharding.md) ·
-[databases-internals.md](../../Fundamentals/databases-internals.md) ·
-[DistributedSystemsConcepts.md](../DistributedSystemsConcepts.md)
+**Related:** [Database Sharding](../components/database-sharding.md) ·
+[Database Internals](../../Fundamentals/databases-internals.md) ·
+[Distributed Systems](../DistributedSystemsConcepts.md)

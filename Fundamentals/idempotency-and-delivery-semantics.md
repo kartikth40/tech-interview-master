@@ -71,7 +71,7 @@ Be honest in interviews: "exactly-once *effects*, achieved via at-least-once + i
 - **Dedup table / set** of processed IDs (with TTL) - skip if seen.
 - **Upsert instead of insert** - writing the same row twice is a no-op.
 - **Conditional writes** - apply only if a version/state matches (optimistic concurrency, see
-  [concurrency-and-parallelism.md](concurrency-and-parallelism.md)).
+  [Concurrency & Parallelism](concurrency-and-parallelism.md)).
 - **Natural idempotency** - design operations as "set to state X" rather than "increment".
 
 ---
@@ -85,7 +85,7 @@ Be honest in interviews: "exactly-once *effects*, achieved via at-least-once + i
 
 ## Related
 
-- Q&A drills: [qa-concurrency.md](../QA-Bank/qa-concurrency.md) · [qa-system-design-concepts.md](../QA-Bank/qa-system-design-concepts.md)
-- Optimistic concurrency (conditional writes) → [concurrency-and-parallelism.md](concurrency-and-parallelism.md)
-- Queues & delivery in practice → [distributed-message-queue.md](../SystemDesign/designs/distributed-message-queue.md)
-- Notification retries/dedup → [notification-system.md](../SystemDesign/designs/notification-system.md)
+- Q&A drills: [Concurrency Q&A](../QA-Bank/qa-concurrency.md) · [System Design Concepts Q&A](../QA-Bank/qa-system-design-concepts.md)
+- Optimistic concurrency (conditional writes) → [Concurrency & Parallelism](concurrency-and-parallelism.md)
+- Queues & delivery in practice → [Distributed Message Queue](../SystemDesign/designs/distributed-message-queue.md)
+- Notification retries/dedup → [Notification System](../SystemDesign/designs/notification-system.md)

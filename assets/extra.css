@@ -536,3 +536,127 @@ body[class] .md-main__inner {
 .md-typeset .highlighttable .code {
   position: relative;
 }
+
+
+/* ---- .py source modal viewer --------------------------------------------- */
+dialog.tim-code-modal[open] {
+  /* Force a proper centered top-layer overlay (Material/global CSS can clobber
+     the UA defaults, which made the dialog render inline at page bottom). */
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(1100px, 94vw);
+  max-height: 86vh;
+  height: fit-content;
+  padding: 0;
+  border: 1px solid var(--tim-green);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;              /* the inner <pre> scrolls, not the dialog */
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  z-index: 2000;
+}
+dialog.tim-code-modal::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+.tim-code-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  background: linear-gradient(90deg, var(--tim-green-dark), var(--tim-green));
+  color: #fff;
+}
+.tim-code-modal__file {
+  font-family: var(--md-code-font-family, monospace);
+  font-weight: 700;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tim-code-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+}
+.tim-code-modal__raw {
+  color: #fff;
+  opacity: 0.9;
+  font-size: 0.72rem;
+  text-decoration: underline;
+}
+.tim-code-modal__raw:hover { opacity: 1; }
+.tim-code-modal__copy,
+.tim-code-modal__close {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tim-code-modal__copy:hover,
+.tim-code-modal__close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.tim-code-modal__body {
+  margin: 0;
+  max-height: calc(86vh - 3rem);
+  overflow: auto;                /* horizontal + vertical scroll stays inside */
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+.tim-code-modal__body code {
+  display: block;
+  padding: 1rem 1.1rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  white-space: pre;              /* keep long lines; scroll instead of wrap */
+}
+/* Before hljs runs (or if it fails), match the site's dark code surface */
+.tim-code-modal__body code:not(.hljs) {
+  background: #282c34;           /* atom-one-dark bg, so pre-highlight looks consistent */
+  color: #abb2bf;
+}
+/* Let the hljs theme own colors/background once applied */
+.tim-code-modal__body code.hljs {
+  padding: 1rem 1.1rem;
+}
+
+
+/* ---- Interactive task-list checkboxes (progress tracking) ----------------
+   JS (interactiveCheckboxes) re-enables these and persists state to
+   localStorage. Give them a clickable cursor and dim completed items. */
+.md-typeset .task-list-item,
+.md-typeset .task-list-item input[type="checkbox"] {
+  cursor: pointer;
+}
+/* subtle hover wash on the whole clickable item */
+.md-typeset .task-list-item:hover {
+  background: rgba(46, 158, 91, 0.06);
+  border-radius: 6px;
+}
+/* Hover feedback on the custom checkbox control */
+.md-typeset .task-list-control {
+  transition: transform 120ms ease;
+}
+.md-typeset .task-list-item:hover .task-list-control .task-list-indicator::before {
+  background-color: var(--tim-green);
+  opacity: 0.35;
+}
+.md-typeset .task-list-item:hover .task-list-control {
+  transform: scale(1.15);
+}
+/* Completed items: dim only - no strikethrough */
+.md-typeset .task-list-item.tim-task-done {
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}

@@ -156,9 +156,9 @@ Emphasis on ownership, scrappiness, and customer/impact focus - plus scale chall
 
 ---
 
-## SDE-2 Behavioral: Extra Prep (all top companies)
+## Mid-Level Behavioral: Extra Prep (all top companies)
 
-Beyond standard STAR stories, top-tech loops probe three things harder at the SDE-2 level - regardless of company:
+Beyond standard STAR stories, top-tech loops probe three things harder as you move from entry-level to mid-level - regardless of company:
 
 ### 1. Hypothetical / situational questions
 Not all questions are retrospective. Be ready for in-the-moment scenarios (common at Google, Amazon, Meta, and unicorns alike):
@@ -177,13 +177,13 @@ Strong interviewers repeatedly drill into your decisions ("why that approach? wh
 
 If you only remember *what* you did but not *why*, the story collapses under follow-ups.
 
-### 3. SDE-2 scope: leading without authority + cross-team
-The SDE-2 bar (vs SDE-1) is about **driving**, not just executing - this is universal across top companies. Prepare at least one story where you:
+### 3. Mid-level scope: leading without authority + cross-team
+The mid-level bar (vs entry-level) is about **driving**, not just executing - this is universal across top companies. Prepare at least one story where you:
 - Drove alignment across **multiple teams or stakeholders** (not just your own team)
 - Owned an **ambiguous, larger-scope** problem end-to-end (scoping it yourself)
 - Influenced a technical direction **without being the manager/lead** (maps to Amazon *Ownership*, Google emergent Leadership)
 
-**Worked example (SDE-2 scale - note the seniority signal vs a junior "I fixed a bug" story):**
+**Worked example (mid-level scale - note the seniority signal vs a junior "I fixed a bug" story):**
 ```
 S: Two services (my team's API + the payments team's ledger) were double-charging ~0.5% of
    retries. No single owner; each team blamed the other's retry logic. I wasn't lead on either.
@@ -199,9 +199,9 @@ A:
   got their buy-in.
 - Split the work across both teams, tracked it to done, added an alert on duplicate charge attempts.
 R: Double-charges dropped to ~0; the idempotency-key contract became the standard for new endpoints.
-   Learning: at SDE-2, the leverage is in framing the problem and building alignment, not just the code.
+   Learning: at the mid-level, the leverage is in framing the problem and building alignment, not just the code.
 ```
-This shows the SDE-2 markers interviewers look for: **cross-team**, **ambiguous ownership taken on
+This shows the mid-level markers interviewers look for: **cross-team**, **ambiguous ownership taken on
 voluntarily**, **influence without authority**, and a **trade-off conceded to reach commitment** -
 all under follow-up-proof specifics.
 
@@ -247,7 +247,7 @@ Structure:
 3. Future (30 sec) - Why this company/role excites you
 4. Close (15 sec) - Tie it all together
 
-Example (mid-level / SDE-2 framing - lead with recent impact, not education):
+Example (mid-level framing - lead with recent impact, not education):
 "I'm a software engineer at X with ~N years' experience; most recently I [key project + quantified impact].
 
 Before that, at Y, I [1-2 achievements that show growth in scope/ownership].

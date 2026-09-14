@@ -336,7 +336,7 @@ A Layer-7 balancer (NGINX/HAProxy/Envoy) is configured with:
 ### 1. **Rate Limiting**
 The balancer can rate-limit per client (e.g. keyed by source IP) - a sustained rate (e.g. 10 req/s)
 with a small **burst** allowance - before requests ever reach the backends. (See token-bucket vs
-sliding-window in [SystemDesignGuide.md](../SystemDesignGuide.md).)
+sliding-window in [System Design Guide](../SystemDesignGuide.md).)
 
 ### 2. **Request Routing**
 ```

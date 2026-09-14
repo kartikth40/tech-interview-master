@@ -1,9 +1,9 @@
 # ❓ System Design Concepts - Q&A
 
-> Pairs with [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md),
+> Pairs with [System Design Guide](../SystemDesign/SystemDesignGuide.md),
 > [components/](../SystemDesign/components/), and
-> [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md). Format and tag
-> legend: [QA-Bank/README.md](README.md).
+> [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md). Format and tag
+> legend: [Overview](README.md).
 
 ---
 
@@ -24,7 +24,7 @@
 > **Q3. How do you do a back-of-the-envelope estimate?**
 > State assumptions (users, actions/user/day), derive QPS = actions/day ÷ ~86,400, apply a ×2-3 peak
 > factor, then size storage (bytes×items×retention×replication) and bandwidth (QPS×payload).
-> Order-of-magnitude is the goal. See [latency-numbers-and-estimation.md](../Fundamentals/latency-numbers-and-estimation.md).
+> Order-of-magnitude is the goal. See [Latency Numbers & Estimation](../Fundamentals/latency-numbers-and-estimation.md).
 > *Follow-ups:* 1M writes/day is roughly how many per second? (~12/s before peak.)
 > `Med` · `MAANG`
 
@@ -38,7 +38,7 @@
 > **Q5. L4 vs L7 load balancing?**
 > L4 balances on TCP/UDP (IP + port) - fast, protocol-agnostic. L7 balances on application data (HTTP
 > path, headers, cookies) - enables routing, TLS termination, and content-based rules at higher cost.
-> See [load-balancer.md](../SystemDesign/components/load-balancer.md).
+> See [Load Balancer](../SystemDesign/components/load-balancer.md).
 > *Follow-ups:* When do you need L7? (path-based routing, sticky sessions, header rules.)
 > `Med` · `MAANG`
 
@@ -51,7 +51,7 @@
 > **Q7. Why use a message queue?**
 > To decouple producers from consumers, absorb spikes (buffer), enable async processing, and provide
 > retries/backpressure. It trades immediate consistency for resilience and throughput. See
-> [message-queues.md](../SystemDesign/components/message-queues.md).
+> [Message Queues](../SystemDesign/components/message-queues.md).
 > *Follow-ups:* Queue vs pub/sub? (point-to-point work vs broadcast to many subscribers.)
 > `Med` · `Amazon`
 
@@ -72,14 +72,14 @@
 > **Q10. What is consistent hashing and where is it used?**
 > Placing nodes and keys on a hash ring so adding/removing a node only remaps ~K/N keys instead of
 > nearly all. Virtual nodes even out load. Used by caches, DynamoDB, Cassandra. See
-> [hashing.md](../Fundamentals/hashing.md).
+> [Hashing](../Fundamentals/hashing.md).
 > *Follow-ups:* What problem does it solve vs `hash mod N`?
 > `Med` · `Amazon`
 
 > **Q11. Sharding vs replication - when do you need each?**
 > Shard when data or write volume exceeds one node (splits different data). Replicate for
 > availability and read scaling (copies the same data). They combine: shard for scale, replicate each
-> shard for resilience. See [database-sharding.md](../SystemDesign/components/database-sharding.md).
+> shard for resilience. See [Database Sharding](../SystemDesign/components/database-sharding.md).
 > *Follow-ups:* Why can't replicas scale writes?
 > `Med` · `MAANG`
 
@@ -122,7 +122,7 @@
 > A resilience pattern: after repeated failures to a dependency, "open" the circuit and fail fast
 > (skip calling it) for a cooldown, then probe with a trial request before closing again. Prevents
 > cascading failures and gives the dependency time to recover. See
-> [microservices.md](../SystemDesign/components/microservices.md).
+> [Microservices](../SystemDesign/components/microservices.md).
 > *Follow-ups:* How does it differ from a retry? (retry hammers; breaker stops hammering.)
 > `Hard` · `Amazon`
 
@@ -143,7 +143,7 @@
 > **Q20. How do you approach a system design interview?**
 > Clarify functional + non-functional requirements, estimate scale, sketch a high-level design, then
 > deep-dive the bottlenecks and trade-offs - talking aloud and starting simple before scaling. See
-> the framework in [SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md).
+> the framework in [System Design Guide](../SystemDesign/SystemDesignGuide.md).
 > *Follow-ups:* What's the most common mistake? (jumping to a solution before clarifying scope.)
 > `Med` · `MAANG`
 
@@ -162,6 +162,6 @@
 
 ---
 
-**Related:** [SystemDesign/SystemDesignGuide.md](../SystemDesign/SystemDesignGuide.md) ·
-[DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md) ·
-[qa-databases.md](qa-databases.md) · [qa-caching.md](qa-caching.md)
+**Related:** [System Design Guide](../SystemDesign/SystemDesignGuide.md) ·
+[Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md) ·
+[Databases Q&A](qa-databases.md) · [Caching Q&A](qa-caching.md)

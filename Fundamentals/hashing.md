@@ -62,7 +62,7 @@ FUNCTION insert(table, key, value)
 **When to use which:** chaining when load factor is unpredictable or entries are large; open
 addressing when memory locality matters and you can keep the table under ~70% full.
 
-> Working hash-table-backed code (LRU cache): [DSA/data-structures/design/lru_cache.py](../DSA/data-structures/design/lru_cache.py).
+> Working hash-table-backed code (LRU cache): [LRU Cache](../DSA/data-structures/design/lru_cache.py).
 > Trie and BST for key structures where hashing doesn't apply: [DSA/data-structures/tree/](../DSA/data-structures/tree/).
 
 ---
@@ -96,7 +96,7 @@ smooth out uneven distribution and let you weight bigger servers.
 
 This is the canonical technique behind DynamoDB, Cassandra, and distributed caches. Full treatment
 with diagrams lives in the sharding deep-dive:
-👉 [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md).
+👉 [Database Sharding](../SystemDesign/components/database-sharding.md).
 
 ---
 
@@ -140,7 +140,7 @@ key, can verify the sender computed it. Used for signing API requests, webhooks,
 - **Deduplication** - content hash as identity (git commits, S3 ETags, dedup storage).
 - **Checksums / integrity** - detect corruption in transit or at rest (CRC, SHA).
 - **Data structures** - hash sets/maps, `k`-sum lookups, string search (Rabin-Karp rolling hash →
-  [DSA/algorithms/string/rabin_karp.py](../DSA/algorithms/string/rabin_karp.py)).
+  [Rabin-Karp](../DSA/algorithms/string/rabin_karp.py)).
 
 ---
 
@@ -156,7 +156,7 @@ key, can verify the sender computed it. Used for signing API requests, webhooks,
 
 ## Related
 
-- Q&A drills: [qa-hashing.md](../QA-Bank/qa-hashing.md) · [qa-caching.md](../QA-Bank/qa-caching.md)
+- Q&A drills: [Hashing Q&A](../QA-Bank/qa-hashing.md) · [Caching Q&A](../QA-Bank/qa-caching.md)
 - [Consistent hashing / sharding](../SystemDesign/components/database-sharding.md)
 - [Caching component](../SystemDesign/components/caching.md)
 - [Rabin-Karp rolling hash](../DSA/algorithms/string/rabin_karp.py) · [LRU cache](../DSA/data-structures/design/lru_cache.py)

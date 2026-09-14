@@ -1,5 +1,5 @@
 # WhatsApp Messaging System Design
-> **SDE-2 Interview Ready** | 45-minute format
+> **Interview Ready** | 45-minute format
 
 ## Problem Statement
 
@@ -627,7 +627,7 @@ END FUNCTION
 - ❌ Cannot recover messages if device is lost (unless backed up with key)
 - ❌ Key exchange complexity
 
-**Note for Interview:** Don't go deep into Signal Protocol crypto details. High-level understanding is enough for SDE-2.
+**Note for Interview:** Don't go deep into Signal Protocol crypto details. High-level understanding is enough.
 
 ---
 

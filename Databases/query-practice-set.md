@@ -1,7 +1,7 @@
 # 🏋️ SQL Query Practice Set
 
 > ~12 worked query problems, easy → hard. Try each against the schema before reading the solution.
-> Patterns are explained in [sql-query-patterns.md](sql-query-patterns.md). Tags are indicative
+> Patterns are explained in [SQL Query Patterns](sql-query-patterns.md). Tags are indicative
 > (`Easy/Med/Hard` · common companies), not guarantees.
 
 ## Schema
@@ -135,6 +135,6 @@ FROM monthly ORDER BY mon;
 
 ## Related
 
-- Pattern explanations → [sql-query-patterns.md](sql-query-patterns.md)
-- Theory → [sql-theory-qa.md](sql-theory-qa.md)
-- Q&A → [QA-Bank/qa-databases.md](../QA-Bank/qa-databases.md)
+- Pattern explanations → [SQL Query Patterns](sql-query-patterns.md)
+- Theory → [SQL Theory Q&A](sql-theory-qa.md)
+- Q&A → [Databases Q&A](../QA-Bank/qa-databases.md)

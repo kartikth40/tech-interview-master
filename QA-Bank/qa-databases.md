@@ -1,7 +1,7 @@
 # ❓ Databases - Q&A
 
-> Pairs with [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md). Format
-> and tag legend: [QA-Bank/README.md](README.md).
+> Pairs with [Database Internals](../Fundamentals/databases-internals.md). Format
+> and tag legend: [Overview](README.md).
 
 ---
 
@@ -96,14 +96,14 @@
 > Range-based (good for range queries, risk of hotspots), hash-based (even distribution, no range
 > queries), consistent hashing (minimal reshuffle on node changes). The main risk is a hot shard;
 > mitigate with a good shard key and virtual nodes. See
-> [database-sharding.md](../SystemDesign/components/database-sharding.md).
+> [Database Sharding](../SystemDesign/components/database-sharding.md).
 > *Follow-ups:* How do you pick a shard key?
 > `Hard` · `Amazon`
 
 > **Q14. What does the CAP theorem say?**
 > During a network partition you must choose between consistency and availability - you can't have
 > both. It only forces a choice *during a partition*; PACELC adds that even without one you trade
-> latency vs consistency. See [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
+> latency vs consistency. See [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md).
 > *Follow-ups:* Is "CA" a real option? (not in a distributed system that can partition.)
 > `Hard` · `MAANG`
 
@@ -138,7 +138,7 @@
 > **Q19. What is a saga and when do you use it?**
 > A pattern for distributed transactions across services: a sequence of local transactions, each
 > with a compensating action to undo it if a later step fails. Used because cross-service 2PC is
-> slow and fragile. See [DistributedSystemsConcepts.md](../SystemDesign/DistributedSystemsConcepts.md).
+> slow and fragile. See [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md).
 > *Follow-ups:* Orchestration vs choreography sagas?
 > `Hard` · `Amazon`
 
@@ -164,7 +164,7 @@
 
 ---
 
-**Related:** [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md) ·
-[qa-hashing.md](qa-hashing.md) · [qa-system-design-concepts.md](qa-system-design-concepts.md) ·
-[qa-caching.md](qa-caching.md) · **SQL/NoSQL deep-dive + query practice:**
+**Related:** [Database Internals](../Fundamentals/databases-internals.md) ·
+[Hashing Q&A](qa-hashing.md) · [System Design Concepts Q&A](qa-system-design-concepts.md) ·
+[Caching Q&A](qa-caching.md) · **SQL/NoSQL deep-dive + query practice:**
 [Databases/](../Databases/README.md)

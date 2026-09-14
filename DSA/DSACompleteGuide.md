@@ -2,7 +2,7 @@
 
 > **How to use this guide:** this is the *intuition + when-to-use + decision* layer. Full, runnable
 > implementations live in the linked `.py` files - open those to study or run the code
-> (`python <file>`). For instant keyword → pattern lookup, see [DSAQuickLookup.md](DSAQuickLookup.md).
+> (`python <file>`). For instant keyword → pattern lookup, see [DSA Quick Lookup](DSAQuickLookup.md).
 > For the *visual* thinking layer (decision flowcharts, the mental web, constraints→complexity),
 > see [DSA Mental Models](mental-models.md).
 
@@ -26,7 +26,7 @@
 16. [Bit Manipulation](#16-bit-manipulation) - XOR Tricks, Subset Generation
 16.5. [Matrix / Grid](#165-matrix--grid) - Islands, Spiral, Rotate, Sorted-Matrix Search
 16.6. [Design a Data Structure](#166-design-a-data-structure) - LRU, Min Stack, MedianFinder, Trie
-17. [Advanced / Rarely Asked](#17-advanced--rarely-asked-at-sde-2) - Segment Tree, Bitmask DP, Manacher's, SCC, string-matching
+17. [Advanced / Rarely Asked](#17-advanced--rarely-asked) - Segment Tree, Bitmask DP, Manacher's, SCC, string-matching
 
 ---
 
@@ -41,7 +41,7 @@
 - **In-place** - mark visited via sign/modulo, swap instead of allocating.
 - **Kadane's** - maximum subarray sum in O(n); track `max_ending_here`, `max_so_far`.
 
-**Files:** [Two Pointers](patterns/two_pointers.py) · [Sliding Window](patterns/sliding_window.py) · [Prefix Sum](patterns/prefix_sum_pattern.py) · [Kadane's](algorithms/array/kadane.py) · [kSum](algorithms/array/k_sum.py)
+**Files:** [Two Pointers](patterns/two_pointers.py) · [Sliding Window](patterns/sliding_window.py) · [Prefix Sum](patterns/prefix_sum_pattern.py) · [Kadane's](algorithms/array/kadane.py) · [k-Sum](algorithms/array/k_sum.py)
 
 **Sample Problems:** Two Sum, 3Sum, Container With Most Water, Product of Array Except Self, Maximum Subarray, Subarrays with K Distinct.
 
@@ -139,7 +139,7 @@
 | Minimum spanning tree | Kruskal (Union-Find) / Prim (heap) | O(E log E) |
 | Connected components | DFS / BFS / Union-Find | O(V+E) |
 
-**Dijkstra-with-state** is a high-value variant (common across MAANG): when the answer depends on more than distance (stops used, fuel left), add that dimension to the heap entry - see Cheapest Flights within K Stops in [dijkstra.py](algorithms/graph/dijkstra.py).
+**Dijkstra-with-state** is a high-value variant (common across MAANG): when the answer depends on more than distance (stops used, fuel left), add that dimension to the heap entry - see Cheapest Flights within K Stops in [dijkstra](algorithms/graph/dijkstra.py).
 
 **Files:** [Dijkstra](algorithms/graph/dijkstra.py) · [Bellman-Ford](algorithms/graph/bellman_ford.py) · [Topological Sort](algorithms/graph/topological_sort.py) · [Union-Find](algorithms/graph/union_find.py) · [Kruskal's](algorithms/graph/kruskals.py) · [Prim's](algorithms/graph/prims.py) · [Bipartite](algorithms/graph/bipartite.py) · [Undirected Cycle](algorithms/graph/cycle_detection_undirected.py)
 
@@ -152,7 +152,7 @@
 - **Sliding window** - longest substring problems (see Array §1).
 - **Two pointers** - palindrome checks, reversal.
 
-Advanced pattern-matching algorithms (KMP, Rabin-Karp, suffix structures, Manacher's) are **rarely required at SDE-2** - see [§17 Advanced](#17-advanced--rarely-asked-at-sde-2).
+Advanced pattern-matching algorithms (KMP, Rabin-Karp, suffix structures, Manacher's) are **rarely required** - see [§17 Advanced](#17-advanced--rarely-asked).
 
 **Sample Problems:** Longest Substring Without Repeating Characters, Group Anagrams, Valid Palindrome II.
 
@@ -285,32 +285,32 @@ Advanced pattern-matching algorithms (KMP, Rabin-Karp, suffix structures, Manach
 
 ### 16.6 Design a Data Structure
 
-A common SDE-2 round: "design/implement X" - combine primitives to hit the required time complexity.
+A common interview round: "design/implement X" - combine primitives to hit the required time complexity.
 
-- **LRU Cache** - hash map + doubly linked list for O(1) get/put (evict from the tail). See [lru_cache.py](data-structures/design/lru_cache.py).
-- **Min Stack** - push `(value, running_min)` (or a parallel min-stack) so `get_min()` is O(1). See [stack.py](data-structures/stack/stack.py).
-- **Median from Data Stream (MedianFinder)** - two heaps: a max-heap for the lower half, a min-heap for the upper half, kept balanced; median from the tops. See [heap_patterns.py](patterns/heap_patterns.py).
-- **Trie / prefix tree** - insert/search/startsWith in O(word length); backs autocomplete and Word Search II. See [trie.py](data-structures/tree/trie.py).
+- **LRU Cache** - hash map + doubly linked list for O(1) get/put (evict from the tail). See [LRU Cache](data-structures/design/lru_cache.py).
+- **Min Stack** - push `(value, running_min)` (or a parallel min-stack) so `get_min()` is O(1). See [stack](data-structures/stack/stack.py).
+- **Median from Data Stream (MedianFinder)** - two heaps: a max-heap for the lower half, a min-heap for the upper half, kept balanced; median from the tops. See [Heap Patterns](patterns/heap_patterns.py).
+- **Trie / prefix tree** - insert/search/startsWith in O(word length); backs autocomplete and Word Search II. See [Trie](data-structures/tree/trie.py).
 - **Others to know:** Hit Counter (queue/ring buffer of timestamps), Insert/Delete/GetRandom O(1) (array + index map), Design Twitter (hash maps + heap merge for the feed).
 
 **Key move:** state the target complexity first, then pick the primitive combo that achieves it (hash map for O(1) lookup, DLL for O(1) reorder, heap for ordered access, trie for prefixes).
 
 ---
 
-## 17. Advanced / Rarely Asked at SDE-2
+## 17. Advanced / Rarely Asked
 
 > These are included for completeness and appear in some interviews, but are **low-yield for a typical
-> SDE-2 coding round** - mostly competitive-programming territory. Learn the *idea* and what problem
+> coding round** - mostly competitive-programming territory. Learn the *idea* and what problem
 > each solves; only go deep if a specific role or the must-knows are already solid. Don't let these
 > crowd out the core patterns above.
 
-- **Segment Tree / Fenwick (BIT)** - range query + point/range update in O(log n). Reach for it only when a problem needs *both* range queries and updates. Fenwick is the simpler cousin for prefix sums. See [segment_tree.py](data-structures/tree/segment_tree.py) and [fenwick_tree.py](data-structures/tree/fenwick_tree.py).
+- **Segment Tree / Fenwick (BIT)** - range query + point/range update in O(log n). Reach for it only when a problem needs *both* range queries and updates. Fenwick is the simpler cousin for prefix sums. See [Segment Tree](data-structures/tree/segment_tree.py) and [Fenwick Tree](data-structures/tree/fenwick_tree.py).
 - **Bitmask DP / TSP** - `dp[mask][i]` = best result having visited the set `mask`, ending at `i`. State compression for small n (≤ ~20).
 - **Manacher's Algorithm** - longest palindromic substring in O(n). In an interview, center-expansion (O(n²)) is almost always the accepted answer.
-- **Suffix Trie / Suffix Array + LCP** - count distinct substrings, longest repeated substring. See [suffix_trie.py](patterns/suffix_trie.py).
+- **Suffix Trie / Suffix Array + LCP** - count distinct substrings, longest repeated substring. See [Suffix Trie](patterns/suffix_trie.py).
 - **KMP / Rabin-Karp / Z-Algorithm** - substring search in O(n+m). Know that they exist; the failure-function / rolling-hash derivations are seldom required. See [KMP](algorithms/string/kmp.py), [Rabin-Karp](algorithms/string/rabin_karp.py).
-- **Kosaraju's / Tarjan's SCC** - strongly connected components. Uncommon at SDE-2. See [Kosaraju](algorithms/graph/kosaraju.py), [Tarjan](algorithms/graph/tarjan.py).
-- **Floyd-Warshall** - all-pairs shortest path, O(V³). Simple to state; rarely the expected answer. See [floyd_warshall.py](algorithms/graph/floyd_warshall.py).
+- **Kosaraju's / Tarjan's SCC** - strongly connected components. Uncommon. See [Kosaraju](algorithms/graph/kosaraju.py), [Tarjan](algorithms/graph/tarjan.py).
+- **Floyd-Warshall** - all-pairs shortest path, O(V³). Simple to state; rarely the expected answer. See [Floyd-Warshall](algorithms/graph/floyd_warshall.py).
 - **Rerooting DP** - recompute a tree DP for every root in O(n). Niche.
 
 **Files (reference only):** [Segment Tree](data-structures/tree/segment_tree.py) · [Suffix Trie](patterns/suffix_trie.py) · [KMP](algorithms/string/kmp.py) · [Rabin-Karp](algorithms/string/rabin_karp.py) · [Kosaraju](algorithms/graph/kosaraju.py) · [Tarjan](algorithms/graph/tarjan.py) · [Floyd-Warshall](algorithms/graph/floyd_warshall.py)

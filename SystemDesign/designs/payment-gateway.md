@@ -1,5 +1,5 @@
 # Payment Gateway Design (Razorpay/PhonePe Style)
-> **SDE-2 Interview Ready** | 45-minute format | India-focused
+> **Interview Ready** | 45-minute format | India-focused
 
 ## Problem Statement
 
@@ -738,7 +738,7 @@ A: Track patterns (multiple failed attempts, unusual amounts, IP reputation), us
 
 ## Summary
 
-**Key Takeaways for SDE-2:**
+**Key Takeaways:**
 1. ✅ Support multiple payment methods with Strategy pattern
 2. ✅ Idempotency is CRITICAL (distributed locks + caching)
 3. ✅ Handle async flows (UPI timeout, webhooks)

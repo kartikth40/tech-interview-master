@@ -1,9 +1,9 @@
 # 🗂️ NoSQL Types & Data Modeling
 
 > The "which NoSQL store and how would you model it" material. Internals (SQL vs NoSQL trade-offs,
-> replication) live in [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md);
-> sharding in [database-sharding.md](../SystemDesign/components/database-sharding.md). The decision
-> framing is in [sql-vs-nosql-and-scaling.md](sql-vs-nosql-and-scaling.md).
+> replication) live in [Database Internals](../Fundamentals/databases-internals.md);
+> sharding in [Database Sharding](../SystemDesign/components/database-sharding.md). The decision
+> framing is in [SQL vs NoSQL & Scaling](sql-vs-nosql-and-scaling.md).
 
 ---
 
@@ -84,7 +84,7 @@ consistency for read speed and scale.
 
 ## Related
 
-- SQL vs NoSQL decision + scaling → [sql-vs-nosql-and-scaling.md](sql-vs-nosql-and-scaling.md)
-- Internals / trade-offs → [Fundamentals/databases-internals.md](../Fundamentals/databases-internals.md)
-- Partition keys / sharding → [SystemDesign/components/database-sharding.md](../SystemDesign/components/database-sharding.md)
-- Short Q&A → [QA-Bank/qa-databases.md](../QA-Bank/qa-databases.md)
+- SQL vs NoSQL decision + scaling → [SQL vs NoSQL & Scaling](sql-vs-nosql-and-scaling.md)
+- Internals / trade-offs → [Database Internals](../Fundamentals/databases-internals.md)
+- Partition keys / sharding → [Database Sharding](../SystemDesign/components/database-sharding.md)
+- Short Q&A → [Databases Q&A](../QA-Bank/qa-databases.md)
