@@ -47,7 +47,7 @@ Payment Gateway, Uber, WhatsApp, Food Delivery, YouTube, Twitter, Instagram, URL
 - 📖 [System Design Guide](SystemDesign/SystemDesignGuide.md) - Complete framework
 - 🏗️ [Design Examples](SystemDesign/designs/) - **interview-optimized** designs
 - 🔧 [Components](SystemDesign/components/) - Building blocks explained in depth
-- 🧱 [Low-Level Design](SystemDesign/LowLevelDesign.md) - SOLID, design patterns, LLD problems
+- 🧱 [Low-Level Design](LLD/) - SOLID, design patterns, concurrency, LLD problems
 - 🔌 [API Design Patterns](SystemDesign/APIDesignPatterns.md) - REST, GraphQL, gRPC
 - ⚙️ [Distributed Systems](SystemDesign/DistributedSystemsConcepts.md) - CAP, consensus, resilience
 
@@ -228,9 +228,18 @@ tech-interview-master/
 │       ├── graph/                   # Graph (adjacency list, matrix, builders)
 │       └── design/                  # LRU Cache
 │
+├── 🧱 LLD/                          # Low-Level Design (own top-bar tab)
+│   ├── lld-overview.md              # What LLD is, formats, rubrics, roadmap
+│   ├── roadmap.md                   # OOP → SOLID → patterns → UML, in depth
+│   ├── concurrency.md               # Thread-safety, locks, double-booking
+│   ├── patterns-extended.md         # Command, CoR, Proxy, Facade, ...
+│   ├── java-cheatsheet.md           # Java-for-LLD mapped from Python
+│   ├── worked-problems.md           # Full solutions w/ trade-offs
+│   ├── LowLevelDesign.md            # SOLID, design patterns, LLD problems
+│   └── lld-mental-models.md         # Modeling flowcharts + decision trees
+│
 ├── 🏗️ SystemDesign/
 │   ├── SystemDesignGuide.md         # Framework & methodology
-│   ├── LowLevelDesign.md            # SOLID, design patterns, LLD problems
 │   ├── APIDesignPatterns.md         # REST vs GraphQL vs gRPC
 │   ├── DistributedSystemsConcepts.md # CAP, consensus, replication, resilience
 │   ├── designs/                     # Real system designs

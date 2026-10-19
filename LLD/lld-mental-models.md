@@ -182,4 +182,4 @@ Full implementation (with the fee calculation and dispatch): [LLD guide → Park
 - Full code, patterns, LLD problems → [Low-Level Design guide](LowLevelDesign.md)
 - OOP pillars, SOLID, composition vs inheritance → [Fundamentals](../Fundamentals/oop-and-language-concepts.md)
 - OOP & design Q&A → [QA-Bank](../QA-Bank/qa-oop-design.md)
-- System-level thinking → [System Design Mental Models](mental-models.md)
+- System-level thinking → [System Design Mental Models](../SystemDesign/mental-models.md)

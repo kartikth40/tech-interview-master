@@ -41,7 +41,7 @@ deep-dive, and behavioral prep - all cross-linked and searchable.
 
     [:octicons-arrow-right-24: SD Guide](SystemDesign/SystemDesignGuide.md) ·
     [Designs](SystemDesign/designs/url-shortener.md) ·
-    [LLD](SystemDesign/LowLevelDesign.md)
+    [LLD](LLD/lld-overview.md)
 
 -   :material-lightbulb-on:{ .lg .middle } &nbsp; **CS Fundamentals**
 

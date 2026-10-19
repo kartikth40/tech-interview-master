@@ -1,7 +1,7 @@
 # ❓ OOP & Design - Q&A
 
 > Pairs with [OOP & Language Concepts](../Fundamentals/oop-and-language-concepts.md)
-> and [Low-Level Design](../SystemDesign/LowLevelDesign.md). Format and tag legend:
+> and [Low-Level Design](../LLD/LowLevelDesign.md). Format and tag legend:
 > [Overview](README.md).
 
 ---
@@ -16,7 +16,7 @@
 > **Q2. Explain SOLID quickly.**
 > Single Responsibility (one reason to change), Open/Closed (extend without modifying), Liskov
 > Substitution (subtypes usable as the base), Interface Segregation (small focused interfaces),
-> Dependency Inversion (depend on abstractions). See [Low-Level Design](../SystemDesign/LowLevelDesign.md).
+> Dependency Inversion (depend on abstractions). See [Low-Level Design](../LLD/LowLevelDesign.md).
 > *Follow-ups:* Give an example of a Liskov violation.
 > `Med` · `MAANG`
 
@@ -93,7 +93,7 @@
 > **Q13. How do you approach a low-level design question?**
 > Clarify requirements and scope, identify the core entities/nouns, define their responsibilities and
 > relationships, apply SOLID, choose patterns where they fit, then walk an example flow. See the LLD
-> framework in [Low-Level Design](../SystemDesign/LowLevelDesign.md).
+> framework in [Low-Level Design](../LLD/LowLevelDesign.md).
 > *Follow-ups:* How do you avoid over-engineering with patterns?
 > `Hard` · `Amazon`
 
@@ -129,5 +129,5 @@
 ---
 
 **Related:** [OOP & Language Concepts](../Fundamentals/oop-and-language-concepts.md) ·
-[Low-Level Design](../SystemDesign/LowLevelDesign.md) ·
+[Low-Level Design](../LLD/LowLevelDesign.md) ·
 [Python Language Q&A](qa-language-python.md)

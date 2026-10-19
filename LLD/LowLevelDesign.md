@@ -1,5 +1,15 @@
 # Low-Level Design (LLD) Interview Guide
 
+!!! abstract "This page is the compact code reference for the LLD section"
+    SOLID + GoF patterns + a few LLD problems, all runnable, in one place. For the fuller
+    treatment, start here instead:
+
+    - **[Overview](lld-overview.md)** - what LLD is, formats, rubric, the 7-step framework
+    - **[Roadmap](roadmap.md)** - OOP → SOLID → patterns → UML in depth, with trade-offs
+    - **[Concurrency](concurrency.md)** - thread-safety, the double-booking fix (SDE-2)
+    - **[Extended Patterns](patterns-extended.md)** - Command, CoR, Proxy, Facade, and more
+    - **[Java Cheat Sheet](java-cheatsheet.md)** · **[Worked Problems](worked-problems.md)** · **[Mental Models](lld-mental-models.md)**
+
 ## What is LLD?
 
 Low-Level Design focuses on the **code-level architecture** of a system - class diagrams, design patterns, interfaces, and object relationships. LLD interviews are common at the entry-to-mid level and test your ability to translate requirements into clean, extensible code.
@@ -777,5 +787,8 @@ print(limiter.is_allowed("user1"))  # True
 
 ## Related Resources
 
-- [System Design Guide](SystemDesignGuide.md)
-- [API Design Patterns](APIDesignPatterns.md)
+- LLD section: [Overview](lld-overview.md) · [Roadmap](roadmap.md) · [Concurrency](concurrency.md)
+  · [Extended Patterns](patterns-extended.md) · [Worked Problems](worked-problems.md)
+  · [Java Cheat Sheet](java-cheatsheet.md) · [Mental Models](lld-mental-models.md)
+- [System Design Guide](../SystemDesign/SystemDesignGuide.md)
+- [API Design Patterns](../SystemDesign/APIDesignPatterns.md)

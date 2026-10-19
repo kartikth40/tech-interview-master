@@ -37,7 +37,7 @@ Five principles for maintainable OO design:
 - **D**ependency Inversion - depend on abstractions, not concretions.
 
 Full explanations with Python examples and GoF design patterns live in the canonical home:
-👉 [Low-Level Design](../SystemDesign/LowLevelDesign.md). Know them well enough to
+👉 [Low-Level Design](../LLD/LowLevelDesign.md). Know them well enough to
 name a violation and its fix in an LLD round.
 
 ---
@@ -129,6 +129,6 @@ to hide them).
 ## Related
 
 - Q&A drills: [OOP & Design Q&A](../QA-Bank/qa-oop-design.md)
-- SOLID + GoF patterns + LLD problems → [Low-Level Design](../SystemDesign/LowLevelDesign.md)
+- SOLID + GoF patterns + LLD problems → [Low-Level Design](../LLD/LowLevelDesign.md)
 - Value/reference, GC, Python runtime → [Memory & Runtime](memory-and-runtime.md)
 - Immutability & thread safety → [Concurrency & Parallelism](concurrency-and-parallelism.md)
