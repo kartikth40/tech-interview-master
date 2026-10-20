@@ -662,3 +662,156 @@ dialog.tim-code-modal::backdrop {
 }
 
 
+
+/* ==========================================================================
+   Mobile responsiveness pack
+   Material for MkDocs is responsive by default (hamburger nav, stacked layout).
+   These rules fix the issues specific to THIS content: code- and table-heavy
+   pages that can overflow the viewport, and type/spacing tuned for phones.
+   Breakpoint 44.9375em (~719px) = Material's phone/tablet threshold.
+   ========================================================================== */
+
+@media screen and (max-width: 44.9375em) {
+
+  /* ---- Base type: slightly smaller + tighter rhythm on phones ------------- */
+  :root {
+    --md-typeset-font-size: 0.78rem;
+  }
+  .md-typeset {
+    line-height: 1.62;
+  }
+
+  /* ---- Content: full width but keep comfortable edge gutters -------------- */
+  .md-content__inner {
+    max-width: 100%;
+    padding-inline: 0.9rem;      /* breathing room on both edges */
+  }
+  /* Material pulls the article in with its own margin; make sure the whole
+     content column has a consistent gutter and never hugs the screen edge. */
+  .md-content {
+    padding-inline: 0;
+  }
+
+  /* Code blocks / highlight wrappers use negative margins to go edge-to-edge,
+     which on a phone makes code touch the screen edge. Neutralize that so code
+     lines up with the text gutter, keep rounded corners, and let the <pre>
+     itself scroll horizontally for long lines. */
+  .md-typeset .highlight,
+  .md-typeset .highlighttable,
+  .md-typeset pre {
+    margin-inline: 0;
+  }
+
+  /* ---- Long headings must wrap, not overflow ------------------------------ */
+  .md-typeset h1 {
+    font-size: 1.55rem;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .md-typeset h2 {
+    font-size: 1.2rem;
+    overflow-wrap: break-word;
+  }
+  .md-typeset h3 {
+    font-size: 1rem;
+    overflow-wrap: break-word;
+  }
+  /* the H2 green tick badge eats horizontal room on tiny screens - shrink it */
+  .md-typeset h2::before {
+    width: 0.2rem;
+    margin-right: 0.35rem;
+  }
+
+  /* ---- Tables: let them scroll horizontally instead of breaking layout -----
+     Our desktop rule puts border-radius + overflow:hidden on the <table>,
+     which clips content and fights Material's horizontal scroll wrapper on
+     narrow screens. On phones, drop the clip, allow a sensible min-width so
+     columns stay readable, and let Material's .md-typeset__scrollwrap scroll. */
+  .md-typeset table:not([class]) {
+    overflow: visible;           /* don't clip; the wrapper scrolls */
+    border-radius: 8px;
+    font-size: 0.72rem;          /* fit more columns before scrolling */
+  }
+  .md-typeset table:not([class]) th,
+  .md-typeset table:not([class]) td {
+    padding: 0.4rem 0.5rem;      /* tighter cells */
+    min-width: 4.5rem;           /* keep columns tappable/legible when scrolling */
+  }
+  /* Material's scroll wrapper uses negative side margins to bleed to the edge;
+     neutralize so tables align with the text gutter and scroll within it. */
+  .md-typeset__scrollwrap {
+    margin-inline: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Code blocks: smaller font, keep horizontal scroll contained -------- */
+  .md-typeset pre > code {
+    font-size: 0.7rem;
+    line-height: 1.5;
+    padding-inline: 0.8rem;      /* inner gutter so code isn't flush to the border */
+  }
+  .md-typeset :not(pre) > code {
+    font-size: 0.82em;           /* inline code relative to its text */
+    overflow-wrap: break-word;   /* long inline tokens wrap instead of pushing width */
+    word-break: break-word;
+  }
+  /* line-number gutter is wasted space on phones - keep it narrow */
+  .md-typeset .highlighttable .linenos,
+  .md-typeset .highlighttable .linenodiv {
+    width: 2rem;
+    padding: 0 0.4rem 0 0.2rem;
+  }
+
+  /* ---- Landing-page cards + buttons: full width, comfortable tap targets --- */
+  .md-typeset .grid.cards > ul > li,
+  .md-typeset .grid > .card {
+    margin-inline: 0;
+  }
+  .md-typeset .md-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin: 0.4rem 0;
+    padding-block: 0.6rem;       /* >=44px tall tap target */
+  }
+
+  /* ---- Blockquote / admonition padding trimmed for narrow width ----------- */
+  .md-typeset blockquote {
+    padding: 0.5rem 0.7rem;
+  }
+  .md-typeset .admonition,
+  .md-typeset details {
+    font-size: 0.76rem;
+  }
+
+  /* ---- Mermaid diagrams: scroll horizontally rather than shrink to mush ---- */
+  .md-typeset .mermaid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Breadcrumbs (navigation.path): allow wrap, don't force overflow ---- */
+  .md-nav__title,
+  .md-path__list {
+    flex-wrap: wrap;
+  }
+
+  /* ---- Guard: nothing should push the page wider than the viewport -------- */
+  .md-typeset img,
+  .md-typeset svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Prevent accidental horizontal page scroll on any small screen. The body
+   should never scroll sideways - only designated containers (code, tables,
+   diagrams) do. Applied below the desktop sidebar breakpoint. */
+@media screen and (max-width: 76.1875em) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
