@@ -1,12 +1,8 @@
-/* ==========================================================================
-   Tech Interview Master - custom theme (green brand + readability polish)
-   Layered on top of Material for MkDocs. Uses Material's CSS custom properties.
-   ========================================================================== */
 
-/* ---- Brand green palette (hand-tuned, not the stock Material green) ------- */
+/* ---- Brand green palette (hand-tuned, not the stock Material green) -------- */
 :root {
   --tim-green:        #2e9e5b;   /* primary */
-  --tim-green-dark:   #1f7d45;
+  --tim-green-dark:   #1f7d45;   /* readable on light backgrounds */
   --tim-green-light:  #4cc47e;   /* accent */
   --tim-green-050:    #e9f7ef;
 
@@ -108,11 +104,99 @@
   color: #fff;
 }
 
-/* ---- Header + nav tabs: gradient bar, crisp active tab -------------------- */
 .md-header {
-  background: linear-gradient(90deg, var(--tim-green-dark), var(--tim-green));
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(
+    90deg,
+    rgba(46, 158, 91, 0.14),
+    rgba(46, 158, 91, 0.05)
+  ),
+  rgba(11, 26, 18, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  /* Floating bar: inset from the edges with an all-around green border + radius.
+     Keep a side margin at EVERY screen size (incl. zoomed-in laptops). */
+  width: auto;
+  border: 1px solid rgba(46, 158, 91, 0.35);
+  border-radius: 0.9rem;
+  box-shadow: 0 8px 28px rgba(46, 158, 91, 0.20),
+              0 2px 10px rgba(0, 0, 0, 0.30);
+  /* Pin the bar so it stays put at EVERY scroll position. Use position: fixed
+     (not sticky) - it's immune to ancestor scroll-container quirks, so the bar
+     is guaranteed to float in place while the page scrolls underneath. */
+  position: fixed;
+  top: 0.6rem;
+  left: 0.8rem;
+  right: 0.8rem;
+  z-index: 4;
 }
+.md-main {
+  margin-top: calc(var(--md-header-height, 2.4rem) + 2.4rem + 0.6rem);
+  padding-inline: 1rem;
+}
+
+.md-tabs {
+  border-radius: 0 0 0.9rem 0.9rem;
+}
+@media screen and (max-width: 76.1875em) and (min-width: 60em) {
+  .md-header {
+    left: 0.6rem;
+    right: 0.6rem;
+    top: 0.5rem;
+  }
+  .md-main {
+    margin-top: calc(var(--md-header-height, 2.4rem) + 0.5rem);
+    padding-inline: 0.8rem;
+  }
+}
+@media screen and (max-width: 59.9375em) {
+  .md-header {
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 1px solid rgba(46, 158, 91, 0.35);
+    position: fixed;             /* stays pinned on mobile scroll */
+  }
+  .md-tabs {
+    border-radius: 0;
+  }
+  .md-main {
+    margin-top: var(--md-header-height, 2.4rem);
+    padding-inline: 0.6rem;
+  }
+}
+[data-md-color-scheme="default"] .md-header {
+  background: linear-gradient(
+    90deg,
+    rgba(46, 158, 91, 0.18),
+    rgba(46, 158, 91, 0.07)
+  ),
+  rgba(246, 252, 248, 0.85);
+  border: 1px solid rgba(46, 158, 91, 0.40);
+  box-shadow: 0 8px 28px rgba(46, 158, 91, 0.14),
+              0 2px 10px rgba(0, 0, 0, 0.10);
+  --md-primary-bg-color: #0e2a1a;
+  color: #0e2a1a;
+}
+
+[data-md-color-scheme="default"] .md-header .md-header__title,
+[data-md-color-scheme="default"] .md-header .md-header__topic,
+[data-md-color-scheme="default"] .md-tabs,
+[data-md-color-scheme="default"] .md-tabs__link,
+[data-md-color-scheme="default"] .md-header .md-portfolio-link,
+[data-md-color-scheme="default"] .md-header__source {
+  color: #0e2a1a;
+}
+[data-md-color-scheme="default"] .md-header .md-icon svg,
+[data-md-color-scheme="default"] .md-header__button svg {
+  fill: #0e2a1a;
+  color: #0e2a1a;
+}
+/* (Search styling consolidated into the dedicated SEARCH block below.) */
 .md-tabs {
   background: transparent;
 }
@@ -123,6 +207,11 @@
 .md-tabs__link--active,
 .md-tabs__link:hover {
   opacity: 1;
+}
+/* Light mode: active/hovered tab picks up the green accent for contrast */
+[data-md-color-scheme="default"] .md-tabs__link--active,
+[data-md-color-scheme="default"] .md-tabs__link:hover {
+  color: var(--tim-green-dark);
 }
 
 /* Active item in the left sidebar */
@@ -167,9 +256,14 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 .md-typeset table:not([class]) th {
-  background-color: var(--tim-green);
-  color: #fff;
+  background-color: rgba(46, 158, 91, 0.12);
+  color: var(--md-default-fg-color);
   font-weight: 700;
+  border-bottom: 2px solid rgba(46, 158, 91, 0.55);
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: rgba(46, 158, 91, 0.18);
+  border-bottom-color: rgba(76, 196, 126, 0.6);
 }
 .md-typeset table:not([class]) tr:nth-child(even) {
   background-color: var(--tim-green-050);
@@ -243,11 +337,6 @@
   background-color: rgba(76, 196, 126, 0.05);
 }
 
-/* ---- Search accent + focus ring ------------------------------------------ */
-.md-search__input:focus,
-.md-search__input:hover {
-  background-color: rgba(255, 255, 255, 0.28);
-}
 
 /* ---- Tables of contents: green active marker ------------------------------ */
 .md-nav__link:focus,
@@ -813,5 +902,207 @@ dialog.tim-code-modal::backdrop {
   html,
   body {
     overflow-x: hidden;
+  }
+}
+
+/* ---- "by Kartik Thakur" author credit in the top header bar -------------- */
+/* Rendered by overrides/partials/header.html, placed before the repo source. */
+.md-header__button.md-portfolio-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: auto;
+  height: 2rem;
+  margin: 0.2rem 0.1rem;
+  padding: 0 0.6rem;
+  border-radius: 2rem;
+  color: var(--md-primary-bg-color);
+  font-size: 0.68rem;
+  line-height: 1;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: background-color 125ms, opacity 125ms;
+}
+.md-header__button.md-portfolio-link:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+  opacity: 1;
+}
+/* Light mode: white wash is invisible on light glass - use a green wash */
+[data-md-color-scheme="default"] .md-header__button.md-portfolio-link:hover {
+  background-color: rgba(46, 158, 91, 0.14);
+}
+/* The code-braces icon inherits currentColor via Material's svg sizing */
+.md-header__button.md-portfolio-link svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+.md-portfolio-link__text {
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+.md-portfolio-link__text strong {
+  font-weight: 700;
+}
+/* On small screens the top bar gets crowded; drop the text, keep the icon. */
+@media screen and (max-width: 59.9375em) {
+  .md-portfolio-link__text {
+    display: none;
+  }
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.6rem;
+  background: var(--md-default-bg-color);
+  z-index: 6;                    /* above header (sticky) base, below overlays */
+  pointer-events: none;
+}
+@media screen and (max-width: 76.1875em) and (min-width: 60em) {
+  body::before { height: 0.5rem; }
+}
+@media screen and (max-width: 59.9375em) {
+  body::before { display: none; }
+}
+
+.md-search__form {
+  background-color: transparent;          /* let the input own the surface */
+  box-shadow: none;
+  border-radius: 0.9rem;
+}
+.md-search__form:hover {
+  background-color: transparent;
+}
+.md-search__input {
+  background-color: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(46, 158, 91, 0.30);
+  border-radius: 0.9rem;
+  color: #fff;
+  transition: background-color 150ms, border-color 150ms, box-shadow 150ms;
+}
+.md-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.md-search__input:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(46, 158, 91, 0.45);
+}
+.md-search__input:focus {
+  background-color: rgba(255, 255, 255, 0.20);
+  border-color: rgba(46, 158, 91, 0.70);
+  box-shadow: 0 0 0 2px rgba(46, 158, 91, 0.25);
+}
+
+/* ---- Icons (magnify / reset / share) - inherit field color --------------- */
+.md-search__icon {
+  color: #fff;
+}
+.md-search__icon svg {
+  fill: currentColor;
+}
+.md-search__icon:hover {
+  color: var(--tim-green-light);
+  opacity: 1;
+}
+
+/* ---- Inline autocomplete ghost text -------------------------------------- */
+.md-search__suggest {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- Results dropdown ----------------------------------------------------- */
+@media screen and (min-width: 60em) {
+  .md-search__output {
+    border-radius: 0 0 0.9rem 0.9rem;     /* round only the bottom (top meets field) */
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35),
+                0 0 0 1px rgba(46, 158, 91, 0.25);
+  }
+}
+.md-search-result__meta {
+  background-color: rgba(46, 158, 91, 0.10);
+  color: var(--md-default-fg-color--light);
+}
+/* Selected / hovered result picks up the green accent */
+.md-search-result__link:is(:hover, [data-md-state="active"]) {
+  background-color: rgba(46, 158, 91, 0.12);
+}
+.md-search-result__link:is(:hover, [data-md-state="active"]) .md-search-result__article::before {
+  background-color: var(--tim-green);
+}
+.md-search-result mark {
+  color: var(--tim-green);
+}
+
+/* ---- Dimming overlay behind the active search --------------------------- */
+.md-search__overlay {
+  background-color: rgba(11, 26, 18, 0.55);
+}
+
+/* ==========================================================================
+   SEARCH - light scheme overrides (dark ink on light frosted glass)
+   ========================================================================== */
+[data-md-color-scheme="default"] .md-search__input {
+  background-color: rgba(14, 42, 26, 0.06);
+  border-color: rgba(46, 158, 91, 0.35);
+  color: #0e2a1a;
+}
+[data-md-color-scheme="default"] .md-search__input::placeholder {
+  color: rgba(14, 42, 26, 0.55);
+}
+[data-md-color-scheme="default"] .md-search__input:hover {
+  background-color: rgba(14, 42, 26, 0.09);
+  border-color: rgba(46, 158, 91, 0.5);
+}
+[data-md-color-scheme="default"] .md-search__input:focus {
+  background-color: rgba(14, 42, 26, 0.11);
+  border-color: rgba(46, 158, 91, 0.75);
+  box-shadow: 0 0 0 2px rgba(46, 158, 91, 0.22);
+}
+[data-md-color-scheme="default"] .md-search__icon {
+  color: #0e2a1a;
+}
+[data-md-color-scheme="default"] .md-search__icon:hover {
+  color: var(--tim-green-dark);
+}
+[data-md-color-scheme="default"] .md-search__suggest {
+  color: rgba(14, 42, 26, 0.40);
+}
+[data-md-color-scheme="default"] .md-search__overlay {
+  background-color: rgba(14, 42, 26, 0.20);
+}
+
+@media screen and (max-width: 59.9375em) {
+  /* Input spans the overlay top bar: square, solid, no blur */
+  .md-search__input {
+    border-radius: 0;
+    border: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--md-default-bg-color);
+    color: var(--md-default-fg-color);
+  }
+  .md-search__input::placeholder {
+    color: var(--md-default-fg-color--light);
+  }
+  /* Overlay inner panel + results get a solid surface and full height */
+  .md-search__inner,
+  .md-search__output {
+    background-color: var(--md-default-bg-color);
+  }
+  .md-search__output {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* Icons readable on the solid bar */
+  .md-search__icon {
+    color: var(--md-default-fg-color);
   }
 }

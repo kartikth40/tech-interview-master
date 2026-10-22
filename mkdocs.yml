@@ -10,6 +10,9 @@ copyright: >
 
 extra:
   social:
+    - icon: material/account
+      link: https://kartikthakur.dev
+      name: Kartik Thakur - Portfolio
     - icon: fontawesome/brands/github
       link: https://github.com/kartikth40/tech-interview-master
       name: GitHub repository
@@ -51,6 +54,7 @@ exclude_docs: |
 
 theme:
   name: material
+  custom_dir: overrides
   language: en
   font:
     text: Manrope

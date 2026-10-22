@@ -18,7 +18,7 @@ Java for the full code; key Java idioms noted inline ([Java Cheat Sheet](java-ch
 Each follows the 7-step framework from the [overview](lld-overview.md#delivery-framework-7-steps-for-every-round).
 
 !!! note "Reference implementations"
-    The code below is written to be **correct and readable as an interview reference** — it is
+    The code below is written to be **correct and readable as an interview reference** - it is
     **not compiled or run** by this site. Treat it as the target to diff your own attempt against,
     not as a packaged, executable project.
 
@@ -617,10 +617,10 @@ Other decisions:
 
 ---
 
-# Problem 4 — Elevator System
+# Problem 4 - Elevator System
 
 A `State` + scheduling problem: each elevator moves per its internal direction, and a
-dispatcher assigns requests to the best elevator. No external DB — everything in memory.
+dispatcher assigns requests to the best elevator. No external DB - everything in memory.
 
 ## Step 1: Clarify
 - How many elevators / floors? → **N elevators, M floors**
@@ -635,8 +635,8 @@ dispatcher assigns requests to the best elevator. No external DB — everything 
 *button press* (becomes a `Request`).
 
 ## Step 3: Relationships
-- `ElevatorSystem` ◆── `Elevator` (composition — the system owns its elevators)
-- `ElevatorSystem` ──→ `Request` (association — a request is passed in, not owned)
+- `ElevatorSystem` ◆── `Elevator` (composition - the system owns its elevators)
+- `ElevatorSystem` ──→ `Request` (association - a request is passed in, not owned)
 - `Direction` is a simple state (`UP` / `DOWN` / `IDLE`) held by each `Elevator`
 
 ## Steps 4–6: Classes + State + scheduling
@@ -732,13 +732,13 @@ its elevators (composition); a `Request` is passed in (association).
 
 ### Key design trade-offs
 - **Dispatch policy.** Nearest idle/same-direction is simple and good enough for an interview;
-  mention it's a **Strategy** seam — you could swap in "minimize total wait" or zoning without
+  mention it's a **Strategy** seam - you could swap in "minimize total wait" or zoning without
   touching `Elevator`. For exactly one fixed policy, don't add the interface yet.
 - **`String` direction vs an `enum`.** The snippet uses strings to stay short; in real code use
-  an `enum Direction { UP, DOWN, IDLE }` — type-safe and the idiomatic Java choice. Say this out
+  an `enum Direction { UP, DOWN, IDLE }` - type-safe and the idiomatic Java choice. Say this out
   loud; interviewers like the enum.
 - **Scheduling model.** The per-tick `move()` + `TreeSet` of destinations is the classic SCAN
-  (elevator) algorithm — serves stops in order along the travel direction, avoiding starvation
+  (elevator) algorithm - serves stops in order along the travel direction, avoiding starvation
   from constant reversals. A naive FIFO queue would reverse constantly and feel broken.
 - **Concurrency.** A real elevator system has concurrent button presses; you'd guard each
   elevator's `destinations`/`direction` with a lock (see [Concurrency](concurrency.md)). Kept
