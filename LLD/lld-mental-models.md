@@ -9,8 +9,8 @@ LLD (a.k.a. object-oriented design) rounds ask you to turn a fuzzy problem ("des
 into clean classes with the right responsibilities and relationships. The skill is a **repeatable
 modeling process** plus knowing **which pattern** fits a given need. This is the thinking layer.
 
-Pair it with the [Low-Level Design guide](LowLevelDesign.md) (full code + patterns) and the OOP
-concepts in [Fundamentals](../Fundamentals/oop-and-language-concepts.md).
+Pair it with the [LLD Roadmap](roadmap.md) (patterns + SOLID in depth) and the OOP concepts in
+[Fundamentals](../Fundamentals/oop-and-language-concepts.md).
 
 !!! tip "The core move"
     **Nouns become classes, verbs become methods, and "has-a" beats "is-a".** Find the entities,
@@ -67,8 +67,8 @@ flowchart TD
 ```
 
 Default to **composition**; reach for inheritance only for a genuine, substitutable "is-a". The
-classic trap (Square extends Rectangle breaking Liskov) is why - see the LSP example in the
-[LLD guide](LowLevelDesign.md).
+classic trap (a subtype that can't honor the parent's contract breaks Liskov) is why - see the
+LSP example in the [Roadmap](roadmap.md#4-solid-principles).
 
 ---
 
@@ -96,7 +96,8 @@ flowchart TD
     NEED -- "wrapping/adapting" --> STRUCT["Adapter / Decorator / Proxy"]
 ```
 
-Full runnable examples of each: [Low-Level Design guide](LowLevelDesign.md).
+Full Java examples of each: [Roadmap → Design Patterns](roadmap.md#6-design-patterns) and
+[Extended Patterns](patterns-extended.md).
 
 ---
 
@@ -119,7 +120,7 @@ flowchart LR
 ```
 
 Being able to *name the principle and the refactor* is what scores - see the SOLID examples in the
-[guide](LowLevelDesign.md).
+[Roadmap](roadmap.md#4-solid-principles).
 
 ---
 
@@ -164,7 +165,7 @@ classDiagram
 - `*--` = **composition** (the lot owns its floors; floors own their spots).
 - `-->` = **association** (a ticket references a vehicle and a spot, but doesn't own them).
 
-Full implementation (with the fee calculation and dispatch): [LLD guide → Parking Lot](LowLevelDesign.md).
+Full implementation (with the fee calculation and dispatch): [Worked Problems → Parking Lot](worked-problems.md#problem-1-parking-lot).
 
 ---
 
@@ -179,7 +180,8 @@ Full implementation (with the fee calculation and dispatch): [LLD guide → Park
 
 ## Related
 
-- Full code, patterns, LLD problems → [Low-Level Design guide](LowLevelDesign.md)
+- Patterns, SOLID, fundamentals in depth → [Roadmap](roadmap.md)
+- Full solved problems → [Worked Problems](worked-problems.md)
 - OOP pillars, SOLID, composition vs inheritance → [Fundamentals](../Fundamentals/oop-and-language-concepts.md)
 - OOP & design Q&A → [QA-Bank](../QA-Bank/qa-oop-design.md)
 - System-level thinking → [System Design Mental Models](../SystemDesign/mental-models.md)

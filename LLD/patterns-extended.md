@@ -8,8 +8,8 @@ description: Mid-level design patterns beyond the common eight - Command, Chain 
 The [Roadmap](roadmap.md#6-design-patterns) covers the common eight (Singleton, Factory, Builder,
 Adapter, Decorator, Strategy, Observer, State). This page adds the patterns that show up at
 mid-level and - more importantly - the **trade-offs and "when NOT to use"** judgement
-interviewers probe. For compact runnable examples of the common patterns, see the
-[Low-Level Design Guide](LowLevelDesign.md).
+interviewers probe. For the common eight with Java examples, see the
+[Roadmap → Design Patterns](roadmap.md#6-design-patterns).
 
 !!! note "Language"
     Examples in **Java** - the language most LLD rounds expect ([Java Cheat Sheet](java-cheatsheet.md)).
@@ -302,6 +302,5 @@ void service(Logger logger) {         // pass NullLogger when "no logger" was wa
 ## Related
 
 - The common eight + per-pattern trade-offs → [Roadmap → Design Patterns](roadmap.md#6-design-patterns)
-- Compact runnable examples → [Low-Level Design Guide](LowLevelDesign.md)
 - "Which pattern?" decision tree → [LLD Mental Models](lld-mental-models.md)
 - Patterns applied in full solutions → [Worked Problems](worked-problems.md)

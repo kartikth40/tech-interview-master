@@ -233,9 +233,8 @@ tech-interview-master/
 │   ├── roadmap.md                   # OOP → SOLID → patterns → UML, in depth
 │   ├── concurrency.md               # Thread-safety, locks, double-booking
 │   ├── patterns-extended.md         # Command, CoR, Proxy, Facade, ...
-│   ├── java-cheatsheet.md           # Java-for-LLD mapped from Python
-│   ├── worked-problems.md           # Full solutions w/ trade-offs
-│   ├── LowLevelDesign.md            # SOLID, design patterns, LLD problems
+│   ├── java-cheatsheet.md           # Java specifics for LLD rounds
+│   ├── worked-problems.md           # 4 full Java solutions w/ trade-offs
 │   └── lld-mental-models.md         # Modeling flowcharts + decision trees
 │
 ├── 🏗️ SystemDesign/

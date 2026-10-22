@@ -358,5 +358,5 @@ END ON
 ## Related Resources
 
 - [System Design Guide](SystemDesignGuide.md)
-- [Low-Level Design Guide](../LLD/LowLevelDesign.md)
+- [LLD Roadmap](../LLD/roadmap.md)
 - [Microservices Component](components/microservices.md)

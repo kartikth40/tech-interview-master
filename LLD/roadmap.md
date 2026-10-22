@@ -14,10 +14,9 @@ depth with examples and trade-offs.
     is deliberately kept simple and interview-minimal. For Java syntax as a standalone reference, see
     the [Java Cheat Sheet](java-cheatsheet.md).
 
-!!! tip "Canonical code reference"
-    This page teaches the *concepts and trade-offs*. For a compact, runnable set of SOLID + GoF
-    pattern examples in one place, see the [Low-Level Design Guide](LowLevelDesign.md). OOP pillars
-    at the fundamentals level live in
+!!! tip "Where the rest lives"
+    This page teaches the *concepts and trade-offs*. Full solved designs are in
+    [Worked Problems](worked-problems.md); OOP pillars at the fundamentals level live in
     [Fundamentals → OOP & Language](../Fundamentals/oop-and-language-concepts.md).
 
 ## Roadmap at a glance
@@ -1005,7 +1004,6 @@ Patterns click only through reps - same as recognizing a sliding-window problem 
 
 - [Overview & framework](lld-overview.md) · [Concurrency](concurrency.md) ·
   [Extended Patterns](patterns-extended.md) · [Java Cheat Sheet](java-cheatsheet.md)
-- Fully solved, runnable problems with trade-offs → [Worked Problems](worked-problems.md)
-- Compact SOLID + GoF reference → [Low-Level Design Guide](LowLevelDesign.md)
+- Fully solved problems with trade-offs → [Worked Problems](worked-problems.md)
 - Visual modeling (flowcharts, decision trees) → [LLD Mental Models](lld-mental-models.md)
 - Mock interview practice → [Behavioral → Mock Practice](../Behavioral/MockPracticeFramework.md)

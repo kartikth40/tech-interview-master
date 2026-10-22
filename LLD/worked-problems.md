@@ -1,17 +1,18 @@
 ---
 title: LLD Worked Problems
-description: Three fully solved LLD problems - Parking Lot, Movie Booking (BookMyShow), and Rate Limiter - from requirements to runnable code, each with design trade-offs and talking points.
+description: Four fully solved LLD problems - Parking Lot, Movie Booking (BookMyShow), Rate Limiter, and Elevator System - from requirements to reference Java code, each with design trade-offs and talking points.
 ---
 
 # LLD Worked Problems
 
 The highest-leverage practice: full designs from requirements → classes → working code, so you
-have reference solutions to compare your own attempts against. Three problems, each showing a
+have reference solutions to compare your own attempts against. Four problems, each showing a
 different relationship/pattern mix:
 
 1. **Parking Lot** - composition/aggregation + Strategy + Factory (the canonical starter)
 2. **Movie Booking (BookMyShow)** - relationships + State + concurrency (double-booking)
 3. **Rate Limiter** - concurrency-first, thread-safe, Strategy
+4. **Elevator System** - State + scheduling (SCAN) + a dispatch policy
 
 Java for the full code; key Java idioms noted inline ([Java Cheat Sheet](java-cheatsheet.md)).
 Each follows the 7-step framework from the [overview](lld-overview.md#delivery-framework-7-steps-for-every-round).
@@ -23,9 +24,7 @@ Each follows the 7-step framework from the [overview](lld-overview.md#delivery-f
 
 !!! tip "How to use"
     Attempt the problem yourself first (5-min clarify → nouns → relationships → classes → code),
-    **then** read the solution and diff your design. Reading alone won't build the muscle. These
-    also appear in compact form in the [Low-Level Design Guide](LowLevelDesign.md); here they're
-    expanded with trade-offs and concurrency.
+    **then** read the solution and diff your design. Reading alone won't build the muscle.
 
 ---
 
@@ -618,6 +617,135 @@ Other decisions:
 
 ---
 
+# Problem 4 — Elevator System
+
+A `State` + scheduling problem: each elevator moves per its internal direction, and a
+dispatcher assigns requests to the best elevator. No external DB — everything in memory.
+
+## Step 1: Clarify
+- How many elevators / floors? → **N elevators, M floors**
+- Who decides which elevator serves a request? → a **dispatcher** (nearest suitable elevator)
+- Scheduling rule? → keep moving in the current direction, serving stops on the way (SCAN /
+  "elevator algorithm"); don't reverse while there are stops ahead
+- Concurrency? → single-threaded simulation for the demo; a real system would guard each
+  elevator's state (note it, don't over-build)
+
+## Step 2: Nouns → prune
+`ElevatorSystem, Elevator, Request, Direction`. Dropped: *floor* (an `int`, not a class);
+*button press* (becomes a `Request`).
+
+## Step 3: Relationships
+- `ElevatorSystem` ◆── `Elevator` (composition — the system owns its elevators)
+- `ElevatorSystem` ──→ `Request` (association — a request is passed in, not owned)
+- `Direction` is a simple state (`UP` / `DOWN` / `IDLE`) held by each `Elevator`
+
+## Steps 4–6: Classes + State + scheduling
+
+```java
+import java.util.*;
+
+// Entities: ElevatorSystem, Elevator, Request, Direction
+class Request {
+    int floor;
+    String direction;  // "up" | "down"
+    Request(int floor, String direction) { this.floor = floor; this.direction = direction; }
+}
+
+class Elevator {
+    int id;
+    int currentFloor = 0;
+    String direction = "idle";          // "up" | "down" | "idle"  (the State)
+    Set<Integer> destinations = new TreeSet<>();
+
+    Elevator(int id) { this.id = id; }
+
+    void addDestination(int floor) {
+        destinations.add(floor);
+        updateDirection();
+    }
+
+    // one simulation tick: move a floor toward the next stop
+    void move() {
+        if (destinations.isEmpty()) { direction = "idle"; return; }
+
+        if (direction.equals("up"))        currentFloor++;
+        else if (direction.equals("down")) currentFloor--;
+
+        if (destinations.remove(currentFloor)) {
+            System.out.println("Elevator " + id + " stopped at floor " + currentFloor);
+        }
+        updateDirection();
+    }
+
+    // keep going the same way while stops remain ahead; otherwise flip or idle
+    private void updateDirection() {
+        if (destinations.isEmpty()) { direction = "idle"; return; }
+        int maxDest = Collections.max(destinations);
+        int minDest = Collections.min(destinations);
+        if (direction.equals("up")   && maxDest > currentFloor) return;
+        if (direction.equals("down") && minDest < currentFloor) return;
+        direction = maxDest > currentFloor ? "up" : "down";
+    }
+
+    int distanceTo(int floor) { return Math.abs(currentFloor - floor); }
+}
+
+class ElevatorSystem {
+    List<Elevator> elevators = new ArrayList<>();
+
+    ElevatorSystem(int numElevators) {
+        for (int i = 0; i < numElevators; i++) elevators.add(new Elevator(i));
+    }
+
+    // Dispatch: pick the nearest idle or same-direction elevator
+    Elevator dispatch(Request request) {
+        Elevator best = null;
+        for (Elevator e : elevators) {
+            boolean usable = e.direction.equals("idle") || e.direction.equals(request.direction);
+            if (!usable) continue;
+            if (best == null || e.distanceTo(request.floor) < best.distanceTo(request.floor)) {
+                best = e;
+            }
+        }
+        if (best == null) best = elevators.get(0);   // fall back to any elevator
+        best.addDestination(request.floor);
+        return best;
+    }
+}
+
+public class ElevatorDemo {
+    public static void main(String[] args) {
+        ElevatorSystem system = new ElevatorSystem(2);
+        Elevator e = system.dispatch(new Request(5, "up"));
+        for (int t = 0; t < 5; t++) e.move();            // run until it reaches floor 5
+
+        // Expected output:
+        // Elevator 0 stopped at floor 5
+    }
+}
+```
+
+**Talking points:** each elevator is a small **state machine** (`idle → up/down`), and
+`updateDirection()` encodes the SCAN rule (don't reverse while stops remain ahead); dispatch is
+a **nearest-suitable** policy that's easy to swap for another strategy. `ElevatorSystem` owns
+its elevators (composition); a `Request` is passed in (association).
+
+### Key design trade-offs
+- **Dispatch policy.** Nearest idle/same-direction is simple and good enough for an interview;
+  mention it's a **Strategy** seam — you could swap in "minimize total wait" or zoning without
+  touching `Elevator`. For exactly one fixed policy, don't add the interface yet.
+- **`String` direction vs an `enum`.** The snippet uses strings to stay short; in real code use
+  an `enum Direction { UP, DOWN, IDLE }` — type-safe and the idiomatic Java choice. Say this out
+  loud; interviewers like the enum.
+- **Scheduling model.** The per-tick `move()` + `TreeSet` of destinations is the classic SCAN
+  (elevator) algorithm — serves stops in order along the travel direction, avoiding starvation
+  from constant reversals. A naive FIFO queue would reverse constantly and feel broken.
+- **Concurrency.** A real elevator system has concurrent button presses; you'd guard each
+  elevator's `destinations`/`direction` with a lock (see [Concurrency](concurrency.md)). Kept
+  single-threaded here so the core model stays readable.
+
+---
+
 # How to drill these
 
 1. Cover the solution. Do steps 1–3 (clarify → nouns → relationships) **on paper** in 5 min.
@@ -630,14 +758,12 @@ Other decisions:
 5. If adding the requirement forces you to edit existing classes, your OCP is weak - refactor.
 
 > Next problems to attempt the same way (increasing difficulty): Vending Machine (State),
-> Elevator (State + scheduling), Splitwise (aggregation + balance graph), Logging Framework
-> (Chain of Responsibility), In-memory Key-Value store with TTL (concurrency).
+> Splitwise (aggregation + balance graph), Logging Framework (Chain of Responsibility),
+> In-memory Key-Value store with TTL (concurrency).
 
 ## Related
 
-- An **Elevator System** reference implementation lives in the
-  [Low-Level Design Guide](LowLevelDesign.md) - a good next problem to attempt.
-- Thread-safety details behind the BookMyShow / Rate Limiter locking → [Concurrency](concurrency.md)
+- Thread-safety details behind the BookMyShow / Rate Limiter / Elevator locking → [Concurrency](concurrency.md)
 - Pattern choices justified → [Roadmap → Design Patterns](roadmap.md#6-design-patterns) ·
   [Extended Patterns](patterns-extended.md)
-- Java versions of these demos → [Java Cheat Sheet](java-cheatsheet.md)
+- Java specifics for these demos → [Java Cheat Sheet](java-cheatsheet.md)

@@ -199,7 +199,6 @@ nav:
           - Java Cheat Sheet: LLD/java-cheatsheet.md
       - Patterns:
           - Extended Patterns: LLD/patterns-extended.md
-          - Code Reference: LLD/LowLevelDesign.md
       - Practice:
           - Worked Problems: LLD/worked-problems.md
           - Mental Models: LLD/lld-mental-models.md

@@ -16,7 +16,6 @@ section builds on.
     - **Java syntax for LLD** (mapped from Python): [Java Cheat Sheet](java-cheatsheet.md)
     - **Full solved problems**: [Worked Problems](worked-problems.md)
     - **The visual modeling layer** (flowcharts, decision trees): [LLD Mental Models](lld-mental-models.md)
-    - **Canonical code reference** (SOLID + GoF patterns, runnable): [Low-Level Design Guide](LowLevelDesign.md)
 
 ---
 
@@ -237,5 +236,5 @@ Practice on paper for any five apps on your phone (Rapido, Zomato, …). Full so
 
 - [Roadmap](roadmap.md) · [Concurrency](concurrency.md) · [Extended Patterns](patterns-extended.md)
   · [Java Cheat Sheet](java-cheatsheet.md) · [Worked Problems](worked-problems.md)
-- [Low-Level Design Guide](LowLevelDesign.md) · [LLD Mental Models](lld-mental-models.md)
+- [LLD Mental Models](lld-mental-models.md)
 - OOP pillars & SOLID in [Fundamentals](../Fundamentals/oop-and-language-concepts.md) · [OOP & Design Q&A](../QA-Bank/qa-oop-design.md)

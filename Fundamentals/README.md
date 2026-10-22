@@ -58,6 +58,6 @@ maps to a Q&A file for drilling:
 - **Caching** strategies & eviction → [Caching](../SystemDesign/components/caching.md)
 - **Sharding / partitioning** → [Database Sharding](../SystemDesign/components/database-sharding.md)
 - **CAP / replication / consensus** → [Distributed Systems](../SystemDesign/DistributedSystemsConcepts.md)
-- **SOLID / GoF patterns** → [Low-Level Design](../LLD/LowLevelDesign.md)
+- **SOLID / GoF patterns** → [LLD Roadmap](../LLD/roadmap.md)
 - **Latency / estimation numbers** → [System Design Guide](../SystemDesign/SystemDesignGuide.md)
 - **Hash-table / heap / trie code** → [DSA/data-structures/](../DSA/data-structures/)

@@ -36,9 +36,9 @@ Five principles for maintainable OO design:
 - **I**nterface Segregation - many small interfaces beat one fat one.
 - **D**ependency Inversion - depend on abstractions, not concretions.
 
-Full explanations with Python examples and GoF design patterns live in the canonical home:
-👉 [Low-Level Design](../LLD/LowLevelDesign.md). Know them well enough to
-name a violation and its fix in an LLD round.
+Full explanations with Java examples and GoF design patterns live in the canonical home:
+👉 [LLD Roadmap](../LLD/roadmap.md). Know them well enough to name a violation and its fix in an
+LLD round.
 
 ---
 
@@ -129,6 +129,6 @@ to hide them).
 ## Related
 
 - Q&A drills: [OOP & Design Q&A](../QA-Bank/qa-oop-design.md)
-- SOLID + GoF patterns + LLD problems → [Low-Level Design](../LLD/LowLevelDesign.md)
+- SOLID + GoF patterns + LLD problems → [LLD Roadmap](../LLD/roadmap.md)
 - Value/reference, GC, Python runtime → [Memory & Runtime](memory-and-runtime.md)
 - Immutability & thread safety → [Concurrency & Parallelism](concurrency-and-parallelism.md)
