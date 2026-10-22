@@ -1,61 +1,96 @@
 ---
-title: Java for LLD - Cheat Sheet
-description: The Java you actually need in an LLD round - classes, access modifiers, static/final, interface vs abstract class, collections, enums, generics, exceptions, Optional, records, lambdas, streams, equals/hashCode - mapped from Python.
+title: Java specifics for LLD rounds
+description: The interview-minimal Java you actually use in an LLD round, organized by why each thing matters - the constructs in every answer, the collections you declare, the gotchas that get you dinged, concurrency primitives, and a tiny runnable skeleton.
 ---
 
-# Java for LLD - Cheat Sheet
+# Java specifics for LLD rounds
 
-Most LLD interviews are conducted in Java. This page is the Java you actually need in an LLD
-round - the constructs that come up every time - mapped from Python, which the rest of this
-section and the [DSA code library](../DSA/code-library/patterns.md) use. Not a full Java tutorial;
-just the LLD-relevant 20%.
+Most LLD interviews are conducted in Java. This page is the small slice of Java you actually
+use in a round - organized by **why** each thing matters, not as a language tutorial. Learn
+just this and you can write a clean LLD answer; skip the rest of the language for now.
 
-## Mental model: Python → Java
-
-| Python | Java | Note |
-|---|---|---|
-| duck typing | static types everywhere | you must declare types |
-| `self` | `this` | and `this` is optional unless disambiguating |
-| `__init__` | constructor `ClassName(...)` | no return type; can overload |
-| `def f(self):` | `ReturnType f() { }` | must declare return type |
-| `_x` / `__x` | `private x` | Java enforces it |
-| `list` / `dict` / `set` | `List` / `Map` / `Set` (interfaces) | program to the interface |
-| `None` | `null` (prefer `Optional`) | |
-| `ABC` + `@abstractmethod` | `interface` / `abstract class` | two distinct constructs |
-| raise | `throw` | checked vs unchecked (see below) |
-| `@dataclass` | `record` (Java 16+) | immutable value type |
-| f-string | `String.format` / `"a" + b` / text blocks | |
+!!! note "Coming from Python? Watch out for these"
+    | Python habit | Java reality |
+    |---|---|
+    | duck typing | static types everywhere - you declare every type |
+    | `None` | `null` (and prefer `Optional` over returning `null`) |
+    | native method overloading by default args | no - you write real overloads or separate methods |
+    | indentation defines blocks | `{ }` braces define blocks; `;` ends statements |
 
 ---
 
-## Class skeleton
+## 1. Constructs in every LLD answer
+
+These four show up in almost every design. Know them cold.
+
+### Interface vs abstract class
 
 ```java
-public class Account {
-    private final String id;          // final = set once (immutable field)
-    private double balance;           // mutable field
+// INTERFACE - a capability/contract. A class can implement MANY.
+public interface PaymentGateway {
+    boolean pay(double amount);                          // abstract by default
+    default boolean refundSupported() { return false; }  // Java 8+ default method (has a body)
+}
 
-    public Account(String id, double balance) {   // constructor
-        this.id = id;
-        this.balance = balance;
-    }
+// ABSTRACT CLASS - shared state + partial behavior. A class extends ONE.
+public abstract class Vehicle {
+    protected final String plate;             // shared state
+    protected Vehicle(String plate) { this.plate = plate; }
+    public String honk() { return "beep"; }   // concrete shared behavior
+    public abstract String spotSize();        // subclasses MUST implement
+}
 
-    public void deposit(double amount) {           // method: void = returns nothing
-        if (amount <= 0) throw new IllegalArgumentException("positive only");
-        this.balance += amount;
-    }
-
-    public double getBalance() { return balance; }  // getter (encapsulation)
-    public String getId()      { return id; }
+public class Car extends Vehicle implements PaymentGateway {   // extends ONE, implements MANY
+    public Car(String plate) { super(plate); }
+    @Override public String spotSize() { return "MEDIUM"; }
+    @Override public boolean pay(double amount) { return true; }
 }
 ```
 
-- `public` / `private` / `protected` control visibility (default = package-private).
-- `this.x = x` resolves the field-vs-parameter name clash.
+- `implements` for interfaces (many), `extends` for a class (one).
+- Interface = "can do X"; abstract class = "is an X with some shared guts".
+- `@Override` lets the compiler verify you actually overrode something.
 
----
+### Enum for fixed states/types
 
-## Access modifiers
+```java
+public enum SeatStatus { FREE, HELD, BOOKED }
+
+// enums can carry fields + methods - ideal for state machines & tiers
+public enum VehicleType {
+    CAR(2), BIKE(1), TRUCK(4);
+    private final int spotsNeeded;
+    VehicleType(int n) { this.spotsNeeded = n; }
+    public int getSpotsNeeded() { return spotsNeeded; }
+}
+```
+
+Model a fixed set of states/types as an `enum`, never as `String` constants - the compiler
+then catches typos and missing cases.
+
+### Constructor injection (and `@Autowired`)
+
+```java
+interface Database { void save(String data); }
+
+class OrderService {
+    private final Database db;
+    OrderService(Database db) {   // constructor injection: dependency is required + final
+        this.db = db;
+    }
+}
+
+new OrderService(new MySQLDatabase());   // swap to a FakeDatabase in tests freely
+```
+
+`@Autowired` is the Spring version of the same idea: instead of you calling `new`, the Spring
+container creates the `Database` bean and injects it into the constructor, so `OrderService`
+never news-up its own dependency. **Constructor** injection is preferred over field injection
+because the dependency is required, visible, and can be `final` (immutable), and the class is
+easy to build in a plain unit test without a container. This is DIP in practice - see the
+[DIP note in the roadmap](roadmap.md).
+
+### Access modifiers
 
 | Modifier | Visible from |
 |---|---|
@@ -64,250 +99,56 @@ public class Account {
 | *(none)* | same package only (package-private) |
 | `private` | same class only |
 
-LLD default: fields `private`, methods `public` if they're the API, `private` if helpers.
+LLD default: fields `private`, methods `public` when they're the API, `private` for helpers.
+`this.x = x` resolves the field-vs-parameter name clash.
 
 ---
 
-## `static` and `final`
+## 2. Collections you'll declare
 
-```java
-public class IdGen {
-    public static final int MAX = 1000;     // static final = shared constant (CONVENTION: UPPER)
-    private static int counter = 0;         // shared across all instances
-
-    public static int next() {              // call as IdGen.next() - no object needed
-        return ++counter;
-    }
-}
-```
-
-- `static` → belongs to the class, not an instance (constants, counters, factories, utils).
-- `final` on a **variable** → can't reassign; on a **method** → can't override; on a **class**
-  → can't extend.
-
----
-
-## Interface vs abstract class (the LLD workhorses)
-
-```java
-// INTERFACE - a capability/contract. A class can implement MANY.
-public interface PaymentGateway {
-    boolean pay(double amount);                       // abstract by default
-    default boolean refundSupported() { return false; }  // Java 8+ default method (has a body)
-    static PaymentGateway noop() { return amt -> true; } // static factory on interface
-}
-
-// ABSTRACT CLASS - shared state + partial behavior. A class extends ONE.
-public abstract class Vehicle {
-    protected final String plate;         // shared state
-    protected Vehicle(String plate) { this.plate = plate; }
-    public String honk() { return "beep"; }   // concrete shared behavior
-    public abstract String spotSize();         // subclasses MUST implement
-}
-
-public class Car extends Vehicle implements PaymentGateway {   // extends one, implements many
-    public Car(String plate) { super(plate); }
-    public String spotSize() { return "MEDIUM"; }
-    public boolean pay(double amount) { return true; }
-}
-```
-
-- `implements` for interfaces, `extends` for classes.
-- `super(...)` calls the parent constructor; `super.method()` calls the parent's version.
-- `@Override` on overriding methods - the compiler verifies you actually override something.
-
----
-
-## Collections (program to the interface)
+Program to the **interface** (`List`/`Map`/`Set`), instantiate the concrete type.
 
 ```java
 import java.util.*;
 
-List<String> names = new ArrayList<>();        // declare as List, instantiate ArrayList
-names.add("a"); names.get(0); names.size();
-
+List<String> names = new ArrayList<>();            // declare as List, instantiate ArrayList
 Map<String, Integer> ages = new HashMap<>();
-ages.put("ravi", 30); ages.get("ravi"); ages.getOrDefault("x", 0);
-ages.containsKey("ravi");
-
 Set<Integer> seen = new HashSet<>();
-seen.add(1); seen.contains(1);
 
-Deque<Integer> stack = new ArrayDeque<>();     // use as stack or queue
-stack.push(1); stack.pop(); stack.peek();
-
-Queue<Integer> q = new LinkedList<>();
-q.offer(1); q.poll(); q.peek();
-
-// iterate
-for (String n : names) { ... }
-for (Map.Entry<String,Integer> e : ages.entrySet()) { e.getKey(); e.getValue(); }
+Deque<Integer> stack = new ArrayDeque<>();         // stack: push/pop/peek
+Queue<Integer> q = new LinkedList<>();             // queue: offer/poll/peek
+Queue<Integer> pq = new PriorityQueue<>();         // heap: smallest out first
 ```
 
-Concurrent variants for thread-safe LLD: `ConcurrentHashMap`, `CopyOnWriteArrayList`,
-`ConcurrentLinkedQueue`, `BlockingQueue`.
+Pick the shape by need: **Deque** for stack/queue, **Queue/PriorityQueue** when you want
+FIFO or priority ordering.
 
----
-
-## Enums (use them for states & fixed sets)
+### Map idioms that prevent bugs
 
 ```java
-public enum SeatStatus { FREE, HELD, BOOKED }
+ages.getOrDefault("x", 0);                         // read with a default, no null check
+ages.putIfAbsent("ravi", 30);                      // only set if missing
+counts.merge("a", 1, Integer::sum);                // increment-or-init a counter
 
-// enums can have fields + methods - great for state machines & pricing tiers
-public enum VehicleType {
-    CAR(2), BIKE(1), TRUCK(4);
-    private final int spotsNeeded;
-    VehicleType(int n) { this.spotsNeeded = n; }
-    public int getSpotsNeeded() { return spotsNeeded; }
-}
-
-SeatStatus s = SeatStatus.FREE;
-switch (s) {
-    case FREE  -> System.out.println("open");
-    case BOOKED -> System.out.println("taken");
-    default -> {}
-}
+// one-liner "group into buckets" without manual null checks
+Map<String, List<String>> byCity = new HashMap<>();
+byCity.computeIfAbsent("BLR", k -> new ArrayList<>()).add("ravi");
 ```
 
-Enums are the idiomatic way to model a fixed set of states/types in Java LLD - cleaner than
-string constants.
+### Thread-safe variants
+
+For concurrent LLD, use `ConcurrentHashMap`, `CopyOnWriteArrayList`, or a `BlockingQueue`
+instead of the plain versions. Details and when-to-use live in
+[Concurrency](concurrency.md) - don't reinvent locking around a plain `HashMap`.
 
 ---
 
-## Generics (type-safe containers & methods)
+## 3. Gotchas that get you dinged
 
-```java
-// generic class
-public class Box<T> {
-    private T value;
-    public void set(T v) { this.value = v; }
-    public T get() { return value; }
-}
-Box<String> b = new Box<>();    // T = String
+### `equals` + `hashCode` together (for Map/Set keys)
 
-// generic method
-public static <T> T firstOrNull(List<T> list) {
-    return list.isEmpty() ? null : list.get(0);
-}
-
-// bounded type - T must be Comparable
-public static <T extends Comparable<T>> T max(T a, T b) {
-    return a.compareTo(b) >= 0 ? a : b;
-}
-
-// wildcards
-List<? extends Number> nums;    // read-only "some subtype of Number"
-List<? super Integer> sink;     // write Integers into it
-```
-
-Comes up in a generic `Repository<T>`, a `Cache<K,V>`, or an event bus.
-
----
-
-## Exceptions
-
-```java
-// custom exception hierarchy (good LLD signal)
-public class BookingException extends RuntimeException {   // unchecked (RuntimeException)
-    public BookingException(String msg) { super(msg); }
-}
-public class SeatUnavailableException extends BookingException {
-    public SeatUnavailableException(String seat) { super("seat taken: " + seat); }
-}
-
-void book(String seat) {
-    if (taken(seat)) throw new SeatUnavailableException(seat);
-}
-
-try {
-    book("A1");
-} catch (SeatUnavailableException e) {
-    System.out.println(e.getMessage());
-} finally {
-    // always runs (cleanup)
-}
-```
-
-- **Checked** (extends `Exception`) → must be declared with `throws` or caught. Interviewers
-  often prefer **unchecked** (`RuntimeException`) for domain errors to avoid clutter.
-- Design a small exception hierarchy per domain; don't throw raw `Exception`.
-
----
-
-## `Optional` (avoid null)
-
-```java
-import java.util.Optional;
-
-Optional<Account> find(String id) {
-    return accounts.containsKey(id) ? Optional.of(accounts.get(id)) : Optional.empty();
-}
-
-find("x").ifPresent(a -> System.out.println(a.getBalance()));
-Account a = find("x").orElseThrow(() -> new BookingException("not found"));
-double bal = find("x").map(Account::getBalance).orElse(0.0);
-```
-
-Signals "may be absent" in the type system instead of returning `null`.
-
----
-
-## `record` - immutable value objects (Java 16+)
-
-```java
-public record Money(long amountInPaise, String currency) { }   // auto ctor/getters/equals/hashCode/toString
-Money m = new Money(50000, "INR");
-m.amountInPaise();                 // accessor (no "get" prefix)
-```
-
-The Java answer to `@dataclass(frozen=True)`. Perfect for `Money`, `Point`, `SeatId`,
-immutable DTOs - and immutable = thread-safe for free.
-
----
-
-## Lambdas & functional interfaces
-
-```java
-Runnable r = () -> System.out.println("run");
-Comparator<String> byLen = (a, b) -> a.length() - b.length();
-names.sort(byLen);
-names.sort(Comparator.comparingInt(String::length));   // method reference
-
-// Strategy via lambda (no concrete class needed)
-interface Discount { double apply(double price); }
-Discount tenPct = price -> price * 0.9;
-```
-
-Any interface with one abstract method (`@FunctionalInterface`) can be a lambda - lets you
-implement Strategy/Command inline.
-
----
-
-## Streams (concise collection processing)
-
-```java
-import java.util.stream.*;
-
-List<String> result = names.stream()
-    .filter(n -> n.length() > 2)
-    .map(String::toUpperCase)
-    .sorted()
-    .collect(Collectors.toList());
-
-int total = items.stream().mapToInt(Item::getPrice).sum();
-Map<Type, List<Item>> byType = items.stream()
-    .collect(Collectors.groupingBy(Item::getType));
-```
-
-Don't overuse in LLD - readability first - but handy for aggregations.
-
----
-
-## `equals` / `hashCode` (needed for Map/Set keys)
-
-If you put your object in a `HashSet`/`HashMap` key, override both (or use a `record`, which
-does it for you):
+If an object is a `HashSet` element or `HashMap` key, override **both** - or use a `record`,
+which generates them for you.
 
 ```java
 @Override public boolean equals(Object o) {
@@ -319,11 +160,53 @@ does it for you):
 @Override public int hashCode() { return Objects.hash(row, col); }
 ```
 
-Rule: equal objects must have equal hashCodes. A `record` handles this automatically.
+Rule: equal objects must have equal hashCodes.
+
+### `==` vs `.equals()`
+
+`==` compares references (same object?); `.equals()` compares value. For objects - especially
+`String` - use `.equals()`. `==` is only for primitives and null checks.
+
+### `record` for immutable value objects (Java 16+)
+
+```java
+public record Money(long amountInPaise, String currency) { }   // auto ctor/getters/equals/hashCode
+Money m = new Money(50000, "INR");
+m.amountInPaise();                 // accessor (no "get" prefix)
+```
+
+Perfect for `Money`, `Point`, `SeatId`, immutable DTOs - and immutable = thread-safe for free.
+
+### `final` and `Optional`
+
+- `final` field = set once (immutability); `final` method = can't override; `final` class =
+  can't extend. Prefer `final` fields for anything that shouldn't change after construction.
+- Return `Optional<T>` instead of `null` so "may be absent" shows up in the type:
+
+```java
+Optional<Account> find(String id) {
+    return Optional.ofNullable(accounts.get(id));
+}
+Account a = find("x").orElseThrow(() -> new IllegalStateException("not found"));
+```
 
 ---
 
-## Minimal runnable program
+## 4. Concurrency primitives (brief)
+
+For thread safety: `synchronized` methods/blocks for simple mutual exclusion, `ReentrantLock`
+when you need tryLock/fairness, and `AtomicInteger` for lock-free counters. Keep it minimal in
+an interview and reach for `ConcurrentHashMap`/`BlockingQueue` before hand-rolling locks.
+
+Full treatment - locks, semaphores, executors, the producer/consumer pattern - is in
+[Concurrency](concurrency.md). Don't duplicate it here; just name the primitive you'd use and
+link the detail.
+
+---
+
+## 5. A tiny runnable skeleton
+
+Your "working demo": a `main` that builds objects in memory and prints results.
 
 ```java
 public class Main {
@@ -334,8 +217,15 @@ public class Main {
 }
 ```
 
-Compile/run: `javac Main.java && java Main`. In an in-memory LLD demo, your `main` creates
-objects and prints results - that's your "working demo".
+Compile/run: `javac Main.java && java Main`.
+
+---
+
+## Streams & lambdas (2-line mention)
+
+A lambda is a one-method implementation inline (`Comparator<String> c = (a, b) -> a.length() -
+b.length();`) - handy for Strategy/Command. Streams (`list.stream().filter(...).map(...)`) are
+fine for small aggregations but don't let them hurt readability in an LLD answer.
 
 ---
 
