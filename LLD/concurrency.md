@@ -10,9 +10,9 @@ push hard here. The question is almost always some variant of: *"multiple thread
 in-memory store at once - don't lose data, don't double-book, don't deadlock."*
 
 !!! note "Language"
-    Primary examples in **Python**; **Java** shown alongside because most LLD interviews are in
-    Java and Java's concurrency model is what interviewers probe. The GIL makes Python's story
-    different - that difference is itself a good talking point. See also
+    Examples in **Java** - most LLD interviews are in Java and Java's concurrency model (true
+    parallel threads) is what interviewers probe. Python's GIL gives a different story, kept here
+    as a short prose talking point. See also
     [Fundamentals → Concurrency & Parallelism](../Fundamentals/concurrency-and-parallelism.md) for
     the CS-level treatment, and [Concurrency Q&A](../QA-Bank/qa-concurrency.md) for drills.
 
@@ -22,13 +22,15 @@ Your "database" is an in-memory data structure. In a single-threaded demo that's
 moment the interviewer says *"what if two users book the last seat simultaneously?"*, a
 plain `dict`/`HashMap` with check-then-act logic is **broken**:
 
-```python
-# RACE CONDITION - two threads can both pass the check before either writes
-def book(seat_id):
-    if seats[seat_id] == "FREE":     # T1 and T2 both read FREE
-        seats[seat_id] = "BOOKED"    # both write -> double booking
-        return True
-    return False
+```java
+// RACE CONDITION - two threads can both pass the check before either writes
+boolean book(String seatId) {
+    if ("FREE".equals(seats.get(seatId))) {   // T1 and T2 both read FREE
+        seats.put(seatId, "BOOKED");          // both write -> double booking
+        return true;
+    }
+    return false;
+}
 ```
 
 This is a **check-then-act** race (also called TOCTOU - time-of-check to time-of-use). The
@@ -57,9 +59,9 @@ time. Consequences you should state:
 
 - Python threads give **concurrency, not parallelism** for CPU-bound work. For CPU parallelism
   you'd use `multiprocessing`.
-- The GIL does **not** make your code thread-safe. A single bytecode op is atomic, but
-  `if seats[x]=="FREE": seats[x]="BOOKED"` is **multiple** ops → still races. You still need
-  locks.
+- The GIL does **not** make your code thread-safe. A single bytecode op is atomic, but a
+  check-then-act (read a seat, see FREE, then write BOOKED) is **multiple** ops → still races.
+  You still need locks.
 - Java has true parallel threads, so Java's thread-safety concerns are sharper - which is why
   interviewers usually want the Java reasoning.
 
@@ -70,29 +72,6 @@ time. Consequences you should state:
 ---
 
 ## Tool 1 - Locks (mutual exclusion)
-
-### Python
-
-```python
-import threading
-
-class SeatStore:
-    def __init__(self):
-        self._seats = {}                 # seat_id -> "FREE" | "BOOKED"
-        self._lock = threading.Lock()    # one global lock (coarse-grained)
-
-    def book(self, seat_id: str) -> bool:
-        with self._lock:                 # critical section - only one thread inside
-            if self._seats.get(seat_id) == "FREE":
-                self._seats[seat_id] = "BOOKED"
-                return True
-            return False
-```
-
-`with self._lock:` acquires on enter, releases on exit (even on exception). Always prefer the
-context manager over manual `acquire()/release()`.
-
-### Java
 
 ```java
 import java.util.concurrent.locks.ReentrantLock;
@@ -140,19 +119,33 @@ method B that also locks). A plain `threading.Lock()` would **deadlock on itself
 One global lock is correct but slow - it serializes *everything*. Finer locks = more
 parallelism, more deadlock risk.
 
-```python
-# FINE-GRAINED: one lock per seat -> two users booking DIFFERENT seats don't block each other
-class SeatStore:
-    def __init__(self, seat_ids):
-        self._seats = {s: "FREE" for s in seat_ids}
-        self._locks = {s: threading.Lock() for s in seat_ids}
+```java
+// FINE-GRAINED: one lock per seat -> two users booking DIFFERENT seats don't block each other
+class SeatStore {
+    private final Map<String, String> seats = new HashMap<>();
+    private final Map<String, ReentrantLock> locks = new HashMap<>();
 
-    def book(self, seat_id: str) -> bool:
-        with self._locks[seat_id]:       # only locks THIS seat
-            if self._seats[seat_id] == "FREE":
-                self._seats[seat_id] = "BOOKED"
-                return True
-            return False
+    SeatStore(List<String> seatIds) {
+        for (String s : seatIds) {
+            seats.put(s, "FREE");
+            locks.put(s, new ReentrantLock());
+        }
+    }
+
+    boolean book(String seatId) {
+        ReentrantLock lock = locks.get(seatId);
+        lock.lock();                         // only locks THIS seat
+        try {
+            if ("FREE".equals(seats.get(seatId))) {
+                seats.put(seatId, "BOOKED");
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 ```
 
 Talking point: *"Coarse lock is simplest and always correct; I'd start there, then shard the
@@ -192,17 +185,6 @@ guard a `dict` with a `Lock`, or use `threading` primitives. State this differen
 Use when up to N threads may enter (e.g. a parking lot with N free spots, a connection pool
 of size N).
 
-```python
-import threading
-sem = threading.Semaphore(100)        # 100 permits = 100 parking spots
-
-def park():
-    if sem.acquire(blocking=False):   # non-blocking: fail fast if lot full
-        # ... park the car ...
-        return True
-    return False                       # lot full
-```
-
 ```java
 import java.util.concurrent.Semaphore;
 Semaphore spots = new Semaphore(100);
@@ -219,27 +201,42 @@ Lock = semaphore with 1 permit. Semaphore = generalization to N.
 Use when a thread must **wait until** some condition holds (producer/consumer, "wait for a
 spot to free up").
 
-```python
-import threading
+```java
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
-class BoundedLot:
-    def __init__(self, capacity):
-        self._free = capacity
-        self._cond = threading.Condition()
+class BoundedLot {
+    private int free;
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition notFull = lock.newCondition();
 
-    def park(self):
-        with self._cond:
-            while self._free == 0:
-                self._cond.wait()         # releases lock, sleeps until notified
-            self._free -= 1
+    BoundedLot(int capacity) { this.free = capacity; }
 
-    def leave(self):
-        with self._cond:
-            self._free += 1
-            self._cond.notify()           # wake one waiting thread
+    void park() throws InterruptedException {
+        lock.lock();
+        try {
+            while (free == 0) {
+                notFull.await();          // releases lock, sleeps until signalled
+            }
+            free--;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    void leave() {
+        lock.lock();
+        try {
+            free++;
+            notFull.signal();             // wake one waiting thread
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 ```
 
-Always `wait()` inside a `while` (not `if`) to re-check the condition after waking - guards
+Always `await()` inside a `while` (not `if`) to re-check the condition after waking - guards
 against spurious wakeups and lost races.
 
 ---
@@ -256,14 +253,25 @@ Most practical fixes:
 2. **`tryLock` with timeout** - if you can't get all locks, back off and retry.
 3. **Coarse lock** - one lock = can't deadlock (at the cost of throughput).
 
-```python
-# transfer money between two accounts WITHOUT deadlock: lock in a fixed order
-def transfer(a, b, amount):
-    first, second = sorted([a, b], key=lambda acc: acc.id)   # consistent ordering
-    with first.lock:
-        with second.lock:
-            a.balance -= amount
-            b.balance += amount
+```java
+// transfer money between two accounts WITHOUT deadlock: lock in a fixed order
+void transfer(Account a, Account b, int amount) {
+    // consistent ordering by id breaks circular wait
+    Account first  = a.id < b.id ? a : b;
+    Account second = a.id < b.id ? b : a;
+    first.lock.lock();
+    try {
+        second.lock.lock();
+        try {
+            a.balance -= amount;
+            b.balance += amount;
+        } finally {
+            second.lock.unlock();
+        }
+    } finally {
+        first.lock.unlock();
+    }
+}
 ```
 
 ---
@@ -281,34 +289,60 @@ When asked *"two users book the last seat at once"*, present this progression:
    scheduled task if payment doesn't complete → `ScheduledExecutorService` (Java) /
    `threading.Timer` (Python).
 
-```python
-# Fine-grained + hold-with-timeout sketch
-import threading
+```java
+// Fine-grained + hold-with-timeout sketch
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
-class SeatBooking:
-    def __init__(self, seat_ids):
-        self._state = {s: "FREE" for s in seat_ids}   # FREE | HELD | BOOKED
-        self._locks = {s: threading.Lock() for s in seat_ids}
+class SeatBooking {
+    private final Map<String, String> state = new HashMap<>();   // FREE | HELD | BOOKED
+    private final Map<String, ReentrantLock> locks = new HashMap<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    def hold(self, seat_id, hold_seconds=300) -> bool:
-        with self._locks[seat_id]:
-            if self._state[seat_id] != "FREE":
-                return False
-            self._state[seat_id] = "HELD"
-        threading.Timer(hold_seconds, self._release_if_held, args=[seat_id]).start()
-        return True
+    SeatBooking(List<String> seatIds) {
+        for (String s : seatIds) {
+            state.put(s, "FREE");
+            locks.put(s, new ReentrantLock());
+        }
+    }
 
-    def confirm(self, seat_id) -> bool:
-        with self._locks[seat_id]:
-            if self._state[seat_id] == "HELD":
-                self._state[seat_id] = "BOOKED"
-                return True
-            return False
+    boolean hold(String seatId, int holdSeconds) {
+        ReentrantLock lock = locks.get(seatId);
+        lock.lock();
+        try {
+            if (!"FREE".equals(state.get(seatId))) return false;
+            state.put(seatId, "HELD");
+        } finally {
+            lock.unlock();
+        }
+        scheduler.schedule(() -> releaseIfHeld(seatId), holdSeconds, TimeUnit.SECONDS);
+        return true;
+    }
 
-    def _release_if_held(self, seat_id):
-        with self._locks[seat_id]:
-            if self._state[seat_id] == "HELD":
-                self._state[seat_id] = "FREE"
+    boolean confirm(String seatId) {
+        ReentrantLock lock = locks.get(seatId);
+        lock.lock();
+        try {
+            if ("HELD".equals(state.get(seatId))) {
+                state.put(seatId, "BOOKED");
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void releaseIfHeld(String seatId) {
+        ReentrantLock lock = locks.get(seatId);
+        lock.lock();
+        try {
+            if ("HELD".equals(state.get(seatId))) state.put(seatId, "FREE");
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 ```
 
 ---
@@ -316,12 +350,6 @@ class SeatBooking:
 ## Thread pools / executors (don't spawn raw threads)
 
 For "process many requests concurrently", use a pool, not `Thread()` per request.
-
-```python
-from concurrent.futures import ThreadPoolExecutor
-with ThreadPoolExecutor(max_workers=10) as pool:
-    futures = [pool.submit(handle, req) for req in requests]
-```
 
 ```java
 import java.util.concurrent.*;

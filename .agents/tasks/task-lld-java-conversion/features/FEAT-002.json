@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-002",
+  "type": "refactor",
+  "description": "Convert the three compact/reference files — LowLevelDesign.md (17 py), patterns-extended.md (7 py), concurrency.md (8 py) — from Python to simple Java, deleting the Python versions. Ensure each pattern keeps its definition + 'Use when:'/'when NOT to use' notes, KEEP the patterns-extended cheat-sheet table, and keep the concurrency GIL insight as prose. Independent of the other features (distinct files).",
+  "status": "completed",
+  "steps": [
+    "LowLevelDesign.md: read it first. Convert all 17 ```python fences to simple ```java. Covers the SOLID section (SRP, OCP, LSP, ISP, DIP), the Design Patterns section (Singleton, Factory Method, Builder, Adapter, Decorator, Proxy, Observer, Strategy, Command), and the 3 LLD problems (Parking Lot, Elevator System, Rate Limiter). KEEP every '> definition' line and every '**Use when:**' line. Convert its LSP Square/Rectangle example to simple Java (a short Shape-split is fine; it need not match roadmap's Bird example). Keep the LLD-vs-HLD table, the Quick Reference table, the Common Mistakes table, and all prose/cross-links.",
+    "patterns-extended.md: read it first. Convert all 7 ```python fences (Command, Chain of Responsibility, Template Method, Facade, Proxy, Composite, Null Object) to simple Java. For EACH pattern ensure a one-line plain-language definition before the code + a clear simple-Java showcase. KEEP all 'Don't use'/trade-off notes AND the 'Pattern selection cheat sheet' table (do NOT remove or convert that table). Update the `!!! note \"Language\"` admonition so it no longer says 'Python primary'.",
+    "concurrency.md: read it first. Convert all 8 ```python fences to simple Java: the opening race-condition snippet, Tool 1 (Python lock -> ReentrantLock/synchronized), Tool 2 (fine-grained per-key lock), Tool 4 (Semaphore), Tool 5 (Condition variable -> ReentrantLock+Condition), the deadlock lock-ordering transfer, the double-booking hold-with-timeout sketch (ScheduledExecutorService), and the thread-pool snippet (ThreadPoolExecutor -> ExecutorService). KEEP the existing Java blocks. The 'Python's GIL' section is a real teaching point: keep its INSIGHT as PROSE (reword the 'Interview line' so it compares Python vs Java without a Python code block) so NO ```python fence remains. Update the `!!! note \"Language\"` admonition.",
+    "Run the strict build; fix anything flagged. Commit locally on branch lld-java (e.g. `refactor(LLD): convert LowLevelDesign/patterns-extended/concurrency to Java`). Do NOT push."
+  ],
+  "acceptance_criteria": [
+    "`grep -c '```python'` returns 0 for LowLevelDesign.md, patterns-extended.md, and concurrency.md.",
+    "The 'Pattern selection cheat sheet' table is still present in patterns-extended.md.",
+    "Each pattern in patterns-extended.md and LowLevelDesign.md has a one-line definition + a ```java example; every '**Use when:**' line in LowLevelDesign.md is preserved.",
+    "concurrency.md still contains the GIL section as prose and has no ```python fence; the Java concurrency examples (ReentrantLock, Semaphore, Condition, ScheduledExecutorService) are present.",
+    "`cd <worktree> && DISABLE_MKDOCS_2_WARNING=true python -m mkdocs build --strict` exits 0 with no NEW WARNING from these files."
+  ],
+  "verification": [
+    "cd c:\\Users\\kathakur\\cod_e\\code-snippets\\.worktrees\\lld-java && DISABLE_MKDOCS_2_WARNING=true python -m mkdocs build --strict",
+    "for f in LowLevelDesign.md patterns-extended.md concurrency.md; do echo -n \"$f python fences: \"; grep -c '```python' LLD/$f; done   # all 0",
+    "grep -c 'Pattern selection cheat sheet' LLD/patterns-extended.md   # expect 1"
+  ],
+  "blocked_reason": null,
+  "findings": "Converted all 32 python fences to simple Java across the three files (LowLevelDesign.md 17, patterns-extended.md 7, concurrency.md 8). grep -c '```python' now returns 0 for all three; every opening fence is ```java (17/7/10). LowLevelDesign.md: kept all 5 SOLID '> definition' lines, every pattern definition + '**Use when:**' line, and the LLD-vs-HLD / Quick Reference / Common Mistakes tables (also cleaned 'abc.ABC' mention from the mistakes table). LSP example rewritten as a Java Shape split. patterns-extended.md: Command/CoR/Template/Facade/Proxy/Composite/Null Object all now simple Java with one-line definitions; all 'Don't use'/trade-off notes kept; 'Pattern selection cheat sheet' table preserved verbatim (grep -c = 1); Language admonition updated to Java. concurrency.md: race snippet, Tool 1 (ReentrantLock + synchronized note, dropped the Python/Java subheads keeping the Java block), Tool 2 (per-key ReentrantLock), Tool 4 (Semaphore), Tool 5 (ReentrantLock+Condition), deadlock lock-ordering transfer, hold-with-timeout (ScheduledExecutorService), thread-pool (ExecutorService). Existing Java blocks kept. GIL section kept as PROSE with no python fence (reworded the inline check-then-act example and the Interview-line comparison); Language admonition updated. Strict build `python -m mkdocs build --strict` exits 0 with only pre-existing INFO (DSA anchors / unrecognized relative links) and no new LLD WARNING. Committed on branch lld-java; not pushed."
+}
