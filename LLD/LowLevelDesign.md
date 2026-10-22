@@ -67,34 +67,40 @@ Every LLD answer should demonstrate SOLID awareness.
 ### S - Single Responsibility Principle
 > A class should have only one reason to change.
 
-```python
-# ❌ Bad: One class doing too much
-class UserManager:
-    def create_user(self, data): ...
-    def send_welcome_email(self, user): ...  # Email logic here?
-    def save_to_database(self, user): ...     # DB logic here?
+```java
+// ❌ Bad: One class doing too much
+class UserManager {
+    void createUser(Data data) { }
+    void sendWelcomeEmail(User user) { }  // Email logic here?
+    void saveToDatabase(User user) { }    // DB logic here?
+}
 
+// ✅ Good: Separate responsibilities
+class UserService {
+    private final UserRepository userRepo;
+    private final EmailService emailService;
 
-# ✅ Good: Separate responsibilities
-class UserService:
-    def __init__(self, user_repo, email_service):
-        self.user_repo = user_repo
-        self.email_service = email_service
+    UserService(UserRepository userRepo, EmailService emailService) {
+        this.userRepo = userRepo;
+        this.emailService = emailService;
+    }
 
-    def create_user(self, data):
-        user = User(data)
-        self.user_repo.save(user)
-        self.email_service.send_welcome(user)
-        return user
+    User createUser(Data data) {
+        User user = new User(data);
+        userRepo.save(user);
+        emailService.sendWelcome(user);
+        return user;
+    }
+}
 
+class UserRepository {
+    void save(User user) { }       // DB logic
+    User findById(String id) { return null; }  // DB logic
+}
 
-class UserRepository:
-    def save(self, user): ...      # DB logic
-    def find_by_id(self, id): ...  # DB logic
-
-
-class EmailService:
-    def send_welcome(self, user): ...  # Email logic
+class EmailService {
+    void sendWelcome(User user) { }  // Email logic
+}
 ```
 
 ---
@@ -102,42 +108,42 @@ class EmailService:
 ### O - Open/Closed Principle
 > Open for extension, closed for modification.
 
-```python
-from abc import ABC, abstractmethod
+```java
+// ❌ Bad: Adding a new payment type requires modifying the existing class
+class PaymentProcessor {
+    void process(String type, double amount) {
+        if (type.equals("credit")) {
+            // ...
+        } else if (type.equals("debit")) {
+            // ...
+        } else if (type.equals("upi")) {
+            // ...  keep adding branches?
+        }
+    }
+}
 
+// ✅ Good: Extend without modifying
+interface Payment {
+    void execute();
+}
 
-# ❌ Bad: Adding a new payment type requires modifying the existing class
-class PaymentProcessor:
-    def process(self, type, amount):
-        if type == "credit":
-            ...
-        elif type == "debit":
-            ...
-        elif type == "upi":
-            ...  # keep adding branches?
+class PaymentProcessor {
+    void process(Payment payment) {
+        payment.execute();  // polymorphism
+    }
+}
 
+class CreditCardPayment implements Payment {
+    public void execute() { }  // credit card logic
+}
 
-# ✅ Good: Extend without modifying
-class Payment(ABC):
-    @abstractmethod
-    def execute(self): ...
+class UPIPayment implements Payment {
+    public void execute() { }  // UPI logic
+}
 
-
-class PaymentProcessor:
-    def process(self, payment: Payment):
-        payment.execute()  # polymorphism
-
-
-class CreditCardPayment(Payment):
-    def execute(self): ...  # credit card logic
-
-
-class UPIPayment(Payment):
-    def execute(self): ...  # UPI logic
-
-
-class CryptoPayment(Payment):  # new type - no existing code changed
-    def execute(self): ...  # crypto logic
+class CryptoPayment implements Payment {  // new type - no existing code changed
+    public void execute() { }  // crypto logic
+}
 ```
 
 ---
@@ -145,42 +151,36 @@ class CryptoPayment(Payment):  # new type - no existing code changed
 ### L - Liskov Substitution Principle
 > Subtypes must be substitutable for their base types.
 
-```python
-from abc import ABC, abstractmethod
+```java
+// ❌ Bad: Square breaks Rectangle's contract
+class Rectangle {
+    protected int width, height;
+    void setWidth(int w)  { this.width = w; }
+    void setHeight(int h) { this.height = h; }
+    int area() { return width * height; }
+}
 
+class Square extends Rectangle {
+    void setWidth(int w)  { this.width = this.height = w; }   // breaks LSP!
+    void setHeight(int h) { this.width = this.height = h; }   // breaks LSP!
+}
 
-# ❌ Bad: Square breaks Rectangle's contract
-class Rectangle:
-    def set_width(self, w): self.width = w
-    def set_height(self, h): self.height = h
-    def area(self): return self.width * self.height
+// ✅ Good: Use a separate hierarchy
+interface Shape {
+    int area();
+}
 
+class Rectangle implements Shape {
+    private final int w, h;
+    Rectangle(int w, int h) { this.w = w; this.h = h; }
+    public int area() { return w * h; }
+}
 
-class Square(Rectangle):
-    def set_width(self, w): self.width = self.height = w   # breaks LSP!
-    def set_height(self, h): self.width = self.height = h  # breaks LSP!
-
-
-# ✅ Good: Use a separate hierarchy
-class Shape(ABC):
-    @abstractmethod
-    def area(self): ...
-
-
-class Rectangle(Shape):
-    def __init__(self, w, h):
-        self.w, self.h = w, h
-
-    def area(self):
-        return self.w * self.h
-
-
-class Square(Shape):
-    def __init__(self, side):
-        self.side = side
-
-    def area(self):
-        return self.side * self.side
+class Square implements Shape {
+    private final int side;
+    Square(int side) { this.side = side; }
+    public int area() { return side * side; }
+}
 ```
 
 ---
@@ -188,53 +188,43 @@ class Square(Shape):
 ### I - Interface Segregation Principle
 > Clients should not be forced to depend on interfaces they don't use.
 
-```python
-from abc import ABC, abstractmethod
+```java
+// ❌ Bad: Fat interface forces all implementors to implement everything
+interface Animal {
+    void eat();
+    void sleep();
+    void fly();   // not all animals fly!
+    void swim();  // not all animals swim!
+}
 
+// ✅ Good: Segregated interfaces
+interface Animal {
+    void eat();
+    void sleep();
+}
 
-# ❌ Bad: Fat interface forces all implementors to implement everything
-class Animal(ABC):
-    @abstractmethod
-    def eat(self): ...
-    @abstractmethod
-    def sleep(self): ...
-    @abstractmethod
-    def fly(self): ...   # not all animals fly!
-    @abstractmethod
-    def swim(self): ...  # not all animals swim!
+interface Flyable {
+    void fly();
+}
 
+interface Swimmable {
+    void swim();
+}
 
-# ✅ Good: Segregated interfaces (mixins)
-class Animal(ABC):
-    @abstractmethod
-    def eat(self): ...
-    @abstractmethod
-    def sleep(self): ...
+// Duck can fly AND swim
+class Duck implements Animal, Flyable, Swimmable {
+    public void eat() { }
+    public void sleep() { }
+    public void fly() { }
+    public void swim() { }
+}
 
-
-class Flyable(ABC):
-    @abstractmethod
-    def fly(self): ...
-
-
-class Swimmable(ABC):
-    @abstractmethod
-    def swim(self): ...
-
-
-# Duck can fly AND swim
-class Duck(Animal, Flyable, Swimmable):
-    def eat(self): ...
-    def sleep(self): ...
-    def fly(self): ...
-    def swim(self): ...
-
-
-# Dog can only swim
-class Dog(Animal, Swimmable):
-    def eat(self): ...
-    def sleep(self): ...
-    def swim(self): ...
+// Dog can only swim
+class Dog implements Animal, Swimmable {
+    public void eat() { }
+    public void sleep() { }
+    public void swim() { }
+}
 ```
 
 ---
@@ -242,26 +232,30 @@ class Dog(Animal, Swimmable):
 ### D - Dependency Inversion Principle
 > Depend on abstractions, not concretions.
 
-```python
-# ❌ Bad: High-level module depends on a low-level module
-class OrderService:
-    def __init__(self):
-        self.db = MySQLDatabase()  # tightly coupled to MySQL!
+```java
+// ❌ Bad: High-level module depends on a low-level module
+class OrderService {
+    private final MySQLDatabase db = new MySQLDatabase();  // tightly coupled to MySQL!
+}
 
+// ✅ Good: Depend on an abstraction (inject the dependency)
+interface Database {
+    Object save(Data data);
+}
 
-# ✅ Good: Depend on an abstraction (inject the dependency)
-class OrderService:
-    def __init__(self, database):
-        self.db = database
+class OrderService {
+    private final Database db;
+    OrderService(Database db) { this.db = db; }  // injected
 
-    def create_order(self, data):
-        return self.db.save(data)
+    Object createOrder(Data data) {
+        return db.save(data);
+    }
+}
 
-
-# Swap implementations without changing OrderService
-mysql_service = OrderService(MySQLDatabase())
-mongo_service = OrderService(MongoDatabase())
-test_service = OrderService(InMemoryDatabase())
+// Swap implementations without changing OrderService
+OrderService mysqlService = new OrderService(new MySQLDatabase());
+OrderService mongoService = new OrderService(new MongoDatabase());
+OrderService testService  = new OrderService(new InMemoryDatabase());
 ```
 
 ---
@@ -273,32 +267,32 @@ test_service = OrderService(InMemoryDatabase())
 #### Singleton
 > Ensure only one instance of a class exists.
 
-```python
-class DatabaseConnection:
-    _instance = None
+```java
+public class DatabaseConnection {
+    private static DatabaseConnection instance;
+    private final String connection;
 
-    def __new__(cls, config=None):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance.connection = cls._connect(config)
-        return cls._instance
+    private DatabaseConnection(String host) {    // private constructor
+        this.connection = connect(host);
+    }
 
-    @classmethod
-    def get_instance(cls, config=None):
-        if cls._instance is None:
-            cls(config)
-        return cls._instance
+    // thread-safe lazy init via synchronized getter
+    public static synchronized DatabaseConnection getInstance(String host) {
+        if (instance == null) {
+            instance = new DatabaseConnection(host);
+        }
+        return instance;
+    }
 
-    @staticmethod
-    def _connect(config):
-        # establish connection
-        return {"host": config["host"], "status": "connected"}
+    private static String connect(String host) {
+        return "connected to " + host;
+    }
+}
 
-
-# Usage
-db1 = DatabaseConnection.get_instance({"host": "localhost"})
-db2 = DatabaseConnection.get_instance()
-print(db1 is db2)  # True
+// Usage
+DatabaseConnection db1 = DatabaseConnection.getInstance("localhost");
+DatabaseConnection db2 = DatabaseConnection.getInstance("localhost");
+System.out.println(db1 == db2);  // true
 ```
 
 **Use when:** Logger, config manager, connection pool, cache
@@ -308,38 +302,43 @@ print(db1 is db2)  # True
 #### Factory Method
 > Let a factory decide which class to instantiate.
 
-```python
-class EmailNotification:
-    def send(self, to, message):
-        print(f"Email to {to}: {message}")
+```java
+interface Notification {
+    void send(String to, String message);
+}
 
+class EmailNotification implements Notification {
+    public void send(String to, String message) {
+        System.out.println("Email to " + to + ": " + message);
+    }
+}
 
-class SMSNotification:
-    def send(self, to, message):
-        print(f"SMS to {to}: {message}")
+class SMSNotification implements Notification {
+    public void send(String to, String message) {
+        System.out.println("SMS to " + to + ": " + message);
+    }
+}
 
+class PushNotification implements Notification {
+    public void send(String to, String message) {
+        System.out.println("Push to " + to + ": " + message);
+    }
+}
 
-class PushNotification:
-    def send(self, to, message):
-        print(f"Push to {to}: {message}")
-
-
-class NotificationFactory:
-    @staticmethod
-    def create(type):
-        factories = {
-            "email": EmailNotification,
-            "sms": SMSNotification,
-            "push": PushNotification,
+class NotificationFactory {
+    static Notification create(String type) {
+        switch (type) {
+            case "email": return new EmailNotification();
+            case "sms":   return new SMSNotification();
+            case "push":  return new PushNotification();
+            default: throw new IllegalArgumentException("Unknown type: " + type);
         }
-        if type not in factories:
-            raise ValueError(f"Unknown notification type: {type}")
-        return factories[type]()
+    }
+}
 
-
-# Usage
-notif = NotificationFactory.create("email")
-notif.send("user@example.com", "Welcome!")
+// Usage
+Notification notif = NotificationFactory.create("email");
+notif.send("user@example.com", "Welcome!");
 ```
 
 **Use when:** Object creation logic is complex or varies by type
@@ -349,11 +348,11 @@ notif.send("user@example.com", "Welcome!")
 #### Builder
 > Construct complex objects step by step.
 
-Each setter returns `self` so calls chain fluently, and a final `build()` produces the object:
-```python
-sql = (QueryBuilder().from_("users").select("id", "name")
-       .where("age > 18").limit_to(10).build())
-# each method sets a field on an internal dict and `return self`; build() assembles the result
+Each setter returns `this` so calls chain fluently, and a final `build()` produces the object:
+```java
+String sql = new QueryBuilder().from("users").select("id", "name")
+                 .where("age > 18").limit(10).build();
+// each method sets a field and returns this; build() assembles the final result
 ```
 
 **Use when:** Object has many optional parameters (avoids telescoping constructors)
@@ -367,12 +366,16 @@ sql = (QueryBuilder().from_("users").select("id", "name")
 
 Wrap the incompatible object and expose the interface your app wants; the adapter translates
 calls/return shapes internally:
-```python
-class PaymentAdapter:            # app calls pay(...); legacy exposes make_payment(...)
-    def __init__(self, legacy): self.legacy = legacy
-    def pay(self, card, amount, currency):
-        r = self.legacy.make_payment(card, amount, currency)
-        return {"success": r["status"] == "success", "id": r["transaction_id"]}
+```java
+class PaymentAdapter {            // app calls pay(...); legacy exposes makePayment(...)
+    private final LegacyGateway legacy;
+    PaymentAdapter(LegacyGateway legacy) { this.legacy = legacy; }
+
+    PayResult pay(String card, double amount, String currency) {
+        LegacyResult r = legacy.makePayment(card, amount, currency);
+        return new PayResult(r.status.equals("success"), r.transactionId);
+    }
+}
 ```
 
 **Use when:** Integrating third-party libraries, legacy code migration
@@ -384,13 +387,15 @@ class PaymentAdapter:            # app calls pay(...); legacy exposes make_payme
 
 Each decorator wraps a component sharing the same interface and augments its result, so you stack
 them at runtime:
-```python
-class MilkDecorator:                       # same interface as Coffee
-    def __init__(self, coffee): self.coffee = coffee
-    def cost(self): return self.coffee.cost() + 15
-    def description(self): return self.coffee.description() + ", milk"
+```java
+class MilkDecorator implements Coffee {    // same interface as Coffee
+    private final Coffee coffee;
+    MilkDecorator(Coffee coffee) { this.coffee = coffee; }
+    public int cost() { return coffee.cost() + 15; }
+    public String description() { return coffee.description() + ", milk"; }
+}
 
-coffee = MilkDecorator(SugarDecorator(Coffee()))   # wrap to add features
+Coffee coffee = new MilkDecorator(new SugarDecorator(new PlainCoffee()));  // stack features
 ```
 
 **Use when:** Adding features to objects at runtime (logging, auth, caching middleware)
@@ -400,13 +405,19 @@ coffee = MilkDecorator(SugarDecorator(Coffee()))   # wrap to add features
 #### Proxy
 > Control access to an object (same interface as the real object, adds a gate).
 
-```python
-class CachingProxy:                        # same interface as the real service
-    def __init__(self, service): self.service, self.cache = service, {}
-    def fetch_data(self, key):
-        if key not in self.cache:          # add caching / auth / lazy-init here
-            self.cache[key] = self.service.fetch_data(key)
-        return self.cache[key]
+```java
+class CachingProxy implements DataService {    // same interface as the real service
+    private final DataService service;
+    private final Map<String, String> cache = new HashMap<>();
+    CachingProxy(DataService service) { this.service = service; }
+
+    public String fetchData(String key) {
+        if (!cache.containsKey(key)) {          // add caching / auth / lazy-init here
+            cache.put(key, service.fetchData(key));
+        }
+        return cache.get(key);
+    }
+}
 ```
 
 **Use when:** Lazy loading, caching, access control, logging
@@ -418,35 +429,38 @@ class CachingProxy:                        # same interface as the real service
 #### Observer
 > Define a one-to-many dependency so when one object changes, all dependents are notified.
 
-```python
-from collections import defaultdict
+```java
+interface Listener {
+    void handle(String data);
+}
 
+class EventEmitter {
+    private final Map<String, List<Listener>> listeners = new HashMap<>();
 
-class EventEmitter:
-    def __init__(self):
-        self.listeners = defaultdict(list)
+    EventEmitter on(String event, Listener cb) {
+        listeners.computeIfAbsent(event, k -> new ArrayList<>()).add(cb);
+        return this;
+    }
 
-    def on(self, event, callback):
-        self.listeners[event].append(callback)
-        return self
+    void off(String event, Listener cb) {
+        listeners.getOrDefault(event, List.of()).remove(cb);
+    }
 
-    def off(self, event, callback):
-        self.listeners[event] = [cb for cb in self.listeners[event] if cb != callback]
+    void emit(String event, String data) {
+        for (Listener cb : listeners.getOrDefault(event, List.of())) {
+            cb.handle(data);
+        }
+    }
+}
 
-    def emit(self, event, data):
-        for cb in self.listeners[event]:
-            cb(data)
+// Usage: Order system
+EventEmitter orderEvents = new EventEmitter();
+orderEvents.on("order:placed", id -> System.out.println("Send confirmation email for " + id));
+orderEvents.on("order:placed", id -> System.out.println("Notify warehouse for " + id));
+orderEvents.on("order:placed", id -> System.out.println("Update analytics for " + id));
 
-
-# Usage: Order system
-order_events = EventEmitter()
-
-order_events.on("order:placed", lambda d: print(f"Send confirmation email for order {d['order_id']}"))
-order_events.on("order:placed", lambda d: print(f"Notify warehouse for order {d['order_id']}"))
-order_events.on("order:placed", lambda d: print(f"Update analytics for order {d['order_id']}"))
-
-order_events.emit("order:placed", {"order_id": "ORD-001"})
-# All 3 handlers fire
+orderEvents.emit("order:placed", "ORD-001");
+// All 3 handlers fire
 ```
 
 **Use when:** Event systems, pub/sub, UI state management, notifications
@@ -456,53 +470,49 @@ order_events.emit("order:placed", {"order_id": "ORD-001"})
 #### Strategy
 > Define a family of algorithms, encapsulate each one, make them interchangeable.
 
-```python
-from abc import ABC, abstractmethod
+```java
+interface SortStrategy {
+    int[] sort(int[] arr);
+}
 
+class BubbleSort implements SortStrategy {
+    public int[] sort(int[] arr) {
+        int[] a = arr.clone();
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a.length - i - 1; j++) {
+                if (a[j] > a[j + 1]) {
+                    int tmp = a[j]; a[j] = a[j + 1]; a[j + 1] = tmp;
+                }
+            }
+        }
+        return a;
+    }
+}
 
-class SortStrategy(ABC):
-    @abstractmethod
-    def sort(self, arr): ...
+class QuickSort implements SortStrategy {
+    public int[] sort(int[] arr) {
+        int[] a = arr.clone();
+        Arrays.sort(a);   // stdlib quicksort/dual-pivot; keep the example simple
+        return a;
+    }
+}
 
+class Sorter {
+    private SortStrategy strategy;
+    Sorter(SortStrategy strategy) { this.strategy = strategy; }
 
-class BubbleSort(SortStrategy):
-    def sort(self, arr):
-        a = list(arr)
-        for i in range(len(a)):
-            for j in range(len(a) - i - 1):
-                if a[j] > a[j + 1]:
-                    a[j], a[j + 1] = a[j + 1], a[j]
-        return a
+    void setStrategy(SortStrategy strategy) { this.strategy = strategy; }
 
+    int[] sort(int[] arr) { return strategy.sort(arr); }
+}
 
-class QuickSort(SortStrategy):
-    def sort(self, arr):
-        if len(arr) <= 1:
-            return arr
-        pivot = arr[-1]
-        left = [x for x in arr[:-1] if x <= pivot]
-        right = [x for x in arr[:-1] if x > pivot]
-        return self.sort(left) + [pivot] + self.sort(right)
+// Usage
+Sorter sorter = new Sorter(new QuickSort());
+sorter.sort(new int[]{3, 1, 4, 1, 5});
 
-
-class Sorter:
-    def __init__(self, strategy: SortStrategy):
-        self.strategy = strategy
-
-    def set_strategy(self, strategy: SortStrategy):
-        self.strategy = strategy
-
-    def sort(self, arr):
-        return self.strategy.sort(arr)
-
-
-# Usage
-sorter = Sorter(QuickSort())
-sorter.sort([3, 1, 4, 1, 5])
-
-# Swap strategy at runtime
-sorter.set_strategy(BubbleSort())
-sorter.sort([3, 1, 4, 1, 5])
+// Swap strategy at runtime
+sorter.setStrategy(new BubbleSort());
+sorter.sort(new int[]{3, 1, 4, 1, 5});
 ```
 
 **Use when:** Multiple algorithms for same task, runtime algorithm selection
@@ -513,13 +523,17 @@ sorter.sort([3, 1, 4, 1, 5])
 > Encapsulate a request as an object with `execute()` + `undo()`, enabling undo/redo.
 
 Each command knows how to do and reverse itself; an invoker keeps a history stack:
-```python
-class InsertCommand:                       # each command stores what it needs to undo
-    def __init__(self, text): self.text = text
-    def execute(self, editor): editor.text += self.text
-    def undo(self, editor):    editor.text = editor.text[:-len(self.text)]
+```java
+class InsertCommand implements Command {    // each command stores what it needs to undo
+    private final String text;
+    InsertCommand(String text) { this.text = text; }
+    public void execute(Editor editor) { editor.text += text; }
+    public void undo(Editor editor) {
+        editor.text = editor.text.substring(0, editor.text.length() - text.length());
+    }
+}
 
-# Invoker: execute(cmd) runs it and pushes to history; undo() pops and calls cmd.undo()
+// Invoker: execute(cmd) runs it and pushes to history; undo() pops and calls cmd.undo()
 ```
 
 **Use when:** Undo/redo, transaction queues, macro recording
@@ -530,217 +544,231 @@ class InsertCommand:                       # each command stores what it needs t
 
 ### 1. Parking Lot
 
-```python
-# Entities: ParkingLot, ParkingFloor, ParkingSpot, Vehicle, ParkingTicket
-import time
+```java
+// Entities: ParkingLot, ParkingFloor, ParkingSpot, Vehicle, ParkingTicket
+class Vehicle {
+    String plate;
+    String type;  // "bike", "car", "truck"
+    Vehicle(String plate, String type) { this.plate = plate; this.type = type; }
+}
 
+class ParkingSpot {
+    String id;
+    String type;  // "small", "medium", "large"
+    Vehicle vehicle;
 
-class Vehicle:
-    def __init__(self, plate, type):
-        self.plate = plate
-        self.type = type  # 'bike', 'car', 'truck'
+    ParkingSpot(String id, String type) { this.id = id; this.type = type; }
 
+    boolean isAvailable() { return vehicle == null; }
 
-class ParkingSpot:
-    def __init__(self, id, type):
-        self.id = id
-        self.type = type  # 'small', 'medium', 'large'
-        self.vehicle = None
+    boolean canFit(Vehicle v) {
+        Map<String, List<String>> fits = Map.of(
+            "small",  List.of("bike"),
+            "medium", List.of("bike", "car"),
+            "large",  List.of("bike", "car", "truck"));
+        return fits.get(type).contains(v.type);
+    }
 
-    def is_available(self):
-        return self.vehicle is None
+    void park(Vehicle v) { this.vehicle = v; }
+    void vacate() { this.vehicle = null; }
+}
 
-    def can_fit(self, vehicle):
-        fits = {
-            "small": ["bike"],
-            "medium": ["bike", "car"],
-            "large": ["bike", "car", "truck"],
+class ParkingFloor {
+    int floorNum;
+    List<ParkingSpot> spots;
+    ParkingFloor(int floorNum, List<ParkingSpot> spots) {
+        this.floorNum = floorNum; this.spots = spots;
+    }
+
+    ParkingSpot findAvailableSpot(Vehicle v) {
+        for (ParkingSpot s : spots) {
+            if (s.isAvailable() && s.canFit(v)) return s;
         }
-        return vehicle.type in fits[self.type]
+        return null;
+    }
+}
 
-    def park(self, vehicle):
-        self.vehicle = vehicle
+class ParkingTicket {
+    String id;
+    ParkingSpot spot;
+    long entryTime;
+    long exitTime;
 
-    def vacate(self):
-        self.vehicle = None
+    ParkingTicket(ParkingSpot spot) {
+        this.id = "TKT-" + System.currentTimeMillis();
+        this.spot = spot;
+        this.entryTime = System.currentTimeMillis();
+    }
 
+    int checkout() {
+        this.exitTime = System.currentTimeMillis();
+        spot.vacate();
+        return calculateFee();
+    }
 
-class ParkingFloor:
-    def __init__(self, floor_num, spots):
-        self.floor_num = floor_num
-        self.spots = spots
+    private int calculateFee() {
+        long hours = (long) Math.ceil((exitTime - entryTime) / 3_600_000.0);
+        Map<String, Integer> rates = Map.of("small", 20, "medium", 40, "large", 60);
+        return (int) hours * rates.get(spot.type);
+    }
+}
 
-    def find_available_spot(self, vehicle):
-        for s in self.spots:
-            if s.is_available() and s.can_fit(vehicle):
-                return s
-        return None
+class ParkingLot {
+    List<ParkingFloor> floors;
+    Map<String, ParkingTicket> activeTickets = new HashMap<>();
+    ParkingLot(List<ParkingFloor> floors) { this.floors = floors; }
 
+    ParkingTicket park(Vehicle v) {
+        for (ParkingFloor floor : floors) {
+            ParkingSpot spot = floor.findAvailableSpot(v);
+            if (spot != null) {
+                spot.park(v);
+                ParkingTicket ticket = new ParkingTicket(spot);
+                activeTickets.put(ticket.id, ticket);
+                return ticket;
+            }
+        }
+        throw new IllegalStateException("Parking lot is full");
+    }
 
-class ParkingTicket:
-    def __init__(self, vehicle, spot, floor):
-        self.id = f"TKT-{int(time.time() * 1000)}"
-        self.vehicle = vehicle
-        self.spot = spot
-        self.floor = floor
-        self.entry_time = time.time()
-        self.exit_time = None
-
-    def checkout(self):
-        self.exit_time = time.time()
-        self.spot.vacate()
-        return self._calculate_fee()
-
-    def _calculate_fee(self):
-        import math
-        hours = math.ceil((self.exit_time - self.entry_time) / 3600)
-        rates = {"small": 20, "medium": 40, "large": 60}
-        return hours * rates[self.spot.type]
-
-
-class ParkingLot:
-    def __init__(self, floors):
-        self.floors = floors
-        self.active_tickets = {}
-
-    def park(self, vehicle):
-        for floor in self.floors:
-            spot = floor.find_available_spot(vehicle)
-            if spot:
-                spot.park(vehicle)
-                ticket = ParkingTicket(vehicle, spot, floor)
-                self.active_tickets[ticket.id] = ticket
-                return ticket
-        raise RuntimeError("Parking lot is full")
-
-    def checkout(self, ticket_id):
-        ticket = self.active_tickets.get(ticket_id)
-        if not ticket:
-            raise ValueError("Invalid ticket")
-        fee = ticket.checkout()
-        del self.active_tickets[ticket_id]
-        return fee
+    int checkout(String ticketId) {
+        ParkingTicket ticket = activeTickets.get(ticketId);
+        if (ticket == null) throw new IllegalArgumentException("Invalid ticket");
+        int fee = ticket.checkout();
+        activeTickets.remove(ticketId);
+        return fee;
+    }
+}
 ```
 
 ---
 
 ### 2. Elevator System
 
-```python
-# Entities: ElevatorSystem, Elevator, Request, Direction
+```java
+// Entities: ElevatorSystem, Elevator, Request, Direction
+class Request {
+    int floor;
+    String direction;  // "up" | "down"
+    Request(int floor, String direction) { this.floor = floor; this.direction = direction; }
+}
 
+class Elevator {
+    int id;
+    int currentFloor = 0;
+    String direction = "idle";  // "up" | "down" | "idle"
+    Set<Integer> destinations = new TreeSet<>();
 
-class Request:
-    def __init__(self, floor, direction):
-        self.floor = floor
-        self.direction = direction  # 'up' | 'down'
+    Elevator(int id) { this.id = id; }
 
+    void addDestination(int floor) {
+        destinations.add(floor);
+        updateDirection();
+    }
 
-class Elevator:
-    def __init__(self, id, total_floors):
-        self.id = id
-        self.current_floor = 0
-        self.direction = "idle"  # 'up' | 'down' | 'idle'
-        self.destinations = set()
-        self.total_floors = total_floors
+    void move() {
+        if (destinations.isEmpty()) { direction = "idle"; return; }
 
-    def add_destination(self, floor):
-        self.destinations.add(floor)
-        self._update_direction()
+        if (direction.equals("up"))        currentFloor++;
+        else if (direction.equals("down")) currentFloor--;
 
-    def move(self):
-        if not self.destinations:
-            self.direction = "idle"
-            return
+        if (destinations.remove(currentFloor)) {
+            System.out.println("Elevator " + id + " stopped at floor " + currentFloor);
+        }
+        updateDirection();
+    }
 
-        if self.direction == "up":
-            self.current_floor += 1
-        elif self.direction == "down":
-            self.current_floor -= 1
+    private void updateDirection() {
+        if (destinations.isEmpty()) { direction = "idle"; return; }
+        int maxDest = Collections.max(destinations);
+        int minDest = Collections.min(destinations);
+        if (direction.equals("up")   && maxDest > currentFloor) return;
+        if (direction.equals("down") && minDest < currentFloor) return;
+        direction = maxDest > currentFloor ? "up" : "down";
+    }
 
-        if self.current_floor in self.destinations:
-            self.destinations.discard(self.current_floor)
-            print(f"Elevator {self.id} stopped at floor {self.current_floor}")
+    int distanceTo(int floor) { return Math.abs(currentFloor - floor); }
+}
 
-        self._update_direction()
+class ElevatorSystem {
+    List<Elevator> elevators = new ArrayList<>();
 
-    def _update_direction(self):
-        if not self.destinations:
-            self.direction = "idle"
-            return
-        max_dest = max(self.destinations)
-        min_dest = min(self.destinations)
-        if self.direction == "up" and max_dest > self.current_floor:
-            return
-        if self.direction == "down" and min_dest < self.current_floor:
-            return
-        self.direction = "up" if max_dest > self.current_floor else "down"
+    ElevatorSystem(int numElevators) {
+        for (int i = 0; i < numElevators; i++) elevators.add(new Elevator(i));
+    }
 
-    def distance_to(self, floor):
-        return abs(self.current_floor - floor)
-
-
-class ElevatorSystem:
-    def __init__(self, num_elevators, total_floors):
-        self.elevators = [Elevator(i, total_floors) for i in range(num_elevators)]
-
-    # Dispatch: find nearest idle or same-direction elevator
-    def dispatch(self, request):
-        candidates = [
-            e for e in self.elevators
-            if e.direction == "idle" or e.direction == request.direction
-        ]
-        pool = candidates or self.elevators
-        best = min(pool, key=lambda e: e.distance_to(request.floor))
-        best.add_destination(request.floor)
-        return best
+    // Dispatch: find nearest idle or same-direction elevator
+    Elevator dispatch(Request request) {
+        Elevator best = null;
+        for (Elevator e : elevators) {
+            boolean usable = e.direction.equals("idle") || e.direction.equals(request.direction);
+            if (!usable) continue;
+            if (best == null || e.distanceTo(request.floor) < best.distanceTo(request.floor)) {
+                best = e;
+            }
+        }
+        if (best == null) best = elevators.get(0);  // fall back to any elevator
+        best.addDestination(request.floor);
+        return best;
+    }
+}
 ```
 
 ---
 
 ### 3. Rate Limiter
 
-```python
-# Token Bucket Algorithm
-import time
+```java
+// Token Bucket Algorithm
+class TokenBucket {
+    private final double capacity;     // max tokens
+    private double tokens;             // current tokens
+    private final double refillRate;   // tokens per second
+    private long lastRefill = System.currentTimeMillis();
 
+    TokenBucket(double capacity, double refillRate) {
+        this.capacity = capacity;
+        this.tokens = capacity;
+        this.refillRate = refillRate;
+    }
 
-class TokenBucket:
-    def __init__(self, capacity, refill_rate):
-        self.capacity = capacity        # max tokens
-        self.tokens = capacity          # current tokens
-        self.refill_rate = refill_rate  # tokens per second
-        self.last_refill = time.time()
+    private void refill() {
+        long now = System.currentTimeMillis();
+        double elapsed = (now - lastRefill) / 1000.0;
+        tokens = Math.min(capacity, tokens + elapsed * refillRate);
+        lastRefill = now;
+    }
 
-    def _refill(self):
-        now = time.time()
-        elapsed = now - self.last_refill
-        self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)
-        self.last_refill = now
+    synchronized boolean consume(int count) {
+        refill();
+        if (tokens >= count) {
+            tokens -= count;
+            return true;   // allowed
+        }
+        return false;      // rate limited
+    }
+}
 
-    def consume(self, tokens=1):
-        self._refill()
-        if self.tokens >= tokens:
-            self.tokens -= tokens
-            return True   # allowed
-        return False      # rate limited
+class RateLimiter {
+    private final double capacity;
+    private final double refillRate;
+    private final Map<String, TokenBucket> buckets = new HashMap<>();  // userId -> bucket
 
+    RateLimiter(double capacity, double refillRate) {
+        this.capacity = capacity;
+        this.refillRate = refillRate;
+    }
 
-class RateLimiter:
-    def __init__(self, capacity, refill_rate):
-        self.capacity = capacity
-        self.refill_rate = refill_rate
-        self.buckets = {}  # user_id -> TokenBucket
+    boolean isAllowed(String userId) {
+        TokenBucket bucket = buckets.computeIfAbsent(
+            userId, k -> new TokenBucket(capacity, refillRate));
+        return bucket.consume(1);
+    }
+}
 
-    def is_allowed(self, user_id):
-        if user_id not in self.buckets:
-            self.buckets[user_id] = TokenBucket(self.capacity, self.refill_rate)
-        return self.buckets[user_id].consume()
-
-
-# Usage: 10 requests/sec per user
-limiter = RateLimiter(10, 10)
-print(limiter.is_allowed("user1"))  # True
+// Usage: 10 requests/sec per user
+RateLimiter limiter = new RateLimiter(10, 10);
+System.out.println(limiter.isAllowed("user1"));  // true
 ```
 
 ---
@@ -767,7 +795,7 @@ print(limiter.is_allowed("user1"))  # True
 |---------|-----|
 | God class (one class does everything) | Apply SRP, split responsibilities |
 | Hardcoded dependencies | Use dependency injection |
-| No interfaces/abstractions | Program to interfaces (abc.ABC), not implementations |
+| No interfaces/abstractions | Program to interfaces, not implementations |
 | Inheritance over composition | Prefer composition for flexibility |
 | Ignoring thread safety | Mention locks/atomic ops for shared state |
 | Over-engineering | Start simple, add patterns only when needed |

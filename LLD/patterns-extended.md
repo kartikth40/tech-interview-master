@@ -12,7 +12,7 @@ interviewers probe. For compact runnable examples of the common patterns, see th
 [Low-Level Design Guide](LowLevelDesign.md).
 
 !!! note "Language"
-    Python primary; Java where the idiom matters ([Java Cheat Sheet](java-cheatsheet.md)).
+    Examples in **Java** - the language most LLD rounds expect ([Java Cheat Sheet](java-cheatsheet.md)).
 
 ## The meta-skill: justify, don't name-drop
 
@@ -36,29 +36,30 @@ At SDE-2 the pattern itself is table stakes. What distinguishes you:
 **Use for:** undo/redo, queuing requests, logging/replaying operations, macro commands.
 Each action becomes an object with `execute()` (and often `undo()`).
 
-```python
-from abc import ABC, abstractmethod
+```java
+interface Command {
+    void execute();
+    void undo();
+}
 
-class Command(ABC):
-    @abstractmethod
-    def execute(self): ...
-    @abstractmethod
-    def undo(self): ...
+class AddTextCommand implements Command {
+    private final List<String> doc;
+    private final String text;
+    AddTextCommand(List<String> doc, String text) { this.doc = doc; this.text = text; }
+    public void execute() { doc.add(text); }
+    public void undo()    { doc.remove(doc.size() - 1); }
+}
 
-class AddTextCommand(Command):
-    def __init__(self, doc, text):
-        self.doc, self.text = doc, text
-    def execute(self): self.doc.append(self.text)
-    def undo(self):    self.doc.pop()
-
-class Editor:                         # invoker - keeps history, doesn't know command internals
-    def __init__(self): self.history = []
-    def run(self, cmd: Command):
-        cmd.execute()
-        self.history.append(cmd)
-    def undo(self):
-        if self.history:
-            self.history.pop().undo()
+class Editor {                        // invoker - keeps history, doesn't know command internals
+    private final Deque<Command> history = new ArrayDeque<>();
+    void run(Command cmd) {
+        cmd.execute();
+        history.push(cmd);
+    }
+    void undo() {
+        if (!history.isEmpty()) history.pop().undo();
+    }
+}
 ```
 
 - Decouples the **invoker** (who triggers) from the **receiver** (who does the work).
@@ -71,34 +72,38 @@ class Editor:                         # invoker - keeps history, doesn't know co
 **Use for:** middleware pipelines, approval chains, validation chains, event filters,
 logging levels. Each handler either handles the request or passes it on.
 
-```python
-from abc import ABC, abstractmethod
+```java
+abstract class Handler {
+    protected Handler next;
+    Handler setNext(Handler h) {
+        this.next = h;
+        return h;                      // enables fluent chaining
+    }
+    abstract String handle(Request req);
 
-class Handler(ABC):
-    def __init__(self):
-        self._next = None
-    def set_next(self, h):
-        self._next = h
-        return h                       # enables fluent chaining
-    @abstractmethod
-    def handle(self, request): ...
+    protected String passOn(Request req) {
+        return next != null ? next.handle(req) : "OK";
+    }
+}
 
-class AuthHandler(Handler):
-    def handle(self, req):
-        if not req.get("token"):
-            return "401 Unauthorized"
-        return self._next.handle(req) if self._next else "OK"
+class AuthHandler extends Handler {
+    String handle(Request req) {
+        if (req.token == null) return "401 Unauthorized";
+        return passOn(req);
+    }
+}
 
-class RateLimitHandler(Handler):
-    def handle(self, req):
-        if req.get("count", 0) > 100:
-            return "429 Too Many Requests"
-        return self._next.handle(req) if self._next else "OK"
+class RateLimitHandler extends Handler {
+    String handle(Request req) {
+        if (req.count > 100) return "429 Too Many Requests";
+        return passOn(req);
+    }
+}
 
-# wire the chain
-auth = AuthHandler()
-auth.set_next(RateLimitHandler())
-print(auth.handle({"token": "x", "count": 5}))   # OK
+// wire the chain
+Handler auth = new AuthHandler();
+auth.setNext(new RateLimitHandler());
+System.out.println(auth.handle(new Request("x", 5)));   // OK
 ```
 
 - Each handler has one responsibility (SRP); add/remove/reorder handlers freely (OCP).
@@ -114,25 +119,24 @@ money-dispensing in an ATM (dispense ₹2000 notes → ₹500 → ₹100).
 **Use for:** algorithms with a fixed sequence but variable steps (data parsers, report
 generators, game turns). Base class defines the order; subclasses fill in steps.
 
-```python
-from abc import ABC, abstractmethod
+```java
+abstract class DataExporter {
+    final void export(List<String> data) {  // template method - fixed skeleton, final = DON'T override
+        open();
+        writeHeader();
+        writeRows(data);               // varies
+        close();
+    }
+    void open()  { System.out.println("open file"); }
+    void close() { System.out.println("close file"); }
+    abstract void writeHeader();
+    abstract void writeRows(List<String> data);
+}
 
-class DataExporter(ABC):
-    def export(self, data):            # template method - fixed skeleton, DON'T override
-        self.open()
-        self.write_header()
-        self.write_rows(data)          # varies
-        self.close()
-    def open(self):  print("open file")
-    def close(self): print("close file")
-    @abstractmethod
-    def write_header(self): ...
-    @abstractmethod
-    def write_rows(self, data): ...
-
-class CsvExporter(DataExporter):
-    def write_header(self):      print("id,name")
-    def write_rows(self, data):  print("\n".join(data))
+class CsvExporter extends DataExporter {
+    void writeHeader()                 { System.out.println("id,name"); }
+    void writeRows(List<String> data)  { System.out.println(String.join("\n", data)); }
+}
 ```
 
 - Strategy vs Template Method: Strategy varies an algorithm via **composition** (inject an
@@ -146,16 +150,22 @@ class CsvExporter(DataExporter):
 **Use for:** hiding a messy set of subsystems behind one clean entry point (e.g. an
 `OrderFacade` that coordinates inventory + payment + shipping + notification).
 
-```python
-class OrderFacade:
-    def __init__(self, inventory, payment, shipping, notifier):
-        self._inv, self._pay = inventory, payment
-        self._ship, self._notify = shipping, notifier
-    def place_order(self, user, item):          # client calls ONE method
-        self._inv.reserve(item)
-        self._pay.charge(user, item.price)
-        self._ship.schedule(user, item)
-        self._notify.send(user, "order placed")
+```java
+class OrderFacade {
+    private final Inventory inv;
+    private final Payment pay;
+    private final Shipping ship;
+    private final Notifier notify;
+    OrderFacade(Inventory inv, Payment pay, Shipping ship, Notifier notify) {
+        this.inv = inv; this.pay = pay; this.ship = ship; this.notify = notify;
+    }
+    void placeOrder(User user, Item item) {     // client calls ONE method
+        inv.reserve(item);
+        pay.charge(user, item.price);
+        ship.schedule(user, item);
+        notify.send(user, "order placed");
+    }
+}
 ```
 
 - Simplifies the client's view; doesn't *restrict* access to subsystems (unlike encapsulation).
@@ -169,27 +179,32 @@ class OrderFacade:
 **Use for:** lazy loading (virtual proxy), access control (protection proxy), caching,
 logging, remote calls. Same interface as the real object; adds a layer around it.
 
-```python
-from abc import ABC, abstractmethod
+```java
+interface Image {
+    void display();
+}
 
-class Image(ABC):
-    @abstractmethod
-    def display(self): ...
+class RealImage implements Image {    // expensive to create
+    private final String path;
+    RealImage(String path) {
+        this.path = path;
+        load();                       // heavy disk load
+    }
+    private void load() { System.out.println("loading " + path); }
+    public void display() { System.out.println("showing " + path); }
+}
 
-class RealImage(Image):               # expensive to create
-    def __init__(self, path):
-        self.path = path
-        self._load()                  # heavy disk load
-    def _load(self): print(f"loading {self.path}")
-    def display(self): print(f"showing {self.path}")
-
-class ImageProxy(Image):              # defers creation until actually needed
-    def __init__(self, path):
-        self.path, self._real = path, None
-    def display(self):
-        if self._real is None:        # lazy load on first use
-            self._real = RealImage(self.path)
-        self._real.display()
+class ImageProxy implements Image {   // defers creation until actually needed
+    private final String path;
+    private RealImage real;
+    ImageProxy(String path) { this.path = path; }
+    public void display() {
+        if (real == null) {           // lazy load on first use
+            real = new RealImage(path);
+        }
+        real.display();
+    }
+}
 ```
 
 - Proxy vs Decorator: both wrap and share the interface. **Decorator adds behavior**; **Proxy
@@ -202,26 +217,33 @@ class ImageProxy(Image):              # defers creation until actually needed
 **Use for:** tree structures where a leaf and a container should be used the same way - file
 systems, UI components, org charts, menu + submenus.
 
-```python
-from abc import ABC, abstractmethod
+```java
+interface FileSystemNode {
+    int size();
+}
 
-class FileSystemNode(ABC):
-    @abstractmethod
-    def size(self) -> int: ...
+class File implements FileSystemNode {    // leaf
+    private final int size;
+    File(int size) { this.size = size; }
+    public int size() { return size; }
+}
 
-class File(FileSystemNode):           # leaf
-    def __init__(self, size): self._size = size
-    def size(self): return self._size
+class Directory implements FileSystemNode {  // composite
+    private final List<FileSystemNode> children = new ArrayList<>();
+    void add(FileSystemNode node) { children.add(node); }
+    public int size() {
+        int total = 0;
+        for (FileSystemNode c : children) total += c.size();  // recurse uniformly
+        return total;
+    }
+}
 
-class Directory(FileSystemNode):      # composite
-    def __init__(self): self.children = []
-    def add(self, node): self.children.append(node)
-    def size(self): return sum(c.size() for c in self.children)  # recurse uniformly
-
-root = Directory()
-root.add(File(100))
-sub = Directory(); sub.add(File(50)); root.add(sub)
-print(root.size())                    # 150 - same size() call on file or dir
+Directory root = new Directory();
+root.add(new File(100));
+Directory sub = new Directory();
+sub.add(new File(50));
+root.add(sub);
+System.out.println(root.size());      // 150 - same size() call on file or dir
 ```
 
 ---
@@ -230,17 +252,22 @@ print(root.size())                    # 150 - same size() call on file or dir
 
 **Use for:** avoiding null checks everywhere. Provide a neutral implementation.
 
-```python
-class Logger(ABC):
-    @abstractmethod
-    def log(self, msg): ...
-class ConsoleLogger(Logger):
-    def log(self, msg): print(msg)
-class NullLogger(Logger):             # does nothing - no caller null-checks needed
-    def log(self, msg): pass
+```java
+interface Logger {
+    void log(String msg);
+}
 
-def service(logger: Logger = NullLogger()):
-    logger.log("started")             # safe even when "no logger" was wanted
+class ConsoleLogger implements Logger {
+    public void log(String msg) { System.out.println(msg); }
+}
+
+class NullLogger implements Logger {  // does nothing - no caller null-checks needed
+    public void log(String msg) { }
+}
+
+void service(Logger logger) {         // pass NullLogger when "no logger" was wanted
+    logger.log("started");            // safe - no null check needed
+}
 ```
 
 - Removes scattered `if logger is not None` checks. **Don't use** if "absent" must be

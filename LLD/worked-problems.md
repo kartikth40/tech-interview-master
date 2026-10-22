@@ -13,8 +13,13 @@ different relationship/pattern mix:
 2. **Movie Booking (BookMyShow)** - relationships + State + concurrency (double-booking)
 3. **Rate Limiter** - concurrency-first, thread-safe, Strategy
 
-Python for the full code (runnable); key Java idioms noted inline ([Java Cheat Sheet](java-cheatsheet.md)).
+Java for the full code; key Java idioms noted inline ([Java Cheat Sheet](java-cheatsheet.md)).
 Each follows the 7-step framework from the [overview](lld-overview.md#delivery-framework-7-steps-for-every-round).
+
+!!! note "Reference implementations"
+    The code below is written to be **correct and readable as an interview reference** — it is
+    **not compiled or run** by this site. Treat it as the target to diff your own attempt against,
+    not as a packaged, executable project.
 
 !!! tip "How to use"
     Attempt the problem yourself first (5-min clarify → nouns → relationships → classes → code),
@@ -47,129 +52,149 @@ Dropped: *plate number* (attribute of Vehicle), *fee* (computed on Ticket).
 
 ## Steps 4–6: Classes + SOLID + patterns
 
-```python
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from enum import Enum
-from datetime import datetime
-import itertools
+```java
+import java.util.*;
 
+// size ordinal gives the ordering: SMALL < MEDIUM < LARGE
+enum VehicleSize { SMALL, MEDIUM, LARGE } // bike, car, truck
 
-class VehicleSize(Enum):
-    SMALL = 1      # bike
-    MEDIUM = 2     # car
-    LARGE = 3      # truck
+// --- Vehicle hierarchy (abstraction + inheritance) ---
+abstract class Vehicle {
+    final String plate;
+    final VehicleSize size;
+    Vehicle(String plate, VehicleSize size) { this.plate = plate; this.size = size; }
+}
+class Bike  extends Vehicle { Bike(String plate)  { super(plate, VehicleSize.SMALL);  } }
+class Car   extends Vehicle { Car(String plate)   { super(plate, VehicleSize.MEDIUM); } }
+class Truck extends Vehicle { Truck(String plate) { super(plate, VehicleSize.LARGE);  } }
 
+// --- Factory (creational) - callers don't new-up concrete classes ---
+class VehicleFactory {
+    static Vehicle create(String kind, String plate) {
+        switch (kind) {
+            case "bike":  return new Bike(plate);
+            case "car":   return new Car(plate);
+            case "truck": return new Truck(plate);
+            default: throw new IllegalArgumentException("unknown kind: " + kind);
+        }
+    }
+}
 
-# --- Vehicle hierarchy (abstraction + inheritance) ---
-class Vehicle(ABC):
-    def __init__(self, plate: str, size: VehicleSize):
-        self.plate = plate
-        self.size = size
+class ParkingSpot {
+    final String spotId;
+    final VehicleSize size;
+    Vehicle vehicle; // null when free
 
-class Bike(Vehicle):
-    def __init__(self, plate): super().__init__(plate, VehicleSize.SMALL)
-class Car(Vehicle):
-    def __init__(self, plate): super().__init__(plate, VehicleSize.MEDIUM)
-class Truck(Vehicle):
-    def __init__(self, plate): super().__init__(plate, VehicleSize.LARGE)
+    ParkingSpot(String spotId, VehicleSize size) { this.spotId = spotId; this.size = size; }
 
+    boolean isFree() { return vehicle == null; }
+    boolean canFit(Vehicle v) { return isFree() && v.size.ordinal() <= size.ordinal(); }
+    void park(Vehicle v) { vehicle = v; }
+    void vacate() { vehicle = null; }
+}
 
-# --- Factory (creational) - callers don't new-up concrete classes ---
-class VehicleFactory:
-    _registry = {"bike": Bike, "car": Car, "truck": Truck}
-    @staticmethod
-    def create(kind: str, plate: str) -> Vehicle:
-        return VehicleFactory._registry[kind](plate)
+class Level {
+    final int levelId;
+    final List<ParkingSpot> spots; // composition - created/owned here
 
+    Level(int levelId, List<ParkingSpot> spots) { this.levelId = levelId; this.spots = spots; }
 
-class ParkingSpot:
-    def __init__(self, spot_id: str, size: VehicleSize):
-        self.spot_id = spot_id
-        self.size = size
-        self.vehicle: Vehicle | None = None
+    List<ParkingSpot> availableSpots(Vehicle v) {
+        List<ParkingSpot> fits = new ArrayList<>();
+        for (ParkingSpot s : spots) if (s.canFit(v)) fits.add(s);
+        return fits;
+    }
+}
 
-    def is_free(self) -> bool:
-        return self.vehicle is None
+// --- Strategy (behavioral) - how to pick a spot, swappable ---
+interface SpotAllocationStrategy {
+    ParkingSpot allocate(List<Level> levels, Vehicle v); // null if none fits
+}
 
-    def can_fit(self, v: Vehicle) -> bool:
-        return self.is_free() and v.size.value <= self.size.value
+class FirstAvailableStrategy implements SpotAllocationStrategy {
+    public ParkingSpot allocate(List<Level> levels, Vehicle v) {
+        for (Level level : levels) {
+            List<ParkingSpot> fits = level.availableSpots(v);
+            if (!fits.isEmpty()) return fits.get(0);
+        }
+        return null;
+    }
+}
 
-    def park(self, v: Vehicle): self.vehicle = v
-    def vacate(self):           self.vehicle = None
+class BestFitStrategy implements SpotAllocationStrategy { // smallest spot that fits -> less waste
+    public ParkingSpot allocate(List<Level> levels, Vehicle v) {
+        ParkingSpot best = null;
+        for (Level level : levels) {
+            for (ParkingSpot s : level.availableSpots(v)) {
+                if (best == null || s.size.ordinal() < best.size.ordinal()) best = s;
+            }
+        }
+        return best;
+    }
+}
 
+class Ticket {
+    static int counter = 1;
+    final int ticketId;
+    final ParkingSpot spot;
+    final Vehicle vehicle;
+    final long entryTimeMs;
 
-class Level:
-    def __init__(self, level_id: int, spots: list[ParkingSpot]):
-        self.level_id = level_id
-        self.spots = spots                     # composition - created/owned here
+    Ticket(ParkingSpot spot, Vehicle vehicle) {
+        this.ticketId = counter++;
+        this.spot = spot;
+        this.vehicle = vehicle;
+        this.entryTimeMs = System.currentTimeMillis();
+    }
+}
 
-    def available_spots(self, v: Vehicle) -> list[ParkingSpot]:
-        return [s for s in self.spots if s.can_fit(v)]
+class ParkingLot {
+    final List<Level> levels;              // composition
+    final SpotAllocationStrategy strategy; // aggregation (injected) - DIP
+    final Map<String, Ticket> active = new HashMap<>(); // plate -> ticket
 
+    ParkingLot(List<Level> levels, SpotAllocationStrategy strategy) {
+        this.levels = levels;
+        this.strategy = strategy;
+    }
 
-# --- Strategy (behavioral) - how to pick a spot, swappable ---
-class SpotAllocationStrategy(ABC):
-    @abstractmethod
-    def allocate(self, levels: list[Level], v: Vehicle) -> ParkingSpot | None: ...
+    Ticket park(Vehicle v) {
+        ParkingSpot spot = strategy.allocate(levels, v);
+        if (spot == null) return null;     // lot full for this size
+        spot.park(v);
+        Ticket ticket = new Ticket(spot, v);
+        active.put(v.plate, ticket);
+        return ticket;
+    }
 
-class FirstAvailableStrategy(SpotAllocationStrategy):
-    def allocate(self, levels, v):
-        for level in levels:
-            fits = level.available_spots(v)
-            if fits:
-                return fits[0]
-        return None
+    double unpark(String plate) {
+        Ticket ticket = active.remove(plate);
+        ticket.spot.vacate();
+        long elapsedMs = System.currentTimeMillis() - ticket.entryTimeMs;
+        long hours = Math.max(1, elapsedMs / 3_600_000 + 1);
+        return hours * 50.0;               // flat ₹50/hr
+    }
+}
 
-class BestFitStrategy(SpotAllocationStrategy):
-    """smallest spot that fits -> less wasted space"""
-    def allocate(self, levels, v):
-        candidates = [s for lvl in levels for s in lvl.available_spots(v)]
-        return min(candidates, key=lambda s: s.size.value) if candidates else None
+// --- demo (your "working demo") ---
+public class ParkingLotDemo {
+    public static void main(String[] args) {
+        List<ParkingSpot> spotsL0 = Arrays.asList(
+            new ParkingSpot("L0-1", VehicleSize.SMALL),
+            new ParkingSpot("L0-2", VehicleSize.MEDIUM),
+            new ParkingSpot("L0-3", VehicleSize.LARGE));
+        ParkingLot lot = new ParkingLot(
+            Arrays.asList(new Level(0, spotsL0)), new BestFitStrategy());
 
-
-class Ticket:
-    _ids = itertools.count(1)
-    def __init__(self, spot: ParkingSpot, vehicle: Vehicle):
-        self.ticket_id = next(Ticket._ids)
-        self.spot = spot
-        self.vehicle = vehicle
-        self.entry_time = datetime.now()
-
-
-class ParkingLot:
-    def __init__(self, levels: list[Level], strategy: SpotAllocationStrategy):
-        self.levels = levels                   # composition
-        self.strategy = strategy               # aggregation (injected) - DIP
-        self.active: dict[str, Ticket] = {}     # plate -> ticket
-
-    def park(self, v: Vehicle) -> Ticket | None:
-        spot = self.strategy.allocate(self.levels, v)
-        if spot is None:
-            return None                        # lot full for this size
-        spot.park(v)
-        ticket = Ticket(spot, v)
-        self.active[v.plate] = ticket
-        return ticket
-
-    def unpark(self, plate: str) -> float:
-        ticket = self.active.pop(plate)
-        ticket.spot.vacate()
-        hours = max(1, (datetime.now() - ticket.entry_time).seconds // 3600 + 1)
-        return hours * 50.0                    # flat ₹50/hr
-
-
-# --- demo (your "working demo") ---
-if __name__ == "__main__":
-    spots_l0 = [ParkingSpot("L0-1", VehicleSize.SMALL),
-                ParkingSpot("L0-2", VehicleSize.MEDIUM),
-                ParkingSpot("L0-3", VehicleSize.LARGE)]
-    lot = ParkingLot([Level(0, spots_l0)], BestFitStrategy())
-
-    car = VehicleFactory.create("car", "KA01AB1234")
-    t = lot.park(car)
-    print("parked at", t.spot.spot_id)         # parked at L0-2 (best fit for a car)
-    print("fee:", lot.unpark("KA01AB1234"))     # fee: 50.0
+        Vehicle car = VehicleFactory.create("car", "KA01AB1234");
+        Ticket t = lot.park(car);
+        System.out.println("parked at " + t.spot.spotId);   // parked at L0-2 (best fit for a car)
+        System.out.println("fee: " + lot.unpark("KA01AB1234")); // fee: 50.0
+    }
+}
+// Expected output:
+// parked at L0-2
+// fee: 50.0
 ```
 
 **Talking points to say out loud:** `Vehicle` is abstract (shared blueprint → OCP: add
@@ -218,116 +243,157 @@ Dropped: *ticket price* (on Show/Seat), *seat number* (attribute of Seat).
 
 ## Steps 4–6: Classes + State + concurrency
 
-```python
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from enum import Enum
-import threading, itertools
+```java
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
+enum SeatStatus { FREE, HELD, BOOKED }
 
-class SeatStatus(Enum):
-    FREE = "FREE"
-    HELD = "HELD"
-    BOOKED = "BOOKED"
+class Seat {
+    final String label;
+    SeatStatus status = SeatStatus.FREE;
+    Seat(String label) { this.label = label; }
+}
 
+// --- Payment behind an abstraction (DIP + Strategy) ---
+interface PaymentGateway {
+    boolean pay(double amount);
+}
+class UpiGateway implements PaymentGateway {
+    public boolean pay(double amount) { return true; } // pretend it talks to UPI
+}
 
-class Seat:
-    def __init__(self, label: str):
-        self.label = label
-        self.status = SeatStatus.FREE
+class Show {
+    final String showId;
+    final double price;
+    final Map<String, Seat> seats = new HashMap<>();
+    // fine-grained locking: one lock per seat so different seats don't block each other
+    final Map<String, ReentrantLock> locks = new HashMap<>();
+    // shared scheduler for the 5-min auto-release of un-confirmed holds
+    final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    Show(String showId, List<Seat> seatList, double price) {
+        this.showId = showId;
+        this.price = price;
+        for (Seat s : seatList) {
+            seats.put(s.label, s);
+            locks.put(s.label, new ReentrantLock());
+        }
+    }
 
-# --- Payment behind an abstraction (DIP + Strategy) ---
-class PaymentGateway(ABC):
-    @abstractmethod
-    def pay(self, amount: float) -> bool: ...
+    boolean hold(String label) {
+        ReentrantLock lock = locks.get(label);
+        lock.lock();                                  // critical section - prevents double booking
+        try {
+            Seat seat = seats.get(label);
+            if (seat.status == SeatStatus.FREE) {
+                seat.status = SeatStatus.HELD;
+                // auto-release the hold after 5 min if not confirmed
+                scheduler.schedule(() -> releaseIfHeld(label), 5, TimeUnit.MINUTES);
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
 
-class UpiGateway(PaymentGateway):
-    def pay(self, amount): return True        # pretend it talks to UPI
+    boolean confirm(String label) {
+        ReentrantLock lock = locks.get(label);
+        lock.lock();
+        try {
+            Seat seat = seats.get(label);
+            if (seat.status == SeatStatus.HELD) {
+                seat.status = SeatStatus.BOOKED;
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
 
+    void releaseIfHeld(String label) {
+        ReentrantLock lock = locks.get(label);
+        lock.lock();
+        try {
+            if (seats.get(label).status == SeatStatus.HELD) {
+                seats.get(label).status = SeatStatus.FREE;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 
-class Show:
-    def __init__(self, show_id: str, seats: list[Seat], price: float):
-        self.show_id = show_id
-        self.seats = {s.label: s for s in seats}
-        self.price = price
-        # fine-grained locking: one lock per seat so different seats don't block each other
-        self._locks = {s.label: threading.Lock() for s in seats}
+class Booking {
+    static int counter = 1;
+    final int bookingId;
+    final String user;
+    final Show show;
+    final List<String> seatLabels;
+    boolean confirmed = false;
 
-    def hold(self, label: str) -> bool:
-        with self._locks[label]:              # critical section - prevents double booking
-            seat = self.seats[label]
-            if seat.status == SeatStatus.FREE:
-                seat.status = SeatStatus.HELD
-                # auto-release the hold after 5 min if not confirmed
-                threading.Timer(300, self._release_if_held, args=[label]).start()
-                return True
-            return False
+    Booking(String user, Show show, List<String> seatLabels) {
+        this.bookingId = counter++;
+        this.user = user;
+        this.show = show;
+        this.seatLabels = seatLabels;
+    }
 
-    def confirm(self, label: str) -> bool:
-        with self._locks[label]:
-            seat = self.seats[label]
-            if seat.status == SeatStatus.HELD:
-                seat.status = SeatStatus.BOOKED
-                return True
-            return False
+    boolean checkout(PaymentGateway gateway) {
+        // 1) hold all requested seats one at a time (per-seat locks) with rollback
+        List<String> held = new ArrayList<>();
+        for (String label : seatLabels) {
+            if (show.hold(label)) {
+                held.add(label);
+            } else {
+                for (String h : held) show.releaseIfHeld(h); // roll back grabbed holds
+                return false;
+            }
+        }
+        // 2) pay
+        double amount = show.price * seatLabels.size();
+        if (!gateway.pay(amount)) {
+            for (String h : held) show.releaseIfHeld(h);
+            return false;
+        }
+        // 3) confirm
+        for (String label : held) show.confirm(label);
+        confirmed = true;
+        return true;
+    }
+}
 
-    def _release_if_held(self, label: str):
-        with self._locks[label]:
-            if self.seats[label].status == SeatStatus.HELD:
-                self.seats[label].status = SeatStatus.FREE
+public class BookMyShowDemo {
+    public static void main(String[] args) {
+        List<Seat> seats = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) seats.add(new Seat("A" + i));
+        Show show = new Show("SHOW1", seats, 250.0);
 
+        Booking b1 = new Booking("ravi", show, Arrays.asList("A1", "A2"));
+        System.out.println("b1: " + b1.checkout(new UpiGateway()));        // b1: true
 
-class Booking:
-    _ids = itertools.count(1)
-    def __init__(self, user: str, show: Show, seat_labels: list[str]):
-        self.booking_id = next(Booking._ids)
-        self.user = user
-        self.show = show
-        self.seat_labels = seat_labels
-        self.confirmed = False
+        // second user tries the SAME seat -> must fail (no double booking)
+        Booking b2 = new Booking("asha", show, Arrays.asList("A2"));
+        System.out.println("b2: " + b2.checkout(new UpiGateway()));        // b2: false
+        System.out.println("A2 status: " + show.seats.get("A2").status);   // A2 status: BOOKED
 
-    def checkout(self, gateway: PaymentGateway) -> bool:
-        # 1) hold all requested seats atomically-ish (per-seat locks)
-        held = []
-        for label in self.seat_labels:
-            if self.show.hold(label):
-                held.append(label)
-            else:
-                # couldn't get one seat -> roll back the holds we grabbed
-                for h in held:
-                    self.show._release_if_held(h)
-                return False
-        # 2) pay
-        amount = self.show.price * len(self.seat_labels)
-        if not gateway.pay(amount):
-            for h in held:
-                self.show._release_if_held(h)
-            return False
-        # 3) confirm
-        for label in held:
-            self.show.confirm(label)
-        self.confirmed = True
-        return True
-
-
-if __name__ == "__main__":
-    seats = [Seat(f"A{i}") for i in range(1, 6)]
-    show = Show("SHOW1", seats, price=250.0)
-
-    b1 = Booking("ravi", show, ["A1", "A2"])
-    print("b1:", b1.checkout(UpiGateway()))        # b1: True
-
-    # second user tries the SAME seat -> must fail (no double booking)
-    b2 = Booking("asha", show, ["A2"])
-    print("b2:", b2.checkout(UpiGateway()))        # b2: False
-    print("A2 status:", show.seats["A2"].status)   # A2 status: SeatStatus.BOOKED
+        show.scheduler.shutdown(); // stop the daemon-less scheduler so the JVM can exit
+    }
+}
+// Expected output:
+// b1: true
+// b2: false
+// A2 status: BOOKED
 ```
 
 **Talking points:** seat lifecycle is a `State` (FREE→HELD→BOOKED) enforced in `Show`;
 double-booking solved by a **per-seat lock** guarding check-then-act; multi-seat booking
 rolls back partial holds (atomicity); payment is behind `PaymentGateway` so UPI/card/wallet
-are swappable; the 5-min hold uses a timer (in Java: `ScheduledExecutorService`).
+are swappable; the 5-min hold is scheduled on a `ScheduledExecutorService` that auto-releases
+an un-confirmed seat.
 
 **If pushed on scale:** the per-seat lock is the key insight - mention that in a real system
 this becomes a DB row lock / optimistic version check, but in an in-memory LLD the lock is the
@@ -372,108 +438,154 @@ The one that separates SDE-1 from SDE-2. Expect "make it thread-safe" immediatel
 
 ## Steps 4–6: Code
 
-```python
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from collections import defaultdict, deque
-import threading, time
+```java
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
+interface RateLimitStrategy {
+    boolean allow(String key);
+}
 
-class RateLimitStrategy(ABC):
-    @abstractmethod
-    def allow(self, key: str) -> bool: ...
+// one ReentrantLock per key, created on demand (no two threads ever see different locks)
+abstract class PerKeyLimiter implements RateLimitStrategy {
+    private final Map<String, ReentrantLock> locks = new ConcurrentHashMap<>();
+    ReentrantLock lockFor(String key) {
+        return locks.computeIfAbsent(key, k -> new ReentrantLock());
+    }
+}
 
+// N requests per fixed window (simple; bursty at window edges).
+class FixedWindowLimiter extends PerKeyLimiter {
+    private final int limit;
+    private final long windowMs;
+    private final Map<String, long[]> state = new ConcurrentHashMap<>(); // key -> [count, winStartMs]
 
-class FixedWindowLimiter(RateLimitStrategy):
-    """N requests per fixed window (simple; bursty at window edges)."""
-    def __init__(self, limit: int, window_sec: float):
-        self.limit = limit
-        self.window = window_sec
-        self._state: dict[str, list] = defaultdict(lambda: [0, 0.0])  # key -> [count, win_start]
-        self._locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
+    FixedWindowLimiter(int limit, double windowSec) {
+        this.limit = limit;
+        this.windowMs = (long) (windowSec * 1000);
+    }
 
-    def allow(self, key: str) -> bool:
-        with self._locks[key]:                     # guard check-then-act per key
-            count, start = self._state[key]
-            now = time.time()
-            if now - start >= self.window:          # new window -> reset
-                self._state[key] = [1, now]
-                return True
-            if count < self.limit:
-                self._state[key][0] += 1
-                return True
-            return False
+    public boolean allow(String key) {
+        ReentrantLock lock = lockFor(key);
+        lock.lock();                                       // guard check-then-act per key
+        try {
+            long now = System.currentTimeMillis();
+            long[] s = state.get(key);
+            if (s == null || now - s[1] >= windowMs) {     // new window -> reset
+                state.put(key, new long[]{1, now});
+                return true;
+            }
+            if (s[0] < limit) {
+                s[0]++;
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 
+// Refills tokens at a steady rate; allows controlled bursts up to capacity.
+class TokenBucketLimiter extends PerKeyLimiter {
+    private final double capacity;
+    private final double refillPerSec;
+    private final Map<String, double[]> state = new ConcurrentHashMap<>(); // key -> [tokens, lastMs]
 
-class TokenBucketLimiter(RateLimitStrategy):
-    """Refills tokens at a steady rate; allows controlled bursts up to capacity."""
-    def __init__(self, capacity: int, refill_per_sec: float):
-        self.capacity = capacity
-        self.refill = refill_per_sec
-        self._state: dict[str, list] = defaultdict(lambda: [0.0, 0.0])  # key -> [tokens, last_ts]
-        self._locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
+    TokenBucketLimiter(int capacity, double refillPerSec) {
+        this.capacity = capacity;
+        this.refillPerSec = refillPerSec;
+    }
 
-    def allow(self, key: str) -> bool:
-        with self._locks[key]:
-            tokens, last = self._state[key]
-            now = time.time()
-            if last == 0.0:
-                tokens, last = self.capacity, now    # first hit -> full bucket
-            # refill based on elapsed time, capped at capacity
-            tokens = min(self.capacity, tokens + (now - last) * self.refill)
-            if tokens >= 1:
-                self._state[key] = [tokens - 1, now]
-                return True
-            self._state[key] = [tokens, now]
-            return False
+    public boolean allow(String key) {
+        ReentrantLock lock = lockFor(key);
+        lock.lock();
+        try {
+            long now = System.currentTimeMillis();
+            double[] s = state.get(key);
+            double tokens, last;
+            if (s == null) {
+                tokens = capacity; last = now;             // first hit -> full bucket
+            } else {
+                tokens = s[0]; last = s[1];
+            }
+            // refill based on elapsed time, capped at capacity
+            tokens = Math.min(capacity, tokens + (now - last) / 1000.0 * refillPerSec);
+            if (tokens >= 1) {
+                state.put(key, new double[]{tokens - 1, now});
+                return true;
+            }
+            state.put(key, new double[]{tokens, now});
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 
+// Exact: keep timestamps in the last window; most accurate, more memory.
+class SlidingWindowLogLimiter extends PerKeyLimiter {
+    private final int limit;
+    private final long windowMs;
+    private final Map<String, Deque<Long>> log = new ConcurrentHashMap<>();
 
-class SlidingWindowLogLimiter(RateLimitStrategy):
-    """Exact: keep timestamps in the last window; most accurate, more memory."""
-    def __init__(self, limit: int, window_sec: float):
-        self.limit = limit
-        self.window = window_sec
-        self._log: dict[str, deque] = defaultdict(deque)
-        self._locks: dict[str, threading.Lock] = defaultdict(threading.Lock)
+    SlidingWindowLogLimiter(int limit, double windowSec) {
+        this.limit = limit;
+        this.windowMs = (long) (windowSec * 1000);
+    }
 
-    def allow(self, key: str) -> bool:
-        with self._locks[key]:
-            now = time.time()
-            log = self._log[key]
-            while log and now - log[0] >= self.window:   # evict old timestamps
-                log.popleft()
-            if len(log) < self.limit:
-                log.append(now)
-                return True
-            return False
+    public boolean allow(String key) {
+        ReentrantLock lock = lockFor(key);
+        lock.lock();
+        try {
+            long now = System.currentTimeMillis();
+            Deque<Long> times = log.computeIfAbsent(key, k -> new ArrayDeque<>());
+            while (!times.isEmpty() && now - times.peekFirst() >= windowMs) {
+                times.pollFirst();                         // evict old timestamps
+            }
+            if (times.size() < limit) {
+                times.addLast(now);
+                return true;
+            }
+            return false;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
 
+class RateLimiter {
+    private final RateLimitStrategy strategy;              // DIP - swap algorithm freely
+    RateLimiter(RateLimitStrategy strategy) { this.strategy = strategy; }
+    boolean isAllowed(String key) { return strategy.allow(key); }
+}
 
-class RateLimiter:
-    def __init__(self, strategy: RateLimitStrategy):
-        self.strategy = strategy                   # DIP - swap algorithm freely
+public class RateLimiterDemo {
+    public static void main(String[] args) throws InterruptedException {
+        // 3 requests per 1 second, per user
+        RateLimiter rl = new RateLimiter(new FixedWindowLimiter(3, 1.0));
+        List<Boolean> results = new ArrayList<>();
+        for (int i = 0; i < 5; i++) results.add(rl.isAllowed("user1"));
+        System.out.println(results);                       // [true, true, true, false, false]
 
-    def is_allowed(self, key: str) -> bool:
-        return self.strategy.allow(key)
-
-
-if __name__ == "__main__":
-    # 3 requests per 1 second, per user
-    rl = RateLimiter(FixedWindowLimiter(limit=3, window_sec=1.0))
-    results = [rl.is_allowed("user1") for _ in range(5)]
-    print(results)                                 # [True, True, True, False, False]
-
-    # concurrent hammering should still respect the limit (no race past the cap)
-    rl2 = RateLimiter(TokenBucketLimiter(capacity=5, refill_per_sec=1.0))
-    allowed = 0
-    lock = threading.Lock()
-    def worker():
-        global allowed
-        if rl2.is_allowed("user2"):
-            with lock: allowed += 1
-    threads = [threading.Thread(target=worker) for _ in range(20)]
-    for t in threads: t.start()
-    for t in threads: t.join()
-    print("allowed under burst:", allowed)         # ~5 (capacity), never more
+        // concurrent hammering should still respect the limit (no race past the cap)
+        RateLimiter rl2 = new RateLimiter(new TokenBucketLimiter(5, 1.0));
+        AtomicInteger allowed = new AtomicInteger(0);
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            Thread t = new Thread(() -> { if (rl2.isAllowed("user2")) allowed.incrementAndGet(); });
+            threads.add(t);
+            t.start();
+        }
+        for (Thread t : threads) t.join();
+        System.out.println("allowed under burst: " + allowed.get()); // ~5 (capacity), never more
+    }
+}
+// Expected output:
+// [true, true, true, false, false]
+// allowed under burst: 5
 ```
 
 **Talking points:** three algorithms behind one `RateLimitStrategy` interface (Strategy +
@@ -493,6 +605,7 @@ Algorithm choice (the heart of this problem):
 | **Leaky Bucket** | Smooths output | O(queue) | None - constant drain rate | Traffic shaping, steady downstream |
 
 Other decisions:
+
 - **Per-key lock vs one global lock.** Per-key lets different users proceed in parallel (the
   point of a rate limiter); a global lock would serialize every request and become the
   bottleneck. Cost is a lock per key and memory you must eventually evict.
