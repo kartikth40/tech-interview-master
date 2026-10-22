@@ -143,19 +143,32 @@ Each of these is expanded with examples in the **[Roadmap](roadmap.md)**.
 
 ## Delivery framework - 7 steps for every round
 
-1. **Ask clarifying questions** (the problem is vague on purpose).
-   - Parking lot: can one vehicle take two spots? how many floors?
-   - BookMyShow: is a seat held before or after payment? how to handle **double booking**?
-   - Splitwise: currencies other than INR? (internationalization)
-2. **Find the nouns**, then **prune** - most nouns are **attributes**, not classes.
-   - Movie booking nouns: user, movie, theater, screen, seat, booking, payment
-   - But *ticket price* lives inside booking, *seat number* inside seat → attributes
-3. **Draw relationships** - who owns whom (association / aggregation / composition).
-4. **Write classes** - fields, methods; interfaces where needed, concrete classes otherwise.
-5. **Apply SOLID & refactor** - start brute-force, then add complexity.
-6. **Add patterns** - only if one genuinely improves readability/modularity. First goal = a
-   finished working demo.
-7. **Handle edge cases** - double booking, payment failure, timeout, connection pooling.
+Run these in order, every time. The first three are design; the last four are code. Spend the
+most time on steps 1-3 - a wrong model is expensive to fix later.
+
+| # | Step | What you do | Output |
+|---|------|-------------|--------|
+| 1 | **Clarify** | Ask before designing - the prompt is vague on purpose | Agreed scope & assumptions |
+| 2 | **Nouns → classes** | List nouns, then prune (most are attributes) | The real entities |
+| 3 | **Relationships** | Decide who owns whom | association / aggregation / composition |
+| 4 | **Write classes** | Fields + methods; interfaces where behavior varies | Skeleton classes |
+| 5 | **SOLID & refactor** | Start simple, then tighten responsibilities | Clean, decoupled classes |
+| 6 | **Patterns** | Add one only if it removes real pain | A working demo first |
+| 7 | **Edge cases** | Handle the failure paths | Robust, demoable code |
+
+**Step 1 - clarifying questions** (the examples interviewers expect you to ask):
+
+- *Parking lot* - can one vehicle take two spots? how many floors?
+- *BookMyShow* - is a seat held before or after payment? how do you prevent **double booking**?
+- *Splitwise* - currencies other than INR? (internationalization)
+
+**Step 2 - nouns, then prune.** For a movie-booking app the nouns are *user, movie, theater,
+screen, seat, booking, payment* - but *ticket price* lives inside `Booking` and *seat number*
+inside `Seat`, so those are **attributes**, not classes.
+
+**Steps 5-6 - the discipline that scores.** Start brute-force and get it working, *then* apply
+SOLID and reach for a pattern only when you can name the pain it removes. A **finished working
+demo beats a half-built "perfect" design** - that's the entry ticket.
 
 For the same flow as a flowchart, see [LLD Mental Models](lld-mental-models.md).
 
