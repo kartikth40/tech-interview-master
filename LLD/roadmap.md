@@ -1,6 +1,6 @@
 ---
 title: LLD Roadmap - Fundamentals in Depth
-description: The 8-step LLD learning path explained in depth - OOP basics, four pillars, object relationships, SOLID, interface vs abstract class, design patterns, UML, and practice - with Python examples, Java equivalents, and trade-off analysis.
+description: The 8-step LLD learning path explained in depth - OOP basics, four pillars, object relationships, SOLID, interface vs abstract class, design patterns, UML, and practice - with simple Java examples and trade-off analysis.
 ---
 
 # LLD Roadmap - Fundamentals in Depth
@@ -9,10 +9,10 @@ The [overview](lld-overview.md) lists an 8-step learning roadmap; this page expl
 depth with examples and trade-offs.
 
 !!! note "Language"
-    Examples are in **Python** (primary) with **Java** equivalents shown wherever the Java idiom
-    matters for LLD rounds (interfaces, abstract classes, access modifiers, `static`/`final`) -
-    Java is where most LLD interviews happen. For Java syntax as a standalone reference, see the
-    [Java Cheat Sheet](java-cheatsheet.md).
+    Examples are in **Java** - that's where most LLD interviews happen, so the idioms that matter
+    (interfaces, abstract classes, access modifiers, `static`/`final`) are shown directly. The Java
+    is deliberately kept simple and interview-minimal. For Java syntax as a standalone reference, see
+    the [Java Cheat Sheet](java-cheatsheet.md).
 
 !!! tip "Canonical code reference"
     This page teaches the *concepts and trade-offs*. For a compact, runnable set of SOLID + GoF
@@ -46,22 +46,7 @@ constructor" - but you use all of this constantly, so it must be automatic.
 
 One class → many objects. `Vehicle` is the class; *your specific car* is an object.
 
-```python
-class Vehicle:
-    def __init__(self, plate: str, wheels: int):
-        self.plate = plate        # instance field (state)
-        self.wheels = wheels
-
-    def describe(self) -> str:    # method (behavior)
-        return f"{self.plate} has {self.wheels} wheels"
-
-car = Vehicle("KA01AB1234", 4)   # object / instance
-bike = Vehicle("KA02CD5678", 2)  # a different object
-print(car.describe())            # KA01AB1234 has 4 wheels
-```
-
 ```java
-// Java
 public class Vehicle {
     private String plate;        // state
     private int wheels;
@@ -76,29 +61,18 @@ public class Vehicle {
     }
 }
 
-Vehicle car = new Vehicle("KA01AB1234", 4);  // 'new' creates the object
+Vehicle car = new Vehicle("KA01AB1234", 4);   // object / instance ('new' creates it)
+Vehicle bike = new Vehicle("KA02CD5678", 2);  // a different object
+System.out.println(car.describe());           // KA01AB1234 has 4 wheels
 ```
 
 ## Constructor
 
 Special method that runs when an object is created; it initializes state.
 
-- **Python:** `__init__`. There's effectively one constructor; you simulate "multiple
-  constructors" with default arguments or `@classmethod` factory methods.
-- **Java:** a method with the class's name and no return type. You can have **multiple
-  constructors** (constructor overloading) with different parameter lists.
-
-```python
-class Booking:
-    def __init__(self, user, seats, discount=0.0):   # default param = "optional constructor"
-        self.user = user
-        self.seats = seats
-        self.discount = discount
-
-    @classmethod
-    def free(cls, user):             # alternate constructor via classmethod
-        return cls(user, seats=[], discount=0.0)
-```
+In **Java** a constructor is a method with the class's name and no return type. You can have
+**multiple constructors** (constructor overloading) with different parameter lists, and one can
+delegate to another with `this(...)`.
 
 ```java
 public class Booking {
@@ -122,24 +96,6 @@ public class Booking {
 - **Instance member** - belongs to each object; each object has its own copy.
 - **Static member** - belongs to the **class itself**, shared by all objects. Used for
   constants, counters, factory methods, and utility functions that don't need object state.
-
-```python
-class ParkingLot:
-    MAX_LEVELS = 10          # class-level constant (shared)
-    _count = 0               # shared counter across all instances
-
-    def __init__(self, name):
-        self.name = name     # instance state
-        ParkingLot._count += 1
-
-    @staticmethod
-    def is_valid_plate(plate: str) -> bool:   # no self - pure utility
-        return len(plate) == 10
-
-    @classmethod
-    def total_created(cls) -> int:            # operates on the class, not an instance
-        return cls._count
-```
 
 ```java
 public class ParkingLot {
@@ -169,23 +125,9 @@ on `static`.
 - `final` method → can't be overridden by a subclass
 - `final` class → can't be extended (e.g. `String`)
 
-Python has no true `final`. Conventions / tools instead:
-
-- `UPPER_CASE` names signal "constant, don't reassign" (not enforced)
-- `typing.Final` is a type-checker hint: `MAX: Final[int] = 10`
-- Immutability via `@dataclass(frozen=True)` or `tuple`/`namedtuple`
-
-```python
-from dataclasses import dataclass
-
-@dataclass(frozen=True)       # instances can't be mutated after creation
-class Point:
-    x: int
-    y: int
-
-p = Point(1, 2)
-# p.x = 5  -> raises FrozenInstanceError
-```
+(For contrast: Python has no true `final` - it relies on `UPPER_CASE` naming conventions and
+type-checker hints rather than compiler enforcement.) In Java, a `final` field plus no setter
+gives you an immutable object:
 
 ```java
 public final class Point {          // final class: cannot be subclassed
@@ -205,25 +147,9 @@ public final class Point {          // final class: cannot be subclassed
 | Relationship | No inheritance needed | Requires inheritance |
 | Python support | **Not native** - last definition wins; simulate with default args / `*args` / `functools.singledispatch` | Fully supported - just redefine the method |
 
-```python
-# OVERRIDING in Python
-class Vehicle:
-    def fare(self) -> int:
-        return 10
-
-class Bike(Vehicle):
-    def fare(self) -> int:      # overrides the parent
-        return 5
-
-# OVERLOADING is not native - this does NOT create two methods:
-class Calc:
-    def add(self, a, b): ...
-    def add(self, a, b, c): ...   # this REPLACES the one above
-# Idiomatic workaround:
-class Calc2:
-    def add(self, *nums):          # variable args
-        return sum(nums)
-```
+Note: Java supports overloading natively (two real methods chosen by argument types at compile
+time); Python does not - a later `def` with the same name just replaces the earlier one, so you
+simulate it with default args or `*args`.
 
 ```java
 // OVERLOADING - two real methods, chosen at compile time by argument types
@@ -252,36 +178,21 @@ interface. The outside world touches your object through methods, not by poking 
 directly. This lets you change internals without breaking callers and enforce invariants
 (validation).
 
-```python
-class BankAccount:
-    def __init__(self, balance: float):
-        self.__balance = balance          # name-mangled -> "private" by convention
-
-    def deposit(self, amount: float):
-        if amount <= 0:
-            raise ValueError("amount must be positive")   # invariant enforced here
-        self.__balance += amount
-
-    @property
-    def balance(self) -> float:           # controlled read access
-        return self.__balance
-```
-
 ```java
 public class BankAccount {
     private double balance;               // truly private - compiler enforced
 
     public void deposit(double amount) {
         if (amount <= 0) throw new IllegalArgumentException("positive only");
-        this.balance += amount;
+        this.balance += amount;           // invariant enforced here
     }
     public double getBalance() { return balance; }   // getter; no setter = read-only
 }
 ```
 
-- **Python** has no hard private: `_x` = "internal, please don't touch", `__x` = name-mangled
-  (harder to reach by accident). Enforcement is by convention + `@property`.
-- **Java** enforces with `private` / `public` / `protected` and getters/setters.
+**Java** enforces encapsulation with `private` / `public` / `protected` plus getters/setters -
+the compiler stops outside code from touching a `private` field directly. (Python has no hard
+private; it relies on `_x`/`__x` naming conventions instead.)
 
 > Interview tie-in: encapsulation is *how* you achieve SRP and loose coupling in practice.
 
@@ -291,31 +202,20 @@ Show the user a simple set of operations and hide the complex implementation. Th
 interacts with the **right methods** only and doesn't need to know the internal mechanism.
 
 Encapsulation vs abstraction (they're related, not the same):
+
 - **Abstraction** = design-level: *what* operations exist (the contract).
 - **Encapsulation** = implementation-level: *hiding* the data/mechanism behind that contract.
 
-```python
-from abc import ABC, abstractmethod
-
-class PaymentGateway(ABC):           # abstraction: defines WHAT, not HOW
-    @abstractmethod
-    def pay(self, amount: float) -> bool: ...
-
-class RazorpayGateway(PaymentGateway):
-    def pay(self, amount: float) -> bool:   # the HOW is hidden from callers
-        # ... talk to Razorpay API ...
-        return True
-
-def checkout(gateway: PaymentGateway, amount: float):
-    gateway.pay(amount)              # caller only knows the abstraction
-```
-
 ```java
-public interface PaymentGateway {    // pure abstraction
+public interface PaymentGateway {    // abstraction: defines WHAT, not HOW
     boolean pay(double amount);
 }
 public class RazorpayGateway implements PaymentGateway {
-    public boolean pay(double amount) { /* hidden impl */ return true; }
+    public boolean pay(double amount) { /* talk to Razorpay API - hidden impl */ return true; }
+}
+
+void checkout(PaymentGateway gateway, double amount) {
+    gateway.pay(amount);             // caller only knows the abstraction
 }
 ```
 
@@ -328,31 +228,20 @@ when the child genuinely **is a** kind of the parent.
 are rigid; "has-a" composition is more flexible. Use inheritance for true is-a, not just to
 reuse code.
 
-```python
-class Vehicle:
-    def __init__(self, plate): self.plate = plate
-    def start(self): return "engine on"
-
-class Car(Vehicle):              # Car IS-A Vehicle
-    def start(self):             # override
-        return "car " + super().start()
-    def open_trunk(self):        # extra behavior
-        return "trunk open"
-```
-
 ```java
 class Vehicle {
     protected String plate;
     String start() { return "engine on"; }
 }
-class Car extends Vehicle {       // 'extends' = inheritance
-    @Override String start() { return "car " + super.start(); }
-    String openTrunk() { return "trunk open"; }
+class Car extends Vehicle {       // 'extends' = inheritance; Car IS-A Vehicle
+    @Override String start() { return "car " + super.start(); }  // override
+    String openTrunk() { return "trunk open"; }                  // extra behavior
 }
 ```
 
-- **Python** supports multiple inheritance (with MRO - method resolution order).
-- **Java** has single class inheritance but a class can implement **multiple interfaces**.
+**Java** has single class inheritance (one `extends`) but a class can implement **multiple
+interfaces**. (Python allows multiple inheritance with an MRO - method resolution order - which
+Java deliberately avoids.)
 
 ### Trade-off: composition vs inheritance
 
@@ -378,11 +267,15 @@ Same call, different behavior depending on the actual object type. This is what 
 **extensible**: callers depend on the abstract type, new subtypes slot in without changing
 the caller.
 
-```python
-def total_fare(vehicles: list[Vehicle]) -> int:
-    return sum(v.fare() for v in vehicles)   # each v.fare() runs ITS own version
+```java
+int totalFare(List<Vehicle> vehicles) {
+    int total = 0;
+    for (Vehicle v : vehicles) total += v.fare();  // each v.fare() runs ITS own version
+    return total;
+}
 
-total_fare([Car(...), Bike(...)])   # works for any current or FUTURE Vehicle subtype
+// works for any current or FUTURE Vehicle subtype
+totalFare(List.of(new Car(), new Bike()));
 ```
 
 - **Runtime (dynamic) polymorphism** = overriding (shown above).
@@ -409,16 +302,18 @@ The practical difference is **who creates and owns the part**.
 
 Objects reference each other but neither owns the other's lifecycle.
 
-```python
-class Driver:
-    def __init__(self, name): self.name = name
+```java
+class Driver {
+    String name;
+    Driver(String name) { this.name = name; }
+}
+class Trip {
+    private Driver driver;
+    Trip(Driver driver) { this.driver = driver; }  // uses a Driver that exists independently
+}
 
-class Trip:
-    def __init__(self, driver: Driver):   # Trip uses a Driver that exists independently
-        self.driver = driver
-
-d = Driver("Asha")
-t = Trip(d)     # the driver existed before the trip and outlives it
+Driver d = new Driver("Asha");
+Trip t = new Trip(d);   // the driver existed before the trip and outlives it
 ```
 
 Direction: can be **uni-directional** (Trip knows Driver) or **bi-directional** (both know
@@ -429,20 +324,21 @@ each other). Keep it uni-directional unless you truly need both ways.
 The whole holds parts, but parts are **passed in** from outside and can outlive the whole /
 be shared by multiple wholes.
 
-```python
-class User:
-    def __init__(self, name): self.name = name
+```java
+class User {
+    String name;
+    User(String name) { this.name = name; }
+}
+class Group {                                 // Splitwise group
+    private String name;
+    private List<User> members = new ArrayList<>();
+    Group(String name) { this.name = name; }
+    void add(User user) { members.add(user); }  // user created ELSEWHERE, just referenced
+}
 
-class Group:                              # Splitwise group
-    def __init__(self, name):
-        self.name = name
-        self.members: list[User] = []
-    def add(self, user: User):            # user created ELSEWHERE, just referenced
-        self.members.append(user)
-
-u = User("Ravi")
-g = Group("Goa Trip")
-g.add(u)        # delete g -> u still exists (and may be in other groups)
+User u = new User("Ravi");
+Group g = new Group("Goa Trip");
+g.add(u);       // drop g -> u still exists (and may be in other groups)
 ```
 
 Tell-tale sign: the part is **injected** (constructor/setter) rather than created inside.
@@ -451,16 +347,19 @@ Tell-tale sign: the part is **injected** (constructor/setter) rather than create
 
 The whole **creates** its parts and they die with it. The part has no meaning alone.
 
-```python
-class Seat:
-    def __init__(self, label): self.label = label
+```java
+class Seat {
+    String label;
+    Seat(String label) { this.label = label; }
+}
+class Screen {
+    private List<Seat> seats = new ArrayList<>();
+    Screen(int nSeats) {
+        for (int i = 0; i < nSeats; i++) seats.add(new Seat("S" + i));  // Screen CREATES its seats -> owns them
+    }
+}
 
-class Screen:
-    def __init__(self, n_seats: int):
-        # Screen CREATES its own seats -> it owns them
-        self.seats = [Seat(f"S{i}") for i in range(n_seats)]
-
-scr = Screen(100)   # destroy scr -> its seats are meaningless/gone too
+Screen scr = new Screen(100);   // drop scr -> its seats are meaningless/gone too
 ```
 
 Tell-tale sign: the part is **created inside** the whole and not shared.
@@ -495,19 +394,22 @@ Tell-tale sign: the part is **created inside** the whole and not shared.
 
 A class should have **one reason to change** / one job.
 
-```python
-# BAD - three reasons to change (storage, email format, invoice format) in one class
-class User:
-    def save(self): ...          # DB concern
-    def send_email(self): ...    # notification concern
-    def to_invoice(self): ...    # reporting concern
+```java
+// BAD - three reasons to change (storage, email format, invoice format) in one class
+class User {
+    void save() {}        // DB concern
+    void sendEmail() {}   // notification concern
+    void toInvoice() {}   // reporting concern
+}
 
-# GOOD - split responsibilities
-class User: ...                  # just the data/behavior of a user
-class UserRepository:            # persistence only
-    def save(self, u: User): ...
-class EmailService:              # notification only
-    def send(self, u: User): ...
+// GOOD - split responsibilities
+class User {}                              // just the data/behavior of a user
+class UserRepository {                      // persistence only
+    void save(User u) {}
+}
+class EmailService {                        // notification only
+    void send(User u) {}
+}
 ```
 
 Smell: a class named `...Manager`/`...Helper` doing five unrelated things.
@@ -517,22 +419,27 @@ Smell: a class named `...Manager`/`...Helper` doing five unrelated things.
 Open for **extension**, closed for **modification**. Add behavior by adding new code, not by
 editing tested code (usually via polymorphism).
 
-```python
-# BAD - every new shape edits this function
-def area(shape):
-    if shape.kind == "circle": ...
-    elif shape.kind == "square": ...     # must edit to add triangle
+```java
+// BAD - every new shape edits this method
+double area(Shape shape) {
+    if (shape.kind.equals("circle")) { /* ... */ }
+    else if (shape.kind.equals("square")) { /* ... */ }  // must edit to add triangle
+    return 0;
+}
 
-# GOOD - add a subclass, don't touch existing code
-from abc import ABC, abstractmethod
-class Shape(ABC):
-    @abstractmethod
-    def area(self) -> float: ...
-class Circle(Shape):
-    def area(self): return 3.14 * self.r * self.r
-class Square(Shape):
-    def area(self): return self.s * self.s
-# new shape = new class; area() callers never change
+// GOOD - add a subclass, don't touch existing code
+interface Shape {
+    double area();
+}
+class Circle implements Shape {
+    double r;
+    public double area() { return 3.14 * r * r; }
+}
+class Square implements Shape {
+    double s;
+    public double area() { return s * s; }
+}
+// new shape = new class; area() callers never change
 ```
 
 ## L - Liskov Substitution Principle (LSP)
@@ -540,52 +447,70 @@ class Square(Shape):
 A subclass must be usable **anywhere its parent is**, with no surprises. If substituting the
 child breaks the caller's expectations, the hierarchy is wrong.
 
-```python
-# CLASSIC VIOLATION: Square "is-a" Rectangle breaks setWidth/setHeight expectations
-class Rectangle:
-    def set_width(self, w): self.w = w
-    def set_height(self, h): self.h = h
-    def area(self): return self.w * self.h
+```java
+// BAD - every Bird can fly(), but a Penguin can't
+class Bird {
+    void fly() { System.out.println("flying"); }
+}
+class Penguin extends Bird {
+    @Override void fly() { throw new UnsupportedOperationException("penguins can't fly"); }
+}
 
-class Square(Rectangle):        # forcing w==h violates what callers expect of a Rectangle
-    def set_width(self, w): self.w = self.h = w   # surprising side effect!
-# a function that sets width=5, height=4 and expects area 20 now gets 16 -> LSP broken
+// a caller written against Bird breaks the moment a Penguin is in the list
+void makeAllFly(List<Bird> birds) {
+    for (Bird b : birds) b.fly();   // blows up on the Penguin at runtime
+}
 ```
 
-Fix: don't force a false is-a. Model `Square` and `Rectangle` separately (or via a common
-`Shape` abstraction). Rule of thumb: a subclass should **not strengthen preconditions or
-weaken postconditions**.
+Why it breaks: `makeAllFly` was written to trust the `Bird` contract - "any Bird can fly". A
+`Penguin` is-a `Bird` by inheritance but can't honor that contract, so substituting it throws.
+The subtype strengthened a precondition the parent never had.
+
+```java
+// GOOD - don't force flight onto every bird; make flying a separate capability
+class Bird {
+    void eat() { System.out.println("eating"); }
+}
+interface CanFly {
+    void fly();
+}
+class Sparrow extends Bird implements CanFly {
+    public void fly() { System.out.println("flying"); }
+}
+class Penguin extends Bird {   // just a Bird - never asked to fly
+}
+
+// the caller now only accepts things that really can fly
+void makeAllFly(List<CanFly> fliers) {
+    for (CanFly f : fliers) f.fly();   // a Penguin can't even be passed in
+}
+```
+
+Rule of thumb: a subclass should **not strengthen preconditions or weaken postconditions**. If
+a subtype can't honor the parent's contract, don't force the is-a - model the capability
+separately.
 
 ## I - Interface Segregation Principle (ISP)
 
 No **fat interfaces**. Prefer several small, focused interfaces over one big one so clients
 only depend on what they use.
 
-```python
-# BAD - a printer that isn't a scanner is forced to implement scan()/fax()
-class Machine(ABC):
-    @abstractmethod
-    def print(self): ...
-    @abstractmethod
-    def scan(self): ...      # a simple printer can't honor this
-    @abstractmethod
-    def fax(self): ...
-
-# GOOD - split capabilities
-class Printer(ABC):
-    @abstractmethod
-    def print(self): ...
-class Scanner(ABC):
-    @abstractmethod
-    def scan(self): ...
-class AllInOne(Printer, Scanner): ...   # compose only what applies
-```
-
 ```java
+// BAD - a fat interface: a printer that isn't a scanner is forced to implement scan()/fax()
+interface Machine {
+    void print();
+    void scan();   // a simple printer can't honor this
+    void fax();
+}
+
+// GOOD - split capabilities into small focused interfaces
 interface Printer { void print(); }
 interface Scanner { void scan(); }
 class SimplePrinter implements Printer { public void print() {} }       // not forced to scan
-class AllInOne implements Printer, Scanner { /* ... */ }
+class AllInOne implements Printer, Scanner {                            // compose only what applies
+    public void print() {}
+    public void scan() {}
+}
 ```
 
 ## D - Dependency Inversion Principle (DIP)
@@ -593,26 +518,40 @@ class AllInOne implements Printer, Scanner { /* ... */ }
 High-level modules shouldn't depend on low-level ones - **both depend on an abstraction**.
 Depend on interfaces, inject the concrete implementation.
 
-```python
-# BAD - OrderService is welded to MySQL
-class OrderService:
-    def __init__(self):
-        self.db = MySQLDatabase()      # hard dependency; can't swap, can't test
+```java
+// BAD - OrderService is welded to MySQL
+class OrderService {
+    private MySQLDatabase db = new MySQLDatabase();  // hard dependency; can't swap, can't test
+}
 
-# GOOD - depend on an abstraction, inject the concrete type
-class Database(ABC):
-    @abstractmethod
-    def save(self, data): ...
-class MySQLDatabase(Database):
-    def save(self, data): ...
-class OrderService:
-    def __init__(self, db: Database):  # dependency injection
-        self.db = db
-OrderService(MySQLDatabase())          # swap to MongoDatabase() / FakeDatabase() freely
+// GOOD - depend on an abstraction, inject the concrete type via the constructor
+interface Database {
+    void save(String data);
+}
+class MySQLDatabase implements Database {
+    public void save(String data) { /* ... */ }
+}
+class OrderService {
+    private final Database db;
+    OrderService(Database db) {   // constructor injection
+        this.db = db;
+    }
+}
+
+new OrderService(new MySQLDatabase());   // swap to new MongoDatabase() / new FakeDatabase() freely
 ```
 
 > DIP is what makes code **testable** (inject a fake) and **swappable** (change DB without
-> touching business logic). Spring's `@Autowired` / constructor injection is DIP in practice.
+> touching business logic).
+
+In Spring you usually don't call `new OrderService(...)` yourself. You annotate the constructor
+with `@Autowired` (optional on a single constructor in modern Spring), and the Spring container
+creates the concrete `Database` bean and passes it into the constructor for you - so
+`OrderService` never calls `new` on its own dependency. That is exactly DIP in practice: the
+class depends on the `Database` abstraction, and the container supplies the implementation.
+**Constructor** injection is preferred over field injection because it makes the dependency
+required and visible, lets the field be `final` (immutable), and keeps the class easy to build
+in a unit test without any Spring container.
 
 ## Trade-off: SOLID is a guideline, not a law
 
@@ -657,37 +596,44 @@ A spot people get confused - and interviewers probe it directly.
 - Parking lot example: `Vehicle` (shared fields: engine, wheels) → **abstract class**;
   `SpotAllocationStrategy` (pure pluggable behavior) → **interface**.
 
-```python
-# Python: abc gives you both. An ABC with only abstractmethods ~ interface.
-from abc import ABC, abstractmethod
-
-class SpotAllocationStrategy(ABC):        # "interface" - pure contract
-    @abstractmethod
-    def allocate(self, spots): ...
-
-class Vehicle(ABC):                        # "abstract class" - shared state + partial behavior
-    def __init__(self, plate: str):
-        self.plate = plate                 # common state
-    def honk(self) -> str:                 # concrete shared behavior
-        return "beep"
-    @abstractmethod
-    def spot_size(self) -> str: ...        # each subtype must define
-```
+An **interface** is a pure contract; a class can `implement` many of them. An **abstract class**
+holds shared state + partial behavior; a class can `extend` only **one**. A single class can do
+both at once.
 
 ```java
-// Java makes the distinction explicit
-interface SpotAllocationStrategy {         // contract only
-    Spot allocate(List<Spot> spots);
-    default boolean isAvailable(Spot s) { return s.isFree(); }  // Java 8+ default method
+// (a) a class implementing MULTIPLE interfaces
+interface Drivable { void drive(); }
+interface Chargeable { void charge(); }
+class ElectricCar implements Drivable, Chargeable {   // implements two capabilities
+    public void drive()  { System.out.println("driving"); }
+    public void charge() { System.out.println("charging"); }
 }
 
-abstract class Vehicle {                   // shared state + partial behavior
-    protected String plate;
+// (b) 'extends' on a SINGLE abstract class (shared state + partial behavior)
+abstract class Vehicle {
+    protected String plate;                 // common state
     Vehicle(String plate) { this.plate = plate; }
-    String honk() { return "beep"; }       // concrete
-    abstract String spotSize();            // subclass must implement
+    String honk() { return "beep"; }        // concrete shared behavior
+    abstract String spotSize();             // each subtype must define
+}
+class Bike extends Vehicle {
+    Bike(String plate) { super(plate); }
+    String spotSize() { return "small"; }
+}
+
+// (c) ONE class doing BOTH: extend one abstract class, implement an interface
+interface PaymentGateway { boolean pay(double amount); }
+class Car extends Vehicle implements PaymentGateway {
+    Car(String plate) { super(plate); }
+    String spotSize() { return "medium"; }                       // from Vehicle
+    public boolean pay(double amount) { return true; }           // from PaymentGateway
 }
 ```
+
+**Use an interface when** unrelated types share a capability - e.g. both a `Car` and an
+`OnlineOrder` can be `Payable`. **Use an abstract class when** closely related types share state
+and partial behavior - e.g. `Car`/`Bike`/`Truck` all extend `Vehicle` and reuse its `plate`
+field and `honk()`.
 
 ### Trade-off: which one, and the hidden costs
 
@@ -717,16 +663,6 @@ lines of code - a helper/util or composition is lighter.
 ### Singleton - exactly one instance
 Use for: config, logging, connection pool, a single in-memory store.
 
-```python
-class ConfigStore:
-    _instance = None
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-# Pythonic alternative: just use a module - modules are singletons.
-```
-
 ```java
 public class ConfigStore {
     private static ConfigStore instance;
@@ -748,11 +684,17 @@ itself (e.g. a hardware/driver handle).
 ### Factory - delegate object creation
 Use for: creating one of several subtypes based on input, hiding `new` from callers.
 
-```python
-class VehicleFactory:
-    @staticmethod
-    def create(kind: str) -> Vehicle:
-        return {"car": Car, "bike": Bike, "truck": Truck}[kind]()
+```java
+class VehicleFactory {
+    static Vehicle create(String kind) {
+        switch (kind) {
+            case "car":   return new Car();
+            case "bike":  return new Bike();
+            case "truck": return new Truck();
+            default: throw new IllegalArgumentException("unknown kind: " + kind);
+        }
+    }
+}
 ```
 Caller asks for `"car"`; it doesn't know/commit to the concrete class → supports OCP + DIP.
 
@@ -765,24 +707,27 @@ creation actually varies.
 ### Builder - construct complex objects step by step
 Use for: objects with many optional fields (avoids telescoping constructors).
 
-```python
-from dataclasses import dataclass, field
+```java
+class Booking {
+    String user;
+    List<String> seats = new ArrayList<>();
+    double discount = 0.0;
+    List<String> snacks = new ArrayList<>();
+}
 
-@dataclass
-class Booking:
-    user: str
-    seats: list = field(default_factory=list)
-    discount: float = 0.0
-    snacks: list = field(default_factory=list)
+class BookingBuilder {
+    private Booking b = new Booking();
+    BookingBuilder(String user)                { b.user = user; }
+    BookingBuilder seats(List<String> s)       { b.seats = s;    return this; }  // fluent chaining
+    BookingBuilder discount(double d)          { b.discount = d; return this; }
+    BookingBuilder snacks(List<String> s)      { b.snacks = s;   return this; }
+    Booking build()                            { return b; }
+}
 
-class BookingBuilder:
-    def __init__(self, user): self._b = Booking(user)
-    def seats(self, s):    self._b.seats = s;      return self   # fluent chaining
-    def discount(self, d): self._b.discount = d;   return self
-    def snacks(self, s):   self._b.snacks = s;      return self
-    def build(self):       return self._b
-
-booking = BookingBuilder("ravi").seats(["A1","A2"]).discount(0.1).build()
+Booking booking = new BookingBuilder("ravi")
+        .seats(List.of("A1", "A2"))
+        .discount(0.1)
+        .build();
 ```
 **Trade-offs:** upside - readable step-by-step construction, no telescoping constructors, can
 validate in `build()`, supports immutable results. Downside - a whole extra class and more
@@ -797,18 +742,22 @@ sharp signal.
 ### Adapter - make two incompatible interfaces fit
 Use for: integrating a third-party/legacy class whose interface differs from what you expect.
 
-```python
-class PhonePeApi:                       # third-party, "wrong" shape
-    def make_payment(self, paise: int): ...
+```java
+class PhonePeApi {                         // third-party, "wrong" shape
+    void makePayment(int paise) { /* ... */ }
+}
 
-class PaymentGateway(ABC):              # what our system expects
-    @abstractmethod
-    def pay(self, rupees: float): ...
+interface PaymentGateway {                 // what our system expects
+    void pay(double rupees);
+}
 
-class PhonePeAdapter(PaymentGateway):   # adapter translates one to the other
-    def __init__(self, api: PhonePeApi): self.api = api
-    def pay(self, rupees: float):
-        self.api.make_payment(int(rupees * 100))   # rupees -> paise
+class PhonePeAdapter implements PaymentGateway {   // adapter translates one to the other
+    private PhonePeApi api;
+    PhonePeAdapter(PhonePeApi api) { this.api = api; }
+    public void pay(double rupees) {
+        api.makePayment((int) (rupees * 100));     // rupees -> paise
+    }
+}
 ```
 
 **Trade-offs:** upside - integrate third-party/legacy code without touching it or your core,
@@ -820,26 +769,30 @@ sides*, don't adapt - just align the interfaces directly.
 ### Decorator - add behavior at runtime without subclassing
 Use for: stackable add-ons (toppings, discounts, middleware).
 
-```python
-class Coffee(ABC):
-    @abstractmethod
-    def cost(self) -> float: ...
-    @abstractmethod
-    def desc(self) -> str: ...
+```java
+interface Coffee {
+    double cost();
+    String desc();
+}
 
-class Plain(Coffee):
-    def cost(self): return 100
-    def desc(self): return "coffee"
+class Plain implements Coffee {
+    public double cost() { return 100; }
+    public String desc() { return "coffee"; }
+}
 
-class AddOn(Coffee):                     # wraps another Coffee
-    def __init__(self, inner: Coffee): self.inner = inner
+abstract class AddOn implements Coffee {   // wraps another Coffee
+    protected Coffee inner;
+    AddOn(Coffee inner) { this.inner = inner; }
+}
 
-class Caramel(AddOn):
-    def cost(self): return self.inner.cost() + 20
-    def desc(self): return self.inner.desc() + " + caramel"
+class Caramel extends AddOn {
+    Caramel(Coffee inner) { super(inner); }
+    public double cost() { return inner.cost() + 20; }
+    public String desc() { return inner.desc() + " + caramel"; }
+}
 
-drink = Caramel(Plain())                 # stack as many as you like
-print(drink.desc(), drink.cost())        # coffee + caramel 120
+Coffee drink = new Caramel(new Plain());        // stack as many as you like
+System.out.println(drink.desc() + " " + drink.cost());   // coffee + caramel 120.0
 ```
 
 **Trade-offs:** upside - add/combine behaviors at runtime without a subclass explosion
@@ -854,21 +807,27 @@ or subclass is simpler.
 Use for: multiple interchangeable ways to do one thing (parking spot allocation, pricing,
 sorting). This is the parking-lot example from the overview.
 
-```python
-class SpotAllocationStrategy(ABC):
-    @abstractmethod
-    def pick(self, spots): ...
+```java
+interface SpotAllocationStrategy {
+    Spot pick(List<Spot> spots);
+}
 
-class NearestToEntry(SpotAllocationStrategy):
-    def pick(self, spots): return min(spots, key=lambda s: s.dist_to_entry)
-class NearestToElevator(SpotAllocationStrategy):
-    def pick(self, spots): return min(spots, key=lambda s: s.dist_to_elevator)
+class NearestToEntry implements SpotAllocationStrategy {
+    public Spot pick(List<Spot> spots) { /* smallest dist to entry */ return spots.get(0); }
+}
+class NearestToElevator implements SpotAllocationStrategy {
+    public Spot pick(List<Spot> spots) { /* smallest dist to elevator */ return spots.get(0); }
+}
 
-class ParkingLot:
-    def __init__(self, strategy: SpotAllocationStrategy):
-        self.strategy = strategy         # inject; change without touching ParkingLot
-    def park(self, spots):
-        return self.strategy.pick(spots)
+class ParkingLot {
+    private SpotAllocationStrategy strategy;
+    ParkingLot(SpotAllocationStrategy strategy) {
+        this.strategy = strategy;        // inject; change without touching ParkingLot
+    }
+    Spot park(List<Spot> spots) {
+        return strategy.pick(spots);
+    }
+}
 ```
 
 **Trade-offs:** upside - swap algorithms at runtime, add new ones without touching the context
@@ -882,16 +841,18 @@ boilerplate cost significantly.)
 Use for: one object's change notifying many (notifications, event systems, "seat booked →
 update all screens").
 
-```python
-class Observer(ABC):
-    @abstractmethod
-    def update(self, event): ...
+```java
+interface Observer {
+    void update(String event);
+}
 
-class Subject:
-    def __init__(self): self._observers: list[Observer] = []
-    def subscribe(self, o: Observer): self._observers.append(o)
-    def notify(self, event):
-        for o in self._observers: o.update(event)
+class Subject {
+    private List<Observer> observers = new ArrayList<>();
+    void subscribe(Observer o) { observers.add(o); }
+    void notifyAll(String event) {
+        for (Observer o : observers) o.update(event);
+    }
+}
 ```
 
 **Trade-offs:** upside - decouples the subject from its listeners (subject doesn't know who's
@@ -902,9 +863,40 @@ another. Fine for a handful of listeners; for high-volume cross-service events a
 message queue beats hand-rolled Observer.
 
 ### State - behavior changes with internal state
+Let an object change its behavior when its internal state changes, as if it switched class.
 Use for: objects that act differently per state (booking: CREATED → HELD → PAID → CANCELLED;
 vending machine; traffic light). Each state is a class that knows the valid transitions -
 avoids giant `if/elif` state checks.
+
+```java
+interface BookingState {
+    BookingState hold();   // returns the next state (or throws if illegal)
+    BookingState pay();
+}
+
+class Created implements BookingState {
+    public BookingState hold() { System.out.println("seat held"); return new Held(); }
+    public BookingState pay()  { throw new IllegalStateException("hold the seat first"); }
+}
+class Held implements BookingState {
+    public BookingState hold() { throw new IllegalStateException("already held"); }
+    public BookingState pay()  { System.out.println("payment done"); return new Paid(); }
+}
+class Paid implements BookingState {
+    public BookingState hold() { throw new IllegalStateException("already paid"); }
+    public BookingState pay()  { throw new IllegalStateException("already paid"); }
+}
+
+class Booking {
+    private BookingState state = new Created();   // start state
+    void hold() { state = state.hold(); }
+    void pay()  { state = state.pay(); }
+}
+
+Booking b = new Booking();
+b.hold();   // seat held  (Created -> Held)
+b.pay();    // payment done (Held -> Paid)
+```
 
 **Trade-offs:** upside - each state is one SRP-clean class, illegal transitions become
 impossible by construction, and adding a state doesn't touch the others (OCP). Downside - a
@@ -938,6 +930,7 @@ classDiagram
 ```
 
 Relationship arrows (memorize these - you'll draw them live):
+
 - `──▷`  **inheritance / implements** (hollow triangle, points to parent/interface)
 - `◆──`  **composition** (filled diamond on the owner; part dies with whole)
 - `◇──`  **aggregation** (hollow diamond on the owner; part survives)
@@ -976,6 +969,7 @@ For the modeling process as flowcharts and a "which pattern?" decision tree, see
 Patterns click only through reps - same as recognizing a sliding-window problem in DSA.
 
 **Progression (easy → hard):**
+
 1. Library management system
 2. BookMyShow / District (movie booking) - the worked example in the overview
 3. Parking lot
@@ -985,6 +979,7 @@ Patterns click only through reps - same as recognizing a sliding-window problem 
    companies like Uber / Walmart / Flipkart push on multi-threading here
 
 **How to practice each one:**
+
 1. Spend 5 min only on **clarifying questions** (follow the 7-step framework in the overview)
 2. Pull **nouns → prune to real classes** (drop attributes)
 3. Classify each relationship: association / aggregation / composition
@@ -996,6 +991,7 @@ Patterns click only through reps - same as recognizing a sliding-window problem 
 7. Do it on **paper** for 5 random apps on your phone, then code the working demo
 
 **Interview-day reminders:**
+
 - Think out loud constantly (silence = red flag)
 - One class, one responsibility - finish it before starting the next
 - Always land a **working demo** - it's the entry ticket
